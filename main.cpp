@@ -4,12 +4,20 @@
 #include <sstream>
 #include <vector>
 
+float g = 9.8; // Acceleration due to gravity
+
 float fov = 45.0f; // Field of View
 float aspectRatio;
 float nearPlane = 10.0f;
 float farPlane = 110.0f;
 float boundingBoxWidth;
 float boundingBoxHeight;
+float boundingBoxLeft;
+float boundingBoxRight;
+float boundingBoxBottom;
+float boundingBoxTop;
+float boundingBoxBack;
+float boundingBoxFront;
 
 GLuint programID;
 
@@ -28,6 +36,8 @@ struct Object
     vec3 color;
     float radius;
     Position position;
+    bool doesCollide;
+    bool doesMove;
 };
 
 Object createObject()
@@ -194,30 +204,106 @@ void updateObjects(float deltaTime)
 {
     for (Object &obj : objects)
     {
-        // Update the object's position based on its speed and the elapsed time
-        // Assuming the speed is in units per second
+
+        if (!obj.doesMove)
+        {
+            continue;
+        }
+
+        if (obj.mass > 0)
+        {
+            obj.speed_y -= g * deltaTime;
+        }
+
         obj.position.x += obj.speed_x * deltaTime;
         obj.position.y += obj.speed_y * deltaTime;
         obj.position.z += obj.speed_z * deltaTime;
 
+        if (obj.doesCollide)
+        {
 
-        // Check if the object has collided with the bounding box
-        if (obj.position.x + obj.radius > boundingBoxWidth || obj.position.x - obj.radius < -1 * boundingBoxWidth)
-        {
-            obj.speed_x *= -1.0f;
-        }
-        if (obj.position.y + obj.radius > boundingBoxHeight || obj.position.y - obj.radius < -1 * boundingBoxHeight)
-        {
-            obj.speed_y *= -1.0f;
-        }
-        if (obj.position.z - obj.radius < -1*boundingBoxWidth+(-1*nearPlane) || obj.position.z + obj.radius > -1*nearPlane)
-        {
-            obj.speed_z *= -1.0f;
+            float directionedRadiusX = obj.radius * (obj.speed_x > 0 ? 1 : -1);
+            float directionedRadiusY = obj.radius * (obj.speed_y > 0 ? 1 : -1);
+            float directionedRadiusZ = obj.radius * (obj.speed_z > 0 ? 1 : -1);
+
+            if (obj.position.x + directionedRadiusX > boundingBoxRight && obj.speed_x > 0)
+            {
+                obj.position.x = boundingBoxRight - directionedRadiusX;
+                obj.speed_x *= -obj.inelasticity_factor;
+            }
+            else if (obj.position.x + directionedRadiusX < boundingBoxLeft && obj.speed_x < 0)
+            {
+                obj.position.x = boundingBoxLeft - directionedRadiusX;
+                obj.speed_x *= -obj.inelasticity_factor;
+            }
+
+            if (obj.position.y + directionedRadiusY > boundingBoxTop && obj.speed_y > 0)
+            {
+                obj.position.y = boundingBoxTop - directionedRadiusY;
+                obj.speed_y *= -obj.inelasticity_factor;
+            }
+            else if (obj.position.y + directionedRadiusY < boundingBoxBottom && obj.speed_y < 0)
+            {
+                obj.position.y = boundingBoxBottom - directionedRadiusY;
+                obj.speed_y *= -obj.inelasticity_factor;
+            }
+
+            if (obj.position.z + directionedRadiusZ > boundingBoxFront && obj.speed_z > 0)
+            {
+                obj.position.z = boundingBoxFront - directionedRadiusZ;
+                obj.speed_z *= -obj.inelasticity_factor;
+            }
+            else if (obj.position.z + directionedRadiusZ < boundingBoxBack && obj.speed_z < 0)
+            {
+                obj.position.z = boundingBoxBack - directionedRadiusZ;
+                obj.speed_z *= -obj.inelasticity_factor;
+            }
+
+            // Handle the collision with other objects
+
+            
+
+            // Remove infinetisimal speed
+            if (abs(obj.speed_x) < pow(10, -9))
+            {
+                obj.speed_x = 0;
+            }
+            if (abs(obj.speed_z) < pow(10, -9))
+            {
+                obj.speed_z = 0;
+            }
+
+
+
         }
 
-        // print the position of the object
-        std::cout << "Position: " << obj.position.x << ", " << obj.position.y << ", " << obj.position.z << std::endl;
     }
+}
+
+void drawRectangle(vec3 point1, vec3 point2, vec3 color)
+{
+    GLfloat vertices[] = {
+        point1.x, point1.y, point1.z, // bottom-left corner
+        point2.x, point1.y, point1.z, // bottom-right corner
+        point2.x, point2.y, point2.z, // top-right corner
+        point1.x, point2.y, point2.z  // top-left corner
+    };
+
+    // Set the uniform objectColor
+    GLint objectColorLoc = glGetUniformLocation(programID, "objectColor");
+    glUniform3f(objectColorLoc, color.x, color.y, color.z);
+
+    // Set the uniform translation
+    GLint translationLoc = glGetUniformLocation(programID, "translation");
+    glUniform3f(translationLoc, 0.0f, 0.0f, 0.0f);
+
+    // Draw the rectangle
+    glBegin(GL_QUADS);
+    for (int i = 0; i < 4; ++i)
+    {
+        glVertex3f(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
+    }
+    glEnd();
 }
 
 void drawCube(Position position, float radius, vec3 color)
@@ -232,6 +318,14 @@ void drawCube(Position position, float radius, vec3 color)
         0.5f, -0.5f, 0.5f,
         0.5f, 0.5f, 0.5f,
         -0.5f, 0.5f, 0.5f};
+
+    // Scale vertices
+    for (int i = 0; i < 24; i += 3)
+    {
+        vertices[i] *= radius*2;
+        vertices[i + 1] *= radius*2;
+        vertices[i + 2] *= radius*2;
+    }
 
     // Cube indices
     GLuint indices[] = {
@@ -313,7 +407,7 @@ void drawObjects()
     }
 }
 
-Object createCube(float x, float y, float z, float speed_x, float speed_y, float speed_z, float mass, float inelasticity_factor, vec3 color, float radius)
+Object createCube(float x, float y, float z, float speed_x, float speed_y, float speed_z, float mass, float inelasticity_factor, vec3 color, float radius, bool doesCollide = true, bool doesMove = true)
 {
     Object cube;
     cube.speed_x = speed_x;
@@ -325,6 +419,8 @@ Object createCube(float x, float y, float z, float speed_x, float speed_y, float
     cube.color = color;
     cube.radius = radius;
     cube.position = {x, y, z};
+    cube.doesCollide = doesCollide;
+    cube.doesMove = doesMove;
     objects.push_back(cube);
     return cube;
 }
@@ -332,13 +428,20 @@ Object createCube(float x, float y, float z, float speed_x, float speed_y, float
 void createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight)
 {
 
-
     // Define projection matrix parameters
     aspectRatio = (float)windowWidth / (float)windowHeight;
 
-
     boundingBoxWidth = nearPlane * tan(fov * 0.5f * (M_PI / 180.0f)) * 2.0f;
     boundingBoxHeight = boundingBoxWidth / aspectRatio;
+
+    boundingBoxLeft = -boundingBoxWidth / 2;
+    boundingBoxRight = boundingBoxWidth / 2;
+    boundingBoxBottom = -boundingBoxHeight / 2;
+    boundingBoxTop = boundingBoxHeight / 2;
+    boundingBoxBack = -nearPlane-boundingBoxWidth;
+    boundingBoxFront = -nearPlane;
+
+    nearPlane = 9.9f;
 
     // Print aspect ratio
     std::cout << "Aspect ratio: " << aspectRatio << std::endl;
@@ -399,27 +502,61 @@ int main()
 
     glUseProgram(programID);
 
+    // Enable depth testing
+    glEnable(GL_DEPTH_TEST);
+
     // Register the callback
     glfwSetKeyCallback(window, key_callback);
 
     // Register the callback
     glfwSetMouseButtonCallback(window, mouse_button_callback);
 
-
     // Set the perspective projection matrix
     createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight);
 
-    // Initialize the walls
-    // Front Wall
-    //createCube(0.0f, 0.0f, -nearPlane-boundingBoxWidth*3/2, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, vec3(1.0f, 1.0f, 1.0f), boundingBoxWidth);
-    // Right Wall
-    //createCube(boundingBoxWidth*2/2, 0.0f, -nearPlane-boundingBoxWidth*1/2, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, vec3(1.0f, 1.0f, 1.0f), boundingBoxWidth);
-
-
     // Initialize the objects
-    createCube(0.0f, 0.0f, -20.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, vec3(1.0f, 0.0f, 0.0f), 1.0f);
-    createCube(0.0f, 0.0f, -20.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, vec3(0.0f, 1.0f, 0.0f), 2.0f);
-    createCube(0.0f, 0.0f, -20.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f, vec3(0.0f, 0.0f, 1.0f), 3.0f);
+
+    // Right Top Back Corner Cube
+    createCube(boundingBoxWidth / 2 - 0.5, boundingBoxHeight / 2 - 0.5, -nearPlane - boundingBoxWidth + 0.5, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, vec3(1.0f, 0.0f, 0.0f), 0.5f, true, false);
+
+    // Left Top Back Corner Cube
+    createCube(-boundingBoxWidth / 2 + 0.5, boundingBoxHeight / 2 - 0.5, -nearPlane - boundingBoxWidth + 0.5, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, vec3(0.0f, 1.0f, 0.0f), 0.5f, true, false);
+
+    // Right Bottom Back Corner Cube
+    createCube(boundingBoxWidth / 2 - 0.5, -boundingBoxHeight / 2 + 0.5, -nearPlane - boundingBoxWidth + 0.5, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, vec3(0.0f, 0.0f, 1.0f), 0.5f, true, false);
+
+    // Left Bottom Back Corner Cube
+    createCube(-boundingBoxWidth / 2 + 0.5, -boundingBoxHeight / 2 + 0.5, -nearPlane - boundingBoxWidth + 0.5, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, vec3(0.5f, 1.0f, 0.5f), 0.5f, true, false);
+
+    // Moving Cube
+    createCube(1.0f, 0.0f, -nearPlane - 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.9f, vec3(0.5f, 0.5f, 0.5f), 0.5f);
+
+    // Create 5 random cubes
+    for (int i = 0; i < 5; i++)
+    {
+        float x = (rand() % (int)boundingBoxWidth) - boundingBoxWidth / 2;
+        float y = (rand() % (int)boundingBoxHeight) - boundingBoxHeight / 2;
+        float z = (rand() % (int)boundingBoxWidth) - boundingBoxWidth / 2;
+        float speed_x = (rand() % 20) - 10;
+        float speed_y = (rand() % 20) - 10;
+        float speed_z = (rand() % 20) - 10;
+        float mass = 1.0f;
+        float inelasticity_factor = 0.9f;
+        vec3 color = vec3((rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f);
+        float radius = 0.1f;
+        createCube(x, y, z, speed_x, speed_y, speed_z, mass, inelasticity_factor, color, radius);
+    }
+
+
+    vec3 boundingBoxBottomLeftFront = {boundingBoxLeft, boundingBoxBottom, boundingBoxFront};
+    vec3 boundingBoxBottomRightFront = {boundingBoxRight, boundingBoxBottom, boundingBoxFront};
+    vec3 boundingBoxBottomLeftBack = {boundingBoxLeft, boundingBoxBottom, boundingBoxBack};
+    vec3 boundingBoxBottomRightBack = {boundingBoxRight, boundingBoxBottom, boundingBoxBack};
+    vec3 boundingBoxTopLeftFront = {boundingBoxLeft, boundingBoxTop, boundingBoxFront};
+    vec3 boundingBoxTopRightFront = {boundingBoxRight, boundingBoxTop, boundingBoxFront};
+    vec3 boundingBoxTopLeftBack = {boundingBoxLeft, boundingBoxTop, boundingBoxBack};
+    vec3 boundingBoxTopRightBack = {boundingBoxRight, boundingBoxTop, boundingBoxBack};
+
 
     double lastTime = glfwGetTime();
 
@@ -434,6 +571,13 @@ int main()
 
         // Update the objects
         updateObjects(deltaTime);
+
+        // Draw the bounding box walls
+        drawRectangle(boundingBoxBottomLeftFront, boundingBoxBottomRightBack, vec3(0.0f, 1.0f, 1.0f));
+        drawRectangle(boundingBoxTopLeftFront, boundingBoxTopRightBack, vec3(1.0f, 0.0f, 1.0f));
+        drawRectangle(boundingBoxBottomLeftFront, boundingBoxTopLeftBack, vec3(1.0f, 1.0f, 1.0f));
+        drawRectangle(boundingBoxBottomRightFront, boundingBoxTopRightBack, vec3(1.0f, 1.0f, 1.0f));
+        drawRectangle(boundingBoxBottomLeftBack, boundingBoxTopRightBack, vec3(1.0f, 1.0f, 0.0f));
 
         // Draw the objects
         drawObjects();
