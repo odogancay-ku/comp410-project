@@ -120,7 +120,7 @@ GLuint loadShaders()
 
     // Attach the vertex shader source code to the shader object
     const GLchar *vertexShaderSourceCStr = vertexShaderSource.c_str();
-    glShaderSource(vertexShader, 1, &vertexShaderSourceCStr, NULL);
+    glShaderSource(vertexShader, 1, &vertexShaderSourceCStr, nullptr);
 
     // Compile the vertex shader
     glCompileShader(vertexShader);
@@ -131,7 +131,7 @@ GLuint loadShaders()
     if (!success)
     {
         char infoLog[512];
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
                   << infoLog << std::endl;
     }
@@ -139,13 +139,13 @@ GLuint loadShaders()
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
     const GLchar *fragmentShaderSourceCStr = fragmentShaderSource.c_str();
-    glShaderSource(fragmentShader, 1, &fragmentShaderSourceCStr, NULL);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSourceCStr, nullptr);
     glCompileShader(fragmentShader);
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
         char infoLog[512];
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
                   << infoLog << std::endl;
     }
@@ -166,7 +166,7 @@ GLuint loadShaders()
     {
         // The shaders were not linked successfully
         char infoLog[512];
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
                   << infoLog << std::endl;
     }
@@ -241,11 +241,23 @@ void updateObjects(float deltaTime)
             {
                 obj.position.y = boundingBoxTop - directionedRadiusY;
                 obj.speed_y *= -obj.inelasticity_factor;
+
+                if (std::abs(obj.speed_y) < pow(10, -9))
+                {
+                    obj.speed_y = 0;
+                }
+
             }
             else if (obj.position.y + directionedRadiusY < boundingBoxBottom && obj.speed_y < 0)
             {
                 obj.position.y = boundingBoxBottom - directionedRadiusY;
                 obj.speed_y *= -obj.inelasticity_factor;
+
+                if (std::abs(obj.speed_y) < pow(10, -9))
+                {
+                    obj.speed_y = 0;
+                }
+
             }
 
             if (obj.position.z + directionedRadiusZ > boundingBoxFront && obj.speed_z > 0)
@@ -261,26 +273,20 @@ void updateObjects(float deltaTime)
 
             // Handle the collision with other objects
 
-            
-
-            // Remove infinetisimal speed
-            if (abs(obj.speed_x) < pow(10, -9))
+            // Remove infinitesimal speed
+            if (std::abs(obj.speed_x) < pow(10, -9))
             {
                 obj.speed_x = 0;
             }
-            if (abs(obj.speed_z) < pow(10, -9))
+            if (std::abs(obj.speed_z) < pow(10, -9))
             {
                 obj.speed_z = 0;
             }
-
-
-
         }
-
     }
 }
 
-void drawRectangle(vec3 point1, vec3 point2, vec3 color)
+void drawRectangle(const vec3& point1, const vec3& point2, const vec3& color)
 {
     GLfloat vertices[] = {
         point1.x, point1.y, point1.z, // bottom-left corner
@@ -306,6 +312,25 @@ void drawRectangle(vec3 point1, vec3 point2, vec3 color)
     glEnd();
 }
 
+// Function to calculate cross product
+vec3 vec3CrossProduct(const vec3 &v1, const vec3 &v2)
+{
+    return {v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x};
+}
+
+// Function to calculate length of a vector
+GLfloat vec3Length(const vec3 &v)
+{
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+// Function to normalize a vector
+vec3 vec3Normalize(const vec3 &v)
+{
+    GLfloat len = vec3Length(v);
+    return {v.x / len, v.y / len, v.z / len};
+}
+
 void drawCube(Position position, float radius, vec3 color)
 {
     // Cube vertices
@@ -322,10 +347,47 @@ void drawCube(Position position, float radius, vec3 color)
     // Scale vertices
     for (int i = 0; i < 24; i += 3)
     {
-        vertices[i] *= radius*2;
-        vertices[i + 1] *= radius*2;
-        vertices[i + 2] *= radius*2;
+        vertices[i] *= radius * 2;
+        vertices[i + 1] *= radius * 2;
+        vertices[i + 2] *= radius * 2;
     }
+
+    GLfloat normals[] = {
+        // Front face
+        0.0f, 0.0f, -1.0f,
+        0.0f, 0.0f, -1.0f,
+        0.0f, 0.0f, -1.0f,
+        0.0f, 0.0f, -1.0f,
+
+        // Back face
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+
+        // Top face
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+
+        // Bottom face
+        0.0f, -1.0f, 0.0f,
+        0.0f, -1.0f, 0.0f,
+        0.0f, -1.0f, 0.0f,
+        0.0f, -1.0f, 0.0f,
+
+        // Left face
+        -1.0f, 0.0f, 0.0f,
+        -1.0f, 0.0f, 0.0f,
+        -1.0f, 0.0f, 0.0f,
+        -1.0f, 0.0f, 0.0f,
+
+        // Right face
+        1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f};
 
     // Cube indices
     GLuint indices[] = {
@@ -352,9 +414,19 @@ void drawCube(Position position, float radius, vec3 color)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    // Set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    // Copy vertex data to VBO
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+    // Copy normal data to VBO
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(normals), normals);
+
+    // Set the vertex attributes pointers for position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)nullptr);
     glEnableVertexAttribArray(0);
+
+    // Set the vertex attributes pointers for normal
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)(sizeof(vertices)));
+    glEnableVertexAttribArray(1);
 
     // Set the color
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
@@ -378,16 +450,28 @@ void drawCube(Position position, float radius, vec3 color)
     // Set the value of the uniform variable
     glUniform3f(colorLoc, color.x, color.y, color.z);
 
+    // Get the location of the uniform variables
+    GLint lightPosLoc = glGetUniformLocation(programID, "lightPos");
+    GLint lightColorLoc = glGetUniformLocation(programID, "lightColor");
+    GLint viewPosLoc = glGetUniformLocation(programID, "viewPos");
+
+    // Set the values of the uniform variables
+    vec3 lightPos = vec3(0, boundingBoxHeight, boundingBoxFront - boundingBoxWidth / 2);
+    vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
+    vec3 viewPos = vec3(0, 0, 0);
+
+    glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(lightColorLoc, lightColor.x, lightColor.y, lightColor.z);
+    glUniform3f(viewPosLoc, viewPos.x, viewPos.y, viewPos.z);
+
     // Draw the cube
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
     // Restore the transformation matrix
     glPopMatrix();
 
-    // Delete the VAO, VBO and EBO
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    glBindVertexArray(0);
+
 }
 
 void drawObjects()
@@ -438,7 +522,7 @@ void createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight)
     boundingBoxRight = boundingBoxWidth / 2;
     boundingBoxBottom = -boundingBoxHeight / 2;
     boundingBoxTop = boundingBoxHeight / 2;
-    boundingBoxBack = -nearPlane-boundingBoxWidth;
+    boundingBoxBack = -nearPlane - boundingBoxWidth;
     boundingBoxFront = -nearPlane;
 
     nearPlane = 9.9f;
@@ -478,7 +562,7 @@ int main()
     int windowHeight = mode->height;
 
     // Create a window
-    GLFWwindow *window = glfwCreateWindow(windowWidth, windowHeight, "Bouncing Ball", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(windowWidth, windowHeight, "Bouncing Ball", nullptr, nullptr);
     if (!window)
     {
         // Window or OpenGL context creation failed
@@ -543,10 +627,9 @@ int main()
         float mass = 1.0f;
         float inelasticity_factor = 0.9f;
         vec3 color = vec3((rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f);
-        float radius = 0.1f;
+        float radius = 0.5f;
         createCube(x, y, z, speed_x, speed_y, speed_z, mass, inelasticity_factor, color, radius);
     }
-
 
     vec3 boundingBoxBottomLeftFront = {boundingBoxLeft, boundingBoxBottom, boundingBoxFront};
     vec3 boundingBoxBottomRightFront = {boundingBoxRight, boundingBoxBottom, boundingBoxFront};
@@ -556,7 +639,6 @@ int main()
     vec3 boundingBoxTopRightFront = {boundingBoxRight, boundingBoxTop, boundingBoxFront};
     vec3 boundingBoxTopLeftBack = {boundingBoxLeft, boundingBoxTop, boundingBoxBack};
     vec3 boundingBoxTopRightBack = {boundingBoxRight, boundingBoxTop, boundingBoxBack};
-
 
     double lastTime = glfwGetTime();
 
