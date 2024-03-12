@@ -1,4 +1,6 @@
 #include "Angel.h"
+#include "visuals/utility.h"
+#include "visuals/drawer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -21,10 +23,6 @@ float boundingBoxFront;
 
 GLuint programID;
 
-struct Position
-{
-    float x, y, z;
-};
 
 // Define object properties
 struct Object
@@ -35,7 +33,7 @@ struct Object
     float inelasticity_factor;
     vec3 color;
     float radius;
-    Position position;
+    vec3 position;
     bool doesCollide;
     bool doesMove;
 };
@@ -93,89 +91,8 @@ void load3DModel(const std::string &filename, std::vector<float> &vertices, std:
     file.close();
 }
 
-std::string readShaderSource(const std::string &filename)
-{
-    std::ifstream file(filename);
-    if (!file.is_open())
-    {
-        std::cerr << "Failed to open file: " << filename << std::endl;
-        return "";
-    }
-    std::stringstream ss;
-    ss << file.rdbuf();
-    // Print the source
-    std::cout << ss.str() << std::endl;
-    return ss.str();
-}
 
-GLuint loadShaders()
-{
-    // Load and compile the shaders
 
-    std::string vertexShaderSource = readShaderSource("vertexShader.glsl");
-    std::string fragmentShaderSource = readShaderSource("fragmentShader.glsl");
-
-    // Create a vertex shader object
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-    // Attach the vertex shader source code to the shader object
-    const GLchar *vertexShaderSourceCStr = vertexShaderSource.c_str();
-    glShaderSource(vertexShader, 1, &vertexShaderSourceCStr, nullptr);
-
-    // Compile the vertex shader
-    glCompileShader(vertexShader);
-
-    // Check if the vertex shader compiled successfully
-    GLint success;
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        char infoLog[512];
-        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
-    }
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    const GLchar *fragmentShaderSourceCStr = fragmentShaderSource.c_str();
-    glShaderSource(fragmentShader, 1, &fragmentShaderSourceCStr, nullptr);
-    glCompileShader(fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        char infoLog[512];
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
-    }
-
-    // Create a shader program object
-    GLuint shaderProgram = glCreateProgram();
-
-    // Attach the vertex and fragment shaders to the shader program
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-
-    // Link the shaders together into the shader program
-    glLinkProgram(shaderProgram);
-
-    // Check if the shaders were linked successfully
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        // The shaders were not linked successfully
-        char infoLog[512];
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-                  << infoLog << std::endl;
-    }
-
-    glDeleteShader(fragmentShader);
-    glDeleteShader(vertexShader);
-
-    return shaderProgram;
-}
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
@@ -286,37 +203,7 @@ void updateObjects(float deltaTime)
     }
 }
 
-void drawRectangle(const vec3& point1, const vec3& point2, const vec3& color)
-{
-    GLfloat vertices[] = {
-        point1.x, point1.y, point1.z, // bottom-left corner
-        point2.x, point1.y, point1.z, // bottom-right corner
-        point2.x, point2.y, point2.z, // top-right corner
-        point1.x, point2.y, point2.z  // top-left corner
-    };
 
-    // Set the uniform objectColor
-    GLint objectColorLoc = glGetUniformLocation(programID, "objectColor");
-    glUniform3f(objectColorLoc, color.x, color.y, color.z);
-
-    // Set the uniform translation
-    GLint translationLoc = glGetUniformLocation(programID, "translation");
-    glUniform3f(translationLoc, 0.0f, 0.0f, 0.0f);
-
-    // Draw the rectangle
-    glBegin(GL_QUADS);
-    for (int i = 0; i < 4; ++i)
-    {
-        glVertex3f(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
-    }
-    glEnd();
-}
-
-// Function to calculate cross product
-vec3 vec3CrossProduct(const vec3 &v1, const vec3 &v2)
-{
-    return {v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x};
-}
 
 // Function to calculate length of a vector
 GLfloat vec3Length(const vec3 &v)
@@ -331,7 +218,7 @@ vec3 vec3Normalize(const vec3 &v)
     return {v.x / len, v.y / len, v.z / len};
 }
 
-void drawCube(Position position, float radius, vec3 color)
+void drawCube(vec3 position, float radius, vec3 color)
 {
     // Cube vertices
     GLfloat vertices[] = {

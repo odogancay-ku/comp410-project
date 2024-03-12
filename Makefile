@@ -1,3 +1,4 @@
+
 # Compiler
 CPP = g++
 
@@ -5,23 +6,25 @@ CPP = g++
 CPP_FLAGS = -g -Wall -Wextra  -std=c++11
 
 # Include directories
-INCLUDES = -I/home/ofaru/COMP410/include -I/usr/include/GL
+INCLUDES = -I./include -I/usr/include/GL -I./src/visuals
 
 
 # Libraries
 LIBS = -lGLEW -lGL -lglfw -lGLU
 
+vpath %.cpp src src/visuals
+
 # Source
-SRCS = main.cpp
+SRCS = $(shell find src -name "*.cpp")
 
 #
-OBJS = $(SRCS:.cpp=.o)
+OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 
 # Name of the program
 TARGET = main
 
 # Default rule
-all: $(TARGET) run
+all: $(TARGET) run clean
 
 # Rule to compile .cpp files to object files
 %.o: %.cpp
