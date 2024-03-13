@@ -36,6 +36,8 @@ int main() {
 
     // Create an instance of the Renderer class
     Renderer renderer("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
+    renderer.windowWidth = windowWidth;
+    renderer.windowHeight = windowHeight;
 
     Game game;
 
@@ -49,7 +51,7 @@ int main() {
 
 
     // Set the perspective projection matrix
-    renderer.createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight);
+    renderer.createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight, 90.0f);
 
 
     // Create the surfaces using renderer.boundingBox values
@@ -79,37 +81,39 @@ int main() {
     topWall.isStatic = true;
     game.addObject(topWall);
 
+    float relativeSpeed = 15.0f;
 
-    Cube cube1({-1.2f, 2.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, 1.0f);
+    Cube cube1({-1.2f, 0, 1.0f}, {1.0f, 0.0f, 0.0f}, 1.0f);
     cube1.isAffectedByGravity = false;
-    cube1.velocity = {2};
+    cube1.velocity = {relativeSpeed/2, 0, 0};
     cube1.restitution = 1.0f;
     game.addObject(cube1);
 
-    // Create 5 random cubes within the bounding box with random speeds and colors
-    for (int i = 0; i < 5; i++) {
-        float x = (rand() % (int) renderer.boundingBoxWidth) - renderer.boundingBoxWidth / 2;
-        float y = (rand() % (int) renderer.boundingBoxWidth) - renderer.boundingBoxWidth / 2;
-        float z = (rand() % (int) renderer.boundingBoxWidth) - renderer.boundingBoxWidth / 2;
-        float speed = (rand() % 10) + 1;
-        float sideLength = (rand() % 5) + 1;
-        vec3 color = {static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-                      static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-                      static_cast <float> (rand()) / static_cast <float> (RAND_MAX)};
-        Cube cube({x, y, z}, color, sideLength);
-        cube.velocity = {speed, speed, speed};
-        game.addObject(cube);
-    }
+    Cube cube2({1.2f, 0, 1.0f}, {0.0f, 1.0f, 0.0f}, 1.0f);
+    cube2.isAffectedByGravity = false;
+    cube2.velocity = {-relativeSpeed/2, 0, 0};
+    cube2.restitution = 1.0f;
+    game.addObject(cube2);
 
 
 
     InputHandler::camera.yaw = -90.0f;
+    InputHandler::camera.pitch = -0.0f;
     InputHandler::camera.position = {0.0f, 0.0f, renderer.boundingBoxWidth/2};
+
+    renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw, InputHandler::camera.pitch);
 
     double lastTime = glfwGetTime();
 
     double frameCount = 0;
     double lastFPSTime = glfwGetTime();
+
+    // Print all the objects
+    for (auto &object: game.objects) {
+        std::cout << "Object id: " << object.id << std::endl;
+        std::cout << "Object position: " << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
+        std::cout << "Object velocity: " << object.velocity.x << " " << object.velocity.y << " " << object.velocity.z << std::endl;
+    }
 
     while (!glfwWindowShouldClose(window)) {
         // Clear the screen
@@ -141,6 +145,14 @@ int main() {
             std::cout << "FPS: " << frameCount << std::endl;
             frameCount = 0;
             lastFPSTime = currentFPSTime;
+
+            // Print all the objects
+            for (auto &object: game.objects) {
+                std::cout << "Object id: " << object.id << std::endl;
+                std::cout << "Object position: " << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
+                std::cout << "Object velocity: " << object.velocity.x << " " << object.velocity.y << " " << object.velocity.z << std::endl;
+            }
+
         }
 
 

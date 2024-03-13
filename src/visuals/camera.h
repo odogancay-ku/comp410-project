@@ -15,6 +15,7 @@ public:
     GLfloat yaw;
     GLfloat pitch;
     float speed;
+    float fov = 90.0f;
 
     void moveX(float amount);
 

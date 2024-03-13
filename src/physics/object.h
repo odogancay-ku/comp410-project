@@ -57,7 +57,7 @@ class Cube : public Object {
 public:
     Cube(vec3 position, vec3 color, float sideLength) {
         this->position = position;
-        this->mass = 1.0f; // You can adjust this value
+        this->mass = sideLength; // You can adjust this value
         this->restitution = 0.8f; // You can adjust this value
         this->friction = 0.8f; // You can adjust this value
         this->isStatic = false;

@@ -85,9 +85,6 @@ GLuint Renderer::loadShaders(const std::string &vertexShaderFilename, const std:
     vertexShaderSource = readShaderSource(vertexShaderFilename);
     fragmentShaderSource = readShaderSource(fragmentShaderFilename);
 
-    std::cout << vertexShaderSource << std::endl;
-    std::cout << fragmentShaderSource << std::endl;
-
     // Create a vertex shader object
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
@@ -157,15 +154,15 @@ Renderer::Renderer(const std::string &vertexShaderFile, const std::string &fragm
     loadShaders(vertexShaderFile, fragmentShaderFile);
 }
 
-void Renderer::createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight) {
+void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight, float fov) {
     // Define projection matrix parameters
+    std::cout << "Creating perspective projection matrix" << std::endl;
+    std::cout << "Window width: " << _windowWidth << std::endl;
+    std::cout << "Window height: " << _windowHeight << std::endl;
+    windowWidth = _windowWidth;
+    windowHeight = _windowHeight;
     aspectRatio = (float) windowWidth / (float) windowHeight;
 
-    boundingBoxWidth = 10.0f;
-
-
-    // Print aspect ratio
-    std::cout << "Aspect ratio: " << aspectRatio << std::endl;
 
     // Calculate the projection matrix
     float f = 1.0f / tan(fov * 0.5f * (M_PI / 180.0f));
@@ -177,12 +174,6 @@ void Renderer::createAndSetPerspectiveProjectionMatrix(int windowWidth, int wind
             0.0f, 0.0f, (nearPlane + farPlane) * rangeInv, -1.0f,
             0.0f, 0.0f, nearPlane * farPlane * rangeInv * 2.0f, 0.0f};
 
-    // Print the projection matrix
-    std::cout << "Projection matrix: " << std::endl;
-    for (int i = 0; i < 4; i++) {
-        std::cout << projectionMatrix[i * 4] << " " << projectionMatrix[i * 4 + 1] << " " << projectionMatrix[i * 4 + 2]
-                  << " " << projectionMatrix[i * 4 + 3] << std::endl;
-    }
 
     // Pass the projection matrix to the shader program
     GLint projectionLoc = glGetUniformLocation(programID, "ProjectionMatrix");
@@ -211,6 +202,11 @@ void Renderer::setCamera(const vec3 &position, float yaw, float pitch) {
     // Pass the view matrix to the shader program
     GLint viewLoc = glGetUniformLocation(programID, "ViewMatrix");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glmView));
+
+
 }
 
-Renderer::Renderer() = default;
+Renderer::Renderer() {
+    std::cout << "Renderer created" << std::endl;
+}
+

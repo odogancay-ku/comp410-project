@@ -34,17 +34,18 @@ public:
 
     void drawObjects(const std::vector<Object>& objects);
 
-    void createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight);
 
     GLuint programID;
     float aspectRatio;
-    float boundingBoxWidth;
+    float boundingBoxWidth = 10.0f;
     float farPlane = 500.0f;
     float nearPlane = 0.1f;
-    float fov = 90.0f;
+    int windowWidth;
+    int windowHeight;
 
     void setCamera(const vec3 &position, float yaw, float pitch);
 
+    void createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight, float fov);
 };
 
 #endif //RENDERING_H

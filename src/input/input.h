@@ -27,6 +27,8 @@ public:
 
     static void registerCursorPosCallback(GLFWwindow *window);
 
+    static void registerScrollCallback(GLFWwindow *window);
+
     static double lastX;
     static double lastY;
     static bool firstMouse;

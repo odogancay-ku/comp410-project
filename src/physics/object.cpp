@@ -26,6 +26,32 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
         Object &staticObject = isStatic ? *this : other;
         Object &dynamicObject = isStatic ? other : *this;
 
+
+        // Separate the objects by calculating the closest side of the static object to the collision point
+        vec3 min = staticObject.position + staticObject.hitBoxVertices[0];
+        vec3 max = staticObject.position + staticObject.hitBoxVertices[1];
+
+        vec3 min2 = dynamicObject.position + dynamicObject.hitBoxVertices[0];
+        vec3 max2 = dynamicObject.position + dynamicObject.hitBoxVertices[1];
+
+        // Calculate the overlap in all three dimensions
+
+        float overlapX = std::min(max.x, max2.x) - std::max(min.x, min2.x);
+        float overlapY = std::min(max.y, max2.y) - std::max(min.y, min2.y);
+        float overlapZ = std::min(max.z, max2.z) - std::max(min.z, min2.z);
+
+        // Find the smallest overlap
+        float smallestOverlap = std::min(overlapX, std::min(overlapY, overlapZ));
+        // Find the smallest overlap direction
+        vec3 separationVector = vec3(0, 0, 0);
+        if (smallestOverlap == overlapX) {
+            separationVector.x = overlapX;
+        } else if (smallestOverlap == overlapY) {
+            separationVector.y = overlapY;
+        } else {
+            separationVector.z = overlapZ;
+        }
+
         vec3 normal = normalize(dynamicObject.position - collisionPoint);
 
 
@@ -34,6 +60,7 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
         float velocityAlongNormal = dot(relativeVelocity, normal);
 
         if (velocityAlongNormal > 0) {
+            dynamicObject.position += separationVector;
             return;
         }
 
@@ -44,21 +71,45 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
         dynamicObject.velocity -= 2 * velocityAlongNormal * normal;
         dynamicObject.velocity *= e;
 
+        dynamicObject.position += separationVector;
+
+
+
+
 
         return;
 
     }
 
+
+
+    std::cout << "Collision detected" << std::endl;
+
+    std::cout << "Object position: " << position.x << " " << position.y << " " << position.z << std::endl;
+    std::cout << "Other position: " << other.position.x << " " << other.position.y << " " << other.position.z << std::endl;
+
+    std::cout << "Object velocity: " << velocity.x << " " << velocity.y << " " << velocity.z << std::endl;
+    std::cout << "Other velocity: " << other.velocity.x << " " << other.velocity.y << " " << other.velocity.z << std::endl;
+
     vec3 relativeVelocity = velocity - other.velocity;
     vec3 collisionNormal = normalize(position - other.position);
 
+
+
+    std::cout << "Relative velocity: " << relativeVelocity.x << " " << relativeVelocity.y << " " << relativeVelocity.z << std::endl;
+    std::cout << "Collision normal: " << collisionNormal.x << " " << collisionNormal.y << " " << collisionNormal.z << std::endl;
+
+    if (relativeVelocity.x != relativeVelocity.x) {
+        exit(1);
+    }
+
     float velocityAlongNormal = dot(relativeVelocity, collisionNormal);
 
-    std::cout << "Velocity along normal: " << velocityAlongNormal << std::endl;
 
     // Do not resolve if velocities are separating
-    if (velocityAlongNormal > 0)
+    if (velocityAlongNormal > 0) {
         return;
+    }
 
     float e = std::min(restitution, other.restitution);
 
@@ -67,8 +118,12 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
 
     vec3 impulse = j * collisionNormal;
 
-    velocity -= (1 / mass) * impulse;
-    other.velocity += (1 / other.mass) * impulse;
+    std::cout << "Impulse: " << impulse.x << " " << impulse.y << " " << impulse.z << std::endl;
+
+    velocity += (1 / mass) * impulse;
+    other.velocity -= (1 / other.mass) * impulse;
+
+
 
 //    // Calculate the torque
 //    vec3 radius = collisionPoint - position;
@@ -104,21 +159,6 @@ vec3 Object::calculateCollisionPoint(Object &other) {
 
     vec3 min2 = other.position + other.hitBoxVertices[0];
     vec3 max2 = other.position + other.hitBoxVertices[1];
-
-    std::cout << "Min1: " << min1.x << " " << min1.y << " " << min1.z << std::endl;
-    std::cout << "Max1: " << max1.x << " " << max1.y << " " << max1.z << std::endl;
-
-    std::cout << "Min2: " << min2.x << " " << min2.y << " " << min2.z << std::endl;
-    std::cout << "Max2: " << max2.x << " " << max2.y << " " << max2.z << std::endl;
-
-    // Calculate the overlap in each dimension
-    float overlapX = std::min(max1.x, max2.x) - std::max(min1.x, min2.x);
-    float overlapY = std::min(max1.y, max2.y) - std::max(min1.y, min2.y);
-    float overlapZ = std::min(max1.z, max2.z) - std::max(min1.z, min2.z);
-
-    std::cout << "Overlap in x: " << overlapX << std::endl;
-    std::cout << "Overlap in y: " << overlapY << std::endl;
-    std::cout << "Overlap in z: " << overlapZ << std::endl;
 
     // Calculate the centers of the overlapping regions
     float centerX = (std::max(min1.x, min2.x) + std::min(max1.x, max2.x)) / 2.0f;
