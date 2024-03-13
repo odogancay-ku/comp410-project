@@ -16,23 +16,29 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
     std::cout << "key: " << key << " action: " << action << std::endl;
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
         InputHandler::keys[key] = true;
-        if (key == GLFW_KEY_W) {
-            InputHandler::camera.moveX(1.0f);
-        } else if (key == GLFW_KEY_S) {
-            InputHandler::camera.moveX(-1.0f);
-        } else if (key == GLFW_KEY_A) {
-            InputHandler::camera.moveZ(-1.0f);
-        } else if (key == GLFW_KEY_D) {
-            InputHandler::camera.moveZ(1.0f);
-        } else if (key == GLFW_KEY_SPACE) {
-            InputHandler::camera.moveY(1.0f);
-        } else if (key == GLFW_KEY_LEFT_SHIFT) {
-            InputHandler::camera.moveY(-1.0f);
-        }
     } else if (action == GLFW_RELEASE) {
         InputHandler::keys[key] = false;
     }
 
+    // Iterate over keys and do actions for true ones
+
+    for (auto const &pressed_key : InputHandler::keys) {
+        if (pressed_key.second) {
+            if (pressed_key.first == GLFW_KEY_W) {
+                InputHandler::camera.moveForward(1.0f);
+            } else if (pressed_key.first == GLFW_KEY_S) {
+                InputHandler::camera.moveForward(-1.0f);
+            } else if (pressed_key.first == GLFW_KEY_A) {
+                InputHandler::camera.moveLeft(1.0f);
+            } else if (pressed_key.first == GLFW_KEY_D) {
+                InputHandler::camera.moveLeft(-1.0f);
+            } else if (pressed_key.first == GLFW_KEY_SPACE) {
+                InputHandler::camera.moveY(1.0f);
+            } else if (pressed_key.first == GLFW_KEY_LEFT_SHIFT) {
+                InputHandler::camera.moveY(-1.0f);
+            }
+        }
+    }
 
     InputHandler::renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw, InputHandler::camera.pitch);
 

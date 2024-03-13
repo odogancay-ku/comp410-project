@@ -39,13 +39,6 @@ public:
     GLuint programID;
     float aspectRatio;
     float boundingBoxWidth;
-    float boundingBoxHeight;
-    float boundingBoxLeft;
-    float boundingBoxRight;
-    float boundingBoxBottom;
-    float boundingBoxTop;
-    float boundingBoxBack;
-    float boundingBoxFront;
     float farPlane = 500.0f;
     float nearPlane = 0.1f;
     float fov = 90.0f;

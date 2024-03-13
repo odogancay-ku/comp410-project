@@ -10,7 +10,7 @@
 
 class Camera {
 public:
-    Camera() : position(0.0f, 0.0f, 0.0f), yaw(0.0f), pitch(0.0f), speed(1.0f) {}
+    Camera() : position(0.0f, 0.0f, 0.0f), yaw(0.0f), pitch(0.0f), speed(0.1f) {}
     vec3 position;
     GLfloat yaw;
     GLfloat pitch;
@@ -22,6 +22,10 @@ public:
 
     void moveZ(float amount);
 
+    void moveForward(float amount);
+
+
+    void moveLeft(float amount);
 };
 
 #endif //CAMERA_H

@@ -54,77 +54,57 @@ int main() {
 
     // Create the surfaces using renderer.boundingBox values
 
-    std::vector<vec3> backVertices = {
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxBottom, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxBottom, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxTop, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxTop, renderer.boundingBoxBack)
-    };
 
-    std::vector<vec3> frontVertices = {
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxBottom, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxBottom, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxTop, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxTop, renderer.boundingBoxFront)
-    };
+    Cube backWall({0.0f, 0.0f, -renderer.boundingBoxWidth}, {0.5f, 0.5f, 0.0f}, renderer.boundingBoxWidth);
+    backWall.isStatic = true;
+    game.addObject(backWall);
 
-    std::vector<vec3> leftVertices = {
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxBottom, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxBottom, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxTop, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxTop, renderer.boundingBoxBack)
-    };
+    Cube frontWall({0.0f, 0.0f, renderer.boundingBoxWidth}, {0.0f, 0.0f, 0.5f}, renderer.boundingBoxWidth);
+    frontWall.isStatic = true;
+    game.addObject(frontWall);
 
-    std::vector<vec3> rightVertices = {
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxBottom, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxBottom, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxTop, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxTop, renderer.boundingBoxBack)
-    };
+    Cube leftWall({-renderer.boundingBoxWidth, 0.0f, 0.0f}, {0.5f, 0.0f, 0.5f}, renderer.boundingBoxWidth);
+    leftWall.isStatic = true;
+    game.addObject(leftWall);
 
-    std::vector<vec3> topVertices = {
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxTop, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxTop, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxTop, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxTop, renderer.boundingBoxFront)
-    };
+    Cube rightWall({renderer.boundingBoxWidth, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}, renderer.boundingBoxWidth);
+    rightWall.isStatic = true;
+    game.addObject(rightWall);
 
-    std::vector<vec3> bottomVertices = {
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxBottom, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxBottom, renderer.boundingBoxBack),
-            vec3(renderer.boundingBoxRight, renderer.boundingBoxBottom, renderer.boundingBoxFront),
-            vec3(renderer.boundingBoxLeft, renderer.boundingBoxBottom, renderer.boundingBoxFront)
-    };
+    Cube bottomWall({0.0f, -renderer.boundingBoxWidth, 0.0f}, {0.5f, 0.5f, 0.5f}, renderer.boundingBoxWidth);
+    bottomWall.isStatic = true;
+    game.addObject(bottomWall);
 
-    Surface backSurface(backVertices, vec3(1.0f, 1.0f, 1.0f));
-    Surface frontSurface(frontVertices, vec3(1.0f, 1.0f, 0.0f));
-    Surface leftSurface(leftVertices, vec3(1.0f, 0.0f, 1.0f));
-    Surface rightSurface(rightVertices, vec3(0.0f, 1.0f, 1.0f));
-    Surface topSurface(topVertices, vec3(1.0f, 0.0f, 0.0f));
-    Surface bottomSurface(bottomVertices, vec3(0.0f, 0.0f, 1.0f));
+    Cube topWall({0.0f, renderer.boundingBoxWidth, 0.0f}, {0.5f, 0.5f, 0.5f}, renderer.boundingBoxWidth);
+    topWall.isStatic = true;
+    game.addObject(topWall);
 
-    game.addObject(backSurface);
-    game.addObject(frontSurface);
-    game.addObject(leftSurface);
-    game.addObject(rightSurface);
-    game.addObject(topSurface);
-    game.addObject(bottomSurface);
 
-    // Print back surface coordinates
-    std::cout << "Back surface coordinates: " << std::endl;
-    for (int i = 0; i < backSurface.vertices.size(); i++) {
-        std::cout << backSurface.vertices[i] << std::endl;
+    Cube cube1({-1.2f, 2.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, 1.0f);
+    cube1.isAffectedByGravity = false;
+    cube1.velocity = {2};
+    cube1.restitution = 1.0f;
+    game.addObject(cube1);
+
+    // Create 5 random cubes within the bounding box with random speeds and colors
+    for (int i = 0; i < 5; i++) {
+        float x = (rand() % (int) renderer.boundingBoxWidth) - renderer.boundingBoxWidth / 2;
+        float y = (rand() % (int) renderer.boundingBoxWidth) - renderer.boundingBoxWidth / 2;
+        float z = (rand() % (int) renderer.boundingBoxWidth) - renderer.boundingBoxWidth / 2;
+        float speed = (rand() % 10) + 1;
+        float sideLength = (rand() % 5) + 1;
+        vec3 color = {static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+                      static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+                      static_cast <float> (rand()) / static_cast <float> (RAND_MAX)};
+        Cube cube({x, y, z}, color, sideLength);
+        cube.velocity = {speed, speed, speed};
+        game.addObject(cube);
     }
-    std::cout << "Back surface position: " << backSurface.position << std::endl;
 
-    // Print front surface coordinates
-    std::cout << "Front surface coordinates: " << std::endl;
-    for (int i = 0; i < frontSurface.vertices.size(); i++) {
-        std::cout << frontSurface.vertices[i] << std::endl;
-    }
-    std::cout << "Front surface position: " << frontSurface.position << std::endl;
+
 
     InputHandler::camera.yaw = -90.0f;
+    InputHandler::camera.position = {0.0f, 0.0f, renderer.boundingBoxWidth/2};
 
     double lastTime = glfwGetTime();
 

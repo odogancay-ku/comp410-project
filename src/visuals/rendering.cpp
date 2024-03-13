@@ -38,7 +38,7 @@ void Renderer::drawObject(const Object &object) {
         vec3 color2 = object.colors[object.indices[i + 1]];
         vec3 color3 = object.colors[object.indices[i + 2]];
 
-        drawTriangle(object.position + vertex1, object.position + vertex2, object.position + vertex3,
+        drawTriangle(vertex1, vertex2, vertex3,
                      normal1, normal2, normal3,
                      color1, color2, color3);
     }
@@ -162,14 +162,7 @@ void Renderer::createAndSetPerspectiveProjectionMatrix(int windowWidth, int wind
     aspectRatio = (float) windowWidth / (float) windowHeight;
 
     boundingBoxWidth = 10.0f;
-    boundingBoxHeight = 10.0f;
 
-    boundingBoxLeft = -boundingBoxWidth / 2;
-    boundingBoxRight = boundingBoxWidth / 2;
-    boundingBoxBottom = -boundingBoxHeight / 2;
-    boundingBoxTop = boundingBoxHeight / 2;
-    boundingBoxBack = -boundingBoxWidth;
-    boundingBoxFront = 0.0f;
 
     // Print aspect ratio
     std::cout << "Aspect ratio: " << aspectRatio << std::endl;
