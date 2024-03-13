@@ -1,26 +1,31 @@
 //
 // Created by ofaru on 12.03.2024.
 //
-
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "rendering.h"
 #include "utility.h"
 
-void Renderer::drawObjects(const std::vector<Object>& objects) {
-    for (const auto& object : objects) {
+
+void Renderer::drawObjects(const std::vector<Object> &objects) {
+    for (const auto &object: objects) {
         drawObject(object);
     }
+
 }
 
 void Renderer::drawObject(const Object &object) {
 
-    glUseProgram(programID);
     GLint translationLoc = glGetUniformLocation(programID, "translation");
     glUniform3f(translationLoc, object.position.x, object.position.y, object.position.z);
 
     for (int i = 0; i < object.indices.size(); i += 3) {
+
+
         vec3 vertex1 = object.vertices[object.indices[i]];
         vec3 vertex2 = object.vertices[object.indices[i + 1]];
         vec3 vertex3 = object.vertices[object.indices[i + 2]];
@@ -39,86 +44,132 @@ void Renderer::drawObject(const Object &object) {
     }
 }
 
-void Renderer::loadShaders(const std::string &vertexShaderFilename, const std::string &fragmentShaderFilename) {
-    vertexShaderSource = readShaderSource(vertexShaderFilename).c_str();
-    fragmentShaderSource = readShaderSource(fragmentShaderFilename).c_str();
-}
-
-void Renderer::compileAndLinkShaders() {
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-}
 
 void Renderer::drawTriangle(const vec3 &vertex1, const vec3 &vertex2, const vec3 &vertex3,
                             const vec3 &normal1, const vec3 &normal2, const vec3 &normal3,
                             const vec3 &color1, const vec3 &color2, const vec3 &color3) {
     GLfloat vertices[] = {
-        vertex1.x, vertex1.y, vertex1.z, color1.x, color1.y, color1.z,
-        vertex2.x, vertex2.y, vertex2.z, color2.x, color2.y, color2.z,
-        vertex3.x, vertex3.y, vertex3.z, color3.x, color3.y, color3.z
+            vertex1.x, vertex1.y, vertex1.z, normal1.x, normal1.y, normal1.z,
+            vertex2.x, vertex2.y, vertex2.z, normal2.x, normal2.y, normal2.z,
+            vertex3.x, vertex3.y, vertex3.z, normal3.x, normal3.y, normal3.z
     };
 
+
     GLuint VBO, VAO;
-    glGenVertexArrays(1, &VAO);
+
+
     glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) nullptr);
     glEnableVertexAttribArray(0);
-    // Color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    // Normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glBindVertexArray(0); // Unbind VAO
+    GLint colorLoc = glGetUniformLocation(programID, "objectColor");
 
-    // Draw the triangle
-    glUseProgram(programID);
-    glBindVertexArray(VAO);
+    // Set the value of the uniform variable
+    glUniform3f(colorLoc, color1.x, color1.y, color1.z);
+
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
 
-    // Clean up
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
 }
 
-Renderer::Renderer(const std::string& vertexShaderFile, const std::string& fragmentShaderFile)  {
+GLuint Renderer::loadShaders(const std::string &vertexShaderFilename, const std::string &fragmentShaderFilename) {
+    vertexShaderSource = readShaderSource(vertexShaderFilename);
+    fragmentShaderSource = readShaderSource(fragmentShaderFilename);
+
+    std::cout << vertexShaderSource << std::endl;
+    std::cout << fragmentShaderSource << std::endl;
+
+    // Create a vertex shader object
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+    // Attach the vertex shader source code to the shader object
+    const GLchar *vertexShaderSourceCStr = vertexShaderSource.c_str();
+    glShaderSource(vertexShader, 1, &vertexShaderSourceCStr, nullptr);
+
+    // Compile the vertex shader
+    glCompileShader(vertexShader);
+
+    // Check if the vertex shader compiled successfully
+    GLint success;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+                  << infoLog << std::endl;
+    }
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    const GLchar *fragmentShaderSourceCStr = fragmentShaderSource.c_str();
+    glShaderSource(fragmentShader, 1, &fragmentShaderSourceCStr, nullptr);
+    glCompileShader(fragmentShader);
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
+                  << infoLog << std::endl;
+    }
+
+    // Create a shader program object
+    GLuint shaderProgram = glCreateProgram();
+
+    // Attach the vertex and fragment shaders to the shader program
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+
+    // Link the shaders together into the shader program
+    glLinkProgram(shaderProgram);
+
+    // Check if the shaders were linked successfully
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        // The shaders were not linked successfully
+        char infoLog[512];
+        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
+                  << infoLog << std::endl;
+    }
+
+    glDeleteShader(fragmentShader);
+    glDeleteShader(vertexShader);
+
+    programID = shaderProgram;
+
+    glUseProgram(programID);
+
+    return shaderProgram;
+
+}
+
+
+Renderer::Renderer(const std::string &vertexShaderFile, const std::string &fragmentShaderFile) {
     loadShaders(vertexShaderFile, fragmentShaderFile);
-    compileAndLinkShaders();
 }
 
-void Renderer::createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight)
-{
+void Renderer::createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight) {
     // Define projection matrix parameters
-    aspectRatio = (float)windowWidth / (float)windowHeight;
+    aspectRatio = (float) windowWidth / (float) windowHeight;
 
-    boundingBoxWidth = nearPlane * tan(fov * 0.5f * (M_PI / 180.0f)) * 2.0f;
-    boundingBoxHeight = boundingBoxWidth / aspectRatio;
+    boundingBoxWidth = 10.0f;
+    boundingBoxHeight = 10.0f;
 
     boundingBoxLeft = -boundingBoxWidth / 2;
     boundingBoxRight = boundingBoxWidth / 2;
     boundingBoxBottom = -boundingBoxHeight / 2;
     boundingBoxTop = boundingBoxHeight / 2;
-    boundingBoxBack = -nearPlane - boundingBoxWidth;
-    boundingBoxFront = -nearPlane;
+    boundingBoxBack = -boundingBoxWidth;
+    boundingBoxFront = 0.0f;
 
     // Print aspect ratio
     std::cout << "Aspect ratio: " << aspectRatio << std::endl;
@@ -128,27 +179,45 @@ void Renderer::createAndSetPerspectiveProjectionMatrix(int windowWidth, int wind
     float rangeInv = 1.0f / (nearPlane - farPlane);
 
     float projectionMatrix[16] = {
-        f / aspectRatio, 0.0f, 0.0f, 0.0f,
-        0.0f, f, 0.0f, 0.0f,
-        0.0f, 0.0f, (nearPlane + farPlane) * rangeInv, -1.0f,
-        0.0f, 0.0f, nearPlane * farPlane * rangeInv * 2.0f, 0.0f};
+            f / aspectRatio, 0.0f, 0.0f, 0.0f,
+            0.0f, f, 0.0f, 0.0f,
+            0.0f, 0.0f, (nearPlane + farPlane) * rangeInv, -1.0f,
+            0.0f, 0.0f, nearPlane * farPlane * rangeInv * 2.0f, 0.0f};
+
+    // Print the projection matrix
+    std::cout << "Projection matrix: " << std::endl;
+    for (int i = 0; i < 4; i++) {
+        std::cout << projectionMatrix[i * 4] << " " << projectionMatrix[i * 4 + 1] << " " << projectionMatrix[i * 4 + 2]
+                  << " " << projectionMatrix[i * 4 + 3] << std::endl;
+    }
 
     // Pass the projection matrix to the shader program
     GLint projectionLoc = glGetUniformLocation(programID, "ProjectionMatrix");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projectionMatrix);
 }
 
+void Renderer::setCamera(const vec3 &position, float yaw, float pitch) {
+    // Calculate the new direction vector
+    vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction = normalize(direction);
 
-std::string readShaderSource(const std::string &filename) {
+    // Calculate the right and up vector
+    vec3 right = normalize(cross(direction, vec3(0.0f, 1.0f, 0.0f)));
+    vec3 up = normalize(cross(right, direction));
 
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << filename << std::endl;
-        return "";
-    }
-    std::stringstream ss;
-    ss << file.rdbuf();
-    // Print the source
-    std::cout << ss.str() << std::endl;
-    return ss.str();
+    glm::vec3 glmPosition = glm::vec3(position.x, position.y, position.z);
+    glm::vec3 glmDirection = glm::vec3(direction.x, direction.y, direction.z);
+    glm::vec3 glmUp = glm::vec3(up.x, up.y, up.z);
+
+    // Create the view matrix
+    glm::mat4 glmView = glm::lookAt(glmPosition, glmPosition + glmDirection, glmUp);
+
+    // Pass the view matrix to the shader program
+    GLint viewLoc = glGetUniformLocation(programID, "ViewMatrix");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glmView));
 }
+
+Renderer::Renderer() = default;

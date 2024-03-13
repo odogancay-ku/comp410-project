@@ -7,7 +7,6 @@
 
 std::string readShaderSource(const std::string& filename);
 
-GLuint loadShaders();
 
 #endif
 

@@ -5,16 +5,15 @@
 #include <vector>
 #include "game.h"
 
-void Game::addObject(const Object& object) {
+void Game::addObject(const Object &object) {
     objects.push_back(object);
 }
 
 void Game::draw(Renderer &renderer) {
     renderer.drawObjects(objects);
-
 }
 
-void Game::removeObject(const Object& object) {
+void Game::removeObject(const Object &object) {
     for (int i = 0; i < objects.size(); i++) {
         if (objects[i].id == object.id) {
             objects.erase(objects.begin() + i);
@@ -24,7 +23,7 @@ void Game::removeObject(const Object& object) {
 }
 
 void Game::update(float dt) {
-    for (auto& object : objects) {
+    for (auto &object: objects) {
         object.update(dt);
     }
 }

@@ -7,20 +7,22 @@
 
 #include "Angel.h"
 #include "../physics/object.h"
+#include "camera.h"
 
 
 class Renderer {
 public:
 
+    Renderer();
+
     Renderer(const std::string &vertexShaderFile, const std::string &fragmentShaderFile);
 
-    const char* vertexShaderSource;
-    const char* fragmentShaderSource;
+    std::basic_string<char> vertexShaderSource;
+    std::basic_string<char> fragmentShaderSource;
 
 
-    void loadShaders(const std::string &vertexShaderFilename, const std::string &fragmentShaderFilename);
+    GLuint loadShaders(const std::string &vertexShaderFilename, const std::string &fragmentShaderFilename);
 
-    void compileAndLinkShaders();
 
     void
     drawTriangle(const vec3 &vertex1, const vec3 &vertex2, const vec3 &vertex3, const vec3 &normal1,
@@ -34,7 +36,6 @@ public:
 
     void createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight);
 
-private:
     GLuint programID;
     float aspectRatio;
     float boundingBoxWidth;
@@ -45,9 +46,11 @@ private:
     float boundingBoxTop;
     float boundingBoxBack;
     float boundingBoxFront;
-    float farPlane = 100.0f;
-    float nearPlane = 9.9f;
-    float fov = 45.0f;
+    float farPlane = 500.0f;
+    float nearPlane = 0.1f;
+    float fov = 90.0f;
+
+    void setCamera(const vec3 &position, float yaw, float pitch);
 
 };
 

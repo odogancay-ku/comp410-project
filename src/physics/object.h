@@ -6,7 +6,7 @@
 #define OBJECT_H
 
 #include "Angel.h"
-#include "../visuals/rendering.h"
+#include <vector>
 
 class Object {
 
@@ -30,10 +30,10 @@ public:
     bool isAffectedByGravity;
     bool isSurface;
 
-    std::vector<vec3> vertices;
-    std::vector<vec3> normals;
-    std::vector<vec3> colors;
-    std::vector<GLuint> indices;
+    std::vector<vec3> vertices = {};
+    std::vector<vec3> normals = {};
+    std::vector<vec3> colors= {};
+    std::vector<GLuint> indices = {};
 
     Object(): id(nextId++) {}
 
@@ -42,8 +42,6 @@ public:
     void handleCollision(Object &other, vec3 collisionPoint);
 
     bool checkCollision(Object &other);
-
-    void draw();
 
     vec3 calculateCollisionPoint(Object &other);
 };
@@ -102,44 +100,28 @@ public:
 
 };
 
+
 class Surface : public Object {
 
 public:
-    Surface(vec3 position, float size, float mass, float restitution, float friction, bool isStatic, bool isAffectedByGravity, bool isSurface) {
-        this->position = position;
-        this->mass = mass;
-        this->restitution = restitution;
-        this->friction = friction;
-        this->isStatic = isStatic;
-        this->isAffectedByGravity = isAffectedByGravity;
-        this->isSurface = isSurface;
+    Surface(const std::vector<vec3>& vertices, const vec3& color) {
+        this->vertices = vertices;
+        this->colors = std::vector<vec3>(4, color);
+        this->isStatic = true;
+        this->isAffectedByGravity = false;
+        this->isColliding = true;
 
-        vertices = {
-                vec3(-size, 0, -size),
-                vec3(size, 0, -size),
-                vec3(size, 0, size),
-                vec3(-size, 0, size)
-        };
+        // Assuming the vertices are in a plane, we can calculate the normal
+        vec3 edge1 = vertices[1] - vertices[0];
+        vec3 edge2 = vertices[2] - vertices[0];
+        vec3 normal = cross(edge1, edge2);
+        normal = normalize(normal);
 
-        normals = {
-                vec3(0, 1, 0),
-                vec3(0, 1, 0),
-                vec3(0, 1, 0),
-                vec3(0, 1, 0)
-        };
+        this->normals = std::vector<vec3>(4, normal);
 
-        colors = {
-                vec3(1, 0, 0),
-                vec3(0, 1, 0),
-                vec3(0, 0, 1),
-                vec3(1, 1, 0)
-        };
-
-        indices = {
-                0, 1, 2, 0, 2, 3
-        };
+        // Define indices for two triangles that make up the surface
+        this->indices = {0, 1, 2, 0, 2, 3};
     }
-
 };
 
 #endif //OBJECT_H

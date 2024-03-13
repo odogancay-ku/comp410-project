@@ -3,10 +3,10 @@
 CPP = g++
 
 # Compiler flags
-CPP_FLAGS = -g -Wall -Wextra  -std=c++11
+CPP_FLAGS = -g -w  -std=c++11
 
 # Include directories
-INCLUDES = -I./include -I/usr/include/GL -I./src/visuals
+INCLUDES = -I./include -I./src/visuals -I/usr/include/GL
 
 
 # Libraries
@@ -24,7 +24,7 @@ OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 TARGET = main
 
 # Default rule
-all: $(TARGET) run clean
+all: clean $(TARGET) run clean
 
 # Rule to compile .cpp files to object files
 %.o: %.cpp

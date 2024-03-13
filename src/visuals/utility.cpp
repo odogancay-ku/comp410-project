@@ -19,8 +19,7 @@ std::string readShaderSource(const std::string &filename)
     }
     std::stringstream ss;
     ss << file.rdbuf();
-    // Print the source
-    std::cout << ss.str() << std::endl;
+
     return ss.str();
 }
 

@@ -6,6 +6,7 @@
 #define GAME_H
 
 #include "../physics/object.h"
+#include "../visuals/rendering.h"
 
 class Game {
 public:

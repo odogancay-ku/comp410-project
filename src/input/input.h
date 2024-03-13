@@ -5,29 +5,34 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include <GLFW/glfw3.h>
 #include <map>
 #include "../game/game.h"
 #include "../visuals/rendering.h"
+#include "../visuals/camera.h"
 
 class InputHandler {
 public:
-    InputHandler(GLFWwindow* window, Game &game, Renderer &renderer);
-    void registerKeyCallback();
-    void registerMouseButtonCallback();
+    InputHandler(GLFWwindow* window, Game &game, Renderer &renderer, Camera &camera);
     bool isKeyPressed(int key);
     bool isMouseButtonPressed(int button);
-
-private:
-    static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 
     static std::map<int, bool> keys;
     static std::map<int, bool> mouseButtons;
 
-    void registerKeyCallback(GLFWwindow *window);
 
-    void registerMouseButtonCallback(GLFWwindow *window);
+
+    static void registerKeyCallback(GLFWwindow *window);
+
+    static void registerMouseButtonCallback(GLFWwindow *window);
+
+    static void registerCursorPosCallback(GLFWwindow *window);
+
+    static double lastX;
+    static double lastY;
+    static bool firstMouse;
+    static Renderer renderer;
+    static Camera camera;
+
 };
 
 #endif //INPUT_H

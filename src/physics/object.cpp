@@ -5,6 +5,7 @@
 #include <vector>
 #include "object.h"
 
+int Object::nextId = 0;
 
 void Object::update(float dt) {
     if (!isStatic) {
@@ -81,21 +82,3 @@ bool Object::checkCollision(Object &other) {
     return false;
 }
 
-
-void Object::draw() {
-    for (int i = 0; i < indices.size(); i += 3) {
-        vec3 vertex1 = vertices[indices[i]];
-        vec3 vertex2 = vertices[indices[i + 1]];
-        vec3 vertex3 = vertices[indices[i + 2]];
-
-        vec3 normal1 = normals[indices[i]];
-        vec3 normal2 = normals[indices[i + 1]];
-        vec3 normal3 = normals[indices[i + 2]];
-
-        vec3 color1 = colors[indices[i]];
-        vec3 color2 = colors[indices[i + 1]];
-        vec3 color3 = colors[indices[i + 2]];
-
-        drawTriangle(position + vertex1, position + vertex2, position + vertex3, normal1, normal2, normal3, color1, color2, color3);
-    }
-}
