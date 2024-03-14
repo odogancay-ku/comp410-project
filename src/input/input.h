@@ -34,7 +34,9 @@ public:
     static bool firstMouse;
     static Renderer renderer;
     static Camera camera;
-
+    static Game* game;
+    static std::vector<Object>* objects;
+    static int drawMode;
 };
 
 #endif //INPUT_H

@@ -29,6 +29,7 @@ public:
     bool isColliding;
     bool isAffectedByGravity;
     bool isSurface;
+    bool isHidden = false;
 
     std::vector<vec3> vertices = {};
     std::vector<vec3> normals = {};
@@ -102,6 +103,59 @@ public:
             vec3(sideLength/2, sideLength/2, sideLength/2),
         };
     }
+};
+
+class Sphere : public Object {
+public:
+    Sphere(vec3 position, vec3 color, float radius) {
+        this->position = position;
+        this->mass = 4.0f/3.0f * M_PI * pow(radius, 3); // Mass is proportional to the volume
+        this->restitution = 0.8f; // You can adjust this value
+        this->friction = 0.8f; // You can adjust this value
+        this->isStatic = false;
+        this->isAffectedByGravity = true;
+        this->isSurface = false;
+        this->isColliding = true;
+
+        generateVertices(radius, color);
+
+        std::cout << "Vertices: " << vertices.size() << std::endl;
+        std::cout << "Indices: " << indices.size() << std::endl;
+
+        // The hitbox of the sphere is a box that completely encloses the sphere.
+        hitBoxVertices = {
+            vec3(-radius, -radius, -radius),
+            vec3(radius, radius, radius),
+        };
+    }
+
+    void generateVertices(float radius, vec3 color, int slices=27, int stacks = 27) {
+        for (int i = 0; i <= stacks; ++i) {
+            float phi = static_cast<float>(i) * M_PI / static_cast<float>(stacks);
+            for (int j = 0; j <= slices; ++j) {
+                float theta = static_cast<float>(j) * 2.0f * M_PI / static_cast<float>(slices);
+                float x = std::sin(phi) * std::cos(theta);
+                float y = std::cos(phi);
+                float z = std::sin(phi) * std::sin(theta);
+                vertices.push_back(vec3{x, y, z}*radius);
+                colors.push_back({rand()%100/100.0f, rand()%100/100.0f, rand()%100/100.0f});
+                normals.push_back(vec3{x, y, z});
+            }
+        }
+
+        for (int i = 0; i < stacks; ++i) {
+            for (int j = 0; j < slices; ++j) {
+                indices.push_back((i + 1) * (slices + 1) + j);
+                indices.push_back(i * (slices + 1) + j);
+                indices.push_back(i * (slices + 1) + j + 1);
+
+                indices.push_back((i + 1) * (slices + 1) + j);
+                indices.push_back(i * (slices + 1) + j + 1);
+                indices.push_back((i + 1) * (slices + 1) + j + 1);
+            }
+        }
+    }
+
 };
 
 

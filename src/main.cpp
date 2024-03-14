@@ -63,6 +63,7 @@ int main() {
 
     Cube frontWall({0.0f, 0.0f, renderer.boundingBoxWidth}, {0.0f, 0.0f, 0.5f}, renderer.boundingBoxWidth);
     frontWall.isStatic = true;
+    frontWall.isHidden = true;
     game.addObject(frontWall);
 
     Cube leftWall({-renderer.boundingBoxWidth, 0.0f, 0.0f}, {0.5f, 0.0f, 0.5f}, renderer.boundingBoxWidth);
@@ -81,25 +82,28 @@ int main() {
     topWall.isStatic = true;
     game.addObject(topWall);
 
-    float relativeSpeed = 15.0f;
+    float relativeSpeed = 25.0f;
 
     Cube cube1({-1.2f, 0, 1.0f}, {1.0f, 0.0f, 0.0f}, 1.0f);
-    cube1.isAffectedByGravity = false;
-    cube1.velocity = {relativeSpeed/2, 0, 0};
-    cube1.restitution = 1.0f;
+//    cube1.isAffectedByGravity = false;
+    cube1.velocity = {relativeSpeed/2, 0, relativeSpeed/2};
+    cube1.restitution = 0.8f;
     game.addObject(cube1);
 
     Cube cube2({1.2f, 0, 1.0f}, {0.0f, 1.0f, 0.0f}, 1.0f);
-    cube2.isAffectedByGravity = false;
-    cube2.velocity = {-relativeSpeed/2, 0, 0};
-    cube2.restitution = 1.0f;
+//    cube2.isAffectedByGravity = false;
+    cube2.velocity = {-relativeSpeed/2, 0, -relativeSpeed/2};
+    cube2.restitution = 0.8f;
     game.addObject(cube2);
 
-
+    Sphere sphere1({-1.2f, 0, -1.0f}, {0.0f, 0.0f, 1.0f}, 0.5f);
+    sphere1.velocity = {0, 0, 0};
+    sphere1.restitution = 0.8f;
+    game.addObject(sphere1);
 
     InputHandler::camera.yaw = -90.0f;
     InputHandler::camera.pitch = -0.0f;
-    InputHandler::camera.position = {0.0f, 0.0f, renderer.boundingBoxWidth/2};
+    InputHandler::camera.position = {0.0f, 0.0f, renderer.boundingBoxWidth};
 
     renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw, InputHandler::camera.pitch);
 
@@ -109,11 +113,19 @@ int main() {
     double lastFPSTime = glfwGetTime();
 
     // Print all the objects
-    for (auto &object: game.objects) {
-        std::cout << "Object id: " << object.id << std::endl;
-        std::cout << "Object position: " << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
-        std::cout << "Object velocity: " << object.velocity.x << " " << object.velocity.y << " " << object.velocity.z << std::endl;
-    }
+//    for (auto &object: game.objects) {
+//        std::cout << "Object id: " << object.id << std::endl;
+//        std::cout << "Object position: " << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
+//        std::cout << "Object velocity: " << object.velocity.x << " " << object.velocity.y << " " << object.velocity.z << std::endl;
+//    }
+
+    std::cout << "WELCOME! Press P to give a little velocity to non static objects" << std::endl;
+    std::cout << "Press T to change the draw mode" << std::endl;
+    std::cout << "Press ESC to exit" << std::endl;
+    std::cout << "Press W, A, S, D, left shift, space to move the camera" << std::endl;
+    std::cout << "Press R to reset the camera" << std::endl;
+    std::cout << "You can change the way you face using your mouse! Just drag it" << std::endl;
+    std::cout << "Have fun!" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
         // Clear the screen
@@ -141,17 +153,20 @@ int main() {
         frameCount++;
         double currentFPSTime = glfwGetTime();
         double elapsedTime = currentFPSTime - lastFPSTime;
-        if (elapsedTime >= 1.0) {
-            std::cout << "FPS: " << frameCount << std::endl;
+        if (elapsedTime >= 5.0) {
+            std::cout << "FPS: " << frameCount/elapsedTime << std::endl;
             frameCount = 0;
             lastFPSTime = currentFPSTime;
 
             // Print all the objects
-            for (auto &object: game.objects) {
-                std::cout << "Object id: " << object.id << std::endl;
-                std::cout << "Object position: " << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
-                std::cout << "Object velocity: " << object.velocity.x << " " << object.velocity.y << " " << object.velocity.z << std::endl;
-            }
+//            for (auto &object: game.objects) {
+//                std::cout << "Object id: " << object.id << std::endl;
+//                std::cout << "Object position: " << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
+//                std::cout << "Object velocity: " << object.velocity.x << " " << object.velocity.y << " " << object.velocity.z << std::endl;
+//            }
+//
+//             Print memory usage
+//            std::cout << "Memory usage: " << game.objects.size()*sizeof (Object) << std::endl;
 
         }
 

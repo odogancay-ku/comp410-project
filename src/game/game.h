@@ -10,8 +10,10 @@
 
 class Game {
 public:
-    std::vector<Object> objects;
+    std::vector<Object> objects = {};
+    Object magicalObject;
 
+    Game();
 
     void addObject(const Object &object);
 

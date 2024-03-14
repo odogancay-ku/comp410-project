@@ -27,7 +27,7 @@ public:
     void
     drawTriangle(const vec3 &vertex1, const vec3 &vertex2, const vec3 &vertex3, const vec3 &normal1,
                  const vec3 &normal2,
-                 const vec3 &normal3, const vec3 &color1, const vec3 &color2, const vec3 &color3);
+                 const vec3 &normal3, const vec3 &color1, const vec3 &color2, const vec3 &color3, GLuint VBO, GLuint VAO);
 
 
     void drawObject(const Object &object);

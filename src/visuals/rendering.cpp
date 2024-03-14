@@ -20,11 +20,19 @@ void Renderer::drawObjects(const std::vector<Object> &objects) {
 
 void Renderer::drawObject(const Object &object) {
 
+    if (object.isHidden) {
+        return;
+    }
+
     GLint translationLoc = glGetUniformLocation(programID, "translation");
     glUniform3f(translationLoc, object.position.x, object.position.y, object.position.z);
+    GLuint VBO,VAO;
+    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO);
+
+
 
     for (int i = 0; i < object.indices.size(); i += 3) {
-
 
         vec3 vertex1 = object.vertices[object.indices[i]];
         vec3 vertex2 = object.vertices[object.indices[i + 1]];
@@ -40,14 +48,17 @@ void Renderer::drawObject(const Object &object) {
 
         drawTriangle(vertex1, vertex2, vertex3,
                      normal1, normal2, normal3,
-                     color1, color2, color3);
+                     color1, color2, color3, VBO, VAO);
     }
+
+    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
 }
 
 
 void Renderer::drawTriangle(const vec3 &vertex1, const vec3 &vertex2, const vec3 &vertex3,
                             const vec3 &normal1, const vec3 &normal2, const vec3 &normal3,
-                            const vec3 &color1, const vec3 &color2, const vec3 &color3) {
+                            const vec3 &color1, const vec3 &color2, const vec3 &color3, GLuint VBO, GLuint VAO) {
     GLfloat vertices[] = {
             vertex1.x, vertex1.y, vertex1.z, normal1.x, normal1.y, normal1.z,
             vertex2.x, vertex2.y, vertex2.z, normal2.x, normal2.y, normal2.z,
@@ -55,14 +66,9 @@ void Renderer::drawTriangle(const vec3 &vertex1, const vec3 &vertex2, const vec3
     };
 
 
-    GLuint VBO, VAO;
-
-
-    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
     // Position attribute
@@ -151,6 +157,7 @@ GLuint Renderer::loadShaders(const std::string &vertexShaderFilename, const std:
 
 
 Renderer::Renderer(const std::string &vertexShaderFile, const std::string &fragmentShaderFile) {
+    std::cout << "Renderer created" << std::endl;
     loadShaders(vertexShaderFile, fragmentShaderFile);
 }
 

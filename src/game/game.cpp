@@ -52,3 +52,7 @@ void Game::checkCollisions() {
         }
     }
 }
+
+Game::Game() {
+    std::cout << "Game created" << std::endl;
+}

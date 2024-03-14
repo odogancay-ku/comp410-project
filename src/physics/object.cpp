@@ -60,7 +60,6 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
         float velocityAlongNormal = dot(relativeVelocity, normal);
 
         if (velocityAlongNormal > 0) {
-            dynamicObject.position += separationVector;
             return;
         }
 
@@ -83,23 +82,18 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
 
 
 
-    std::cout << "Collision detected" << std::endl;
-
-    std::cout << "Object position: " << position.x << " " << position.y << " " << position.z << std::endl;
-    std::cout << "Other position: " << other.position.x << " " << other.position.y << " " << other.position.z << std::endl;
-
-    std::cout << "Object velocity: " << velocity.x << " " << velocity.y << " " << velocity.z << std::endl;
-    std::cout << "Other velocity: " << other.velocity.x << " " << other.velocity.y << " " << other.velocity.z << std::endl;
 
     vec3 relativeVelocity = velocity - other.velocity;
     vec3 collisionNormal = normalize(position - other.position);
 
-
-
-    std::cout << "Relative velocity: " << relativeVelocity.x << " " << relativeVelocity.y << " " << relativeVelocity.z << std::endl;
-    std::cout << "Collision normal: " << collisionNormal.x << " " << collisionNormal.y << " " << collisionNormal.z << std::endl;
-
     if (relativeVelocity.x != relativeVelocity.x) {
+        // I don't know why this happens, but it does
+        // I'm just going to ignore it
+        // I'm sorry
+        // I'm so sorry
+        // I failed you
+        // I failed you all
+        std::cout << "ERROR: Relative velocity is NaN" << std::endl;
         exit(1);
     }
 
@@ -117,8 +111,6 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
     j /= 1 / mass + 1 / other.mass;
 
     vec3 impulse = j * collisionNormal;
-
-    std::cout << "Impulse: " << impulse.x << " " << impulse.y << " " << impulse.z << std::endl;
 
     velocity += (1 / mass) * impulse;
     other.velocity -= (1 / other.mass) * impulse;
