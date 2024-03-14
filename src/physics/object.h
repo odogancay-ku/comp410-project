@@ -30,6 +30,7 @@ public:
     bool isAffectedByGravity;
     bool isSurface;
     bool isHidden = false;
+    bool applyAcceleration = true;
 
     std::vector<vec3> vertices = {};
     std::vector<vec3> normals = {};
@@ -119,9 +120,6 @@ public:
 
         generateVertices(radius, color);
 
-        std::cout << "Vertices: " << vertices.size() << std::endl;
-        std::cout << "Indices: " << indices.size() << std::endl;
-
         // The hitbox of the sphere is a box that completely encloses the sphere.
         hitBoxVertices = {
             vec3(-radius, -radius, -radius),
@@ -138,7 +136,7 @@ public:
                 float y = std::cos(phi);
                 float z = std::sin(phi) * std::sin(theta);
                 vertices.push_back(vec3{x, y, z}*radius);
-                colors.push_back({rand()%100/100.0f, rand()%100/100.0f, rand()%100/100.0f});
+                colors.push_back(color);
                 normals.push_back(vec3{x, y, z});
             }
         }
@@ -186,7 +184,6 @@ public:
         this->colors = colors;
         this->indices = indices;
         this->hitBoxVertices = hitBoxVertices;
-
 
     }
 

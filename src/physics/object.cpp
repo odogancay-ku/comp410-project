@@ -14,7 +14,9 @@ void Object::update(float dt) {
         if (isAffectedByGravity) {
             velocity += vec3(0, -9.81, 0) * dt;
         }
-        velocity += acceleration * dt;
+        if (applyAcceleration) {
+            velocity += acceleration * dt;
+        }
         position += velocity * dt;
         angularVelocity += angularAcceleration * dt;
         rotation += angularVelocity * dt;

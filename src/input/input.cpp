@@ -131,7 +131,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
                 color.y = (rand() % 100) / 100.0f;
                 color.z = (rand() % 100) / 100.0f;
 
-                float size = (rand() % 100) / 100.0f * 2.0f+0.2f;
+                float size = (rand() % 100) / 100.0f * 1.0f+0.2f;
 
                 Sphere sphere({0, 0, 0}, color, size);
                 sphere.velocity = speed;
@@ -199,10 +199,6 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
         InputHandler::camera.fov = 30.0f;
     if (InputHandler::camera.fov > 145.0f)
         InputHandler::camera.fov = 145.0f;
-
-    std::cout << "fov: " << InputHandler::camera.fov << std::endl;
-    std::cout << "window width: " << InputHandler::renderer.windowWidth << std::endl;
-    std::cout << "window height: " << InputHandler::renderer.windowHeight << std::endl;
 
     InputHandler::renderer.createAndSetPerspectiveProjectionMatrix(InputHandler::renderer.windowWidth, InputHandler::renderer.windowHeight, InputHandler::camera.fov);
 

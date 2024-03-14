@@ -161,15 +161,11 @@ GLuint Renderer::loadShaders(const std::string &vertexShaderFilename, const std:
 
 
 Renderer::Renderer(const std::string &vertexShaderFile, const std::string &fragmentShaderFile) {
-    std::cout << "Renderer created" << std::endl;
     loadShaders(vertexShaderFile, fragmentShaderFile);
 }
 
 void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight, float fov) {
     // Define projection matrix parameters
-    std::cout << "Creating perspective projection matrix" << std::endl;
-    std::cout << "Window width: " << _windowWidth << std::endl;
-    std::cout << "Window height: " << _windowHeight << std::endl;
     windowWidth = _windowWidth;
     windowHeight = _windowHeight;
     aspectRatio = (float) windowWidth / (float) windowHeight;

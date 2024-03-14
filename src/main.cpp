@@ -82,6 +82,12 @@ int main() {
     topWall.isStatic = true;
     game.addObject(topWall);
 
+    Cube cube({0, 0, 0}, {0, 0, 1}, 1);
+    cube.velocity = {3.0f, 1.0f, 2.0f};
+    cube.isAffectedByGravity = false;
+    cube.applyAcceleration = false;
+    cube.restitution = 1.0f;
+    game.addObject(cube);
 
     InputHandler::camera.yaw = -90.0f;
     InputHandler::camera.pitch = -0.0f;
@@ -103,6 +109,8 @@ int main() {
 
     std::cout << "WELCOME! Press P to give a little velocity to non static objects" << std::endl;
     std::cout << "Press C to create a new cube at origin with random speed and color" << std::endl;
+    std::cout << "Press V to create a new sphere at origin with random speed and color" << std::endl;
+    std::cout << "Press B to create a new bunny at origin with random speed and color" << std::endl;
     std::cout << "Press T to change the draw mode" << std::endl;
     std::cout << "Press ESC to exit" << std::endl;
     std::cout << "Press W, A, S, D, left shift, space to move the camera relative to the orientation" << std::endl;
@@ -144,7 +152,7 @@ int main() {
         frameCount++;
         double currentFPSTime = glfwGetTime();
         double elapsedTime = currentFPSTime - lastFPSTime;
-        if (elapsedTime >= 1.0) {
+        if (elapsedTime >= 5.0) {
             std::cout << "FPS: " << frameCount/elapsedTime << std::endl;
             frameCount = 0;
             lastFPSTime = currentFPSTime;
