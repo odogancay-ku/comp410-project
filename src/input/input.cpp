@@ -85,9 +85,9 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 
                 // Create a new cube at origin with random speed and color
                 vec3 speed = {0, 0, 0};
-                speed.x = (rand() % 100) / 100.0f * 15.0f;
-                speed.y = (rand() % 100) / 100.0f * 15.0f;
-                speed.z = (rand() % 100) / 100.0f * 15.0f;
+                speed.x = (rand() % 100) / 100.0f * 5.0f;
+                speed.y = (rand() % 100) / 100.0f * 5.0f;
+                speed.z = (rand() % 100) / 100.0f * 5.0f;
 
                 vec3 color = {0, 0, 0};
                 color.x = (rand() % 100) / 100.0f;
@@ -104,9 +104,9 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
             } else if (pressed_key.first == GLFW_KEY_B) {
                 // Create a new bunny at origin with random speed and color
                 vec3 speed = {0, 0, 0};
-                speed.x = (rand() % 100) / 100.0f * 15.0f;
-                speed.y = (rand() % 100) / 100.0f * 15.0f;
-                speed.z = (rand() % 100) / 100.0f * 15.0f;
+                speed.x = (rand() % 100) / 100.0f * 5.0f;
+                speed.y = (rand() % 100) / 100.0f * 5.0f;
+                speed.z = (rand() % 100) / 100.0f * 5.0f;
 
                 vec3 color = {0, 0, 0};
                 color.x = (rand() % 100) / 100.0f;
@@ -122,9 +122,9 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
             } else if (pressed_key.first == GLFW_KEY_V) {
                 // Create a new sphere at origin with random speed and color
                 vec3 speed = {0, 0, 0};
-                speed.x = (rand() % 100) / 100.0f * 15.0f;
-                speed.y = (rand() % 100) / 100.0f * 15.0f;
-                speed.z = (rand() % 100) / 100.0f * 15.0f;
+                speed.x = (rand() % 100) / 100.0f * 5.0f;
+                speed.y = (rand() % 100) / 100.0f * 5.0f;
+                speed.z = (rand() % 100) / 100.0f * 5.0f;
 
                 vec3 color = {0, 0, 0};
                 color.x = (rand() % 100) / 100.0f;

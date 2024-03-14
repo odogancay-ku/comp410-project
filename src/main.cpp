@@ -82,38 +82,6 @@ int main() {
     topWall.isStatic = true;
     game.addObject(topWall);
 
-    float relativeSpeed = 25.0f;
-
-    Cube cube1({-1.2f, 0, 1.0f}, {1.0f, 0.0f, 0.0f}, 1.0f);
-//    cube1.isAffectedByGravity = false;
-    cube1.velocity = {relativeSpeed/2, 0, relativeSpeed/2};
-    cube1.restitution = 0.8f;
-    game.addObject(cube1);
-
-    Cube cube2({1.2f, 0, 1.0f}, {0.0f, 1.0f, 0.0f}, 1.0f);
-//    cube2.isAffectedByGravity = false;
-    cube2.velocity = {-relativeSpeed/2, 0, -relativeSpeed/2};
-    cube2.restitution = 0.8f;
-    game.addObject(cube2);
-
-    Sphere sphere1({-1.2f, 0, -1.0f}, {0.0f, 0.0f, 1.0f}, 0.5f);
-    sphere1.velocity = {0, 0, 0};
-    sphere1.restitution = 0.8f;
-    game.addObject(sphere1);
-
-
-    Bunny bunny1({1.2f, 0, -1.0f}, {1.0f, 1.0f, 0.0f}, 3.0f);
-    bunny1.velocity = {0, 0, 0};
-    bunny1.restitution = 0.8f;
-    bunny1.isStatic = false;
-    game.addObject(bunny1);
-
-    std::cout << "Bunny created" << std::endl;
-    std::cout << "Bunny hitbox:" << std::endl;
-    for (auto &vertex: bunny1.hitBoxVertices) {
-        std::cout << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
-    }
-
 
     InputHandler::camera.yaw = -90.0f;
     InputHandler::camera.pitch = -0.0f;
@@ -143,6 +111,8 @@ int main() {
     std::cout << "Use the mouse wheel to change the fov" << std::endl;
     std::cout << "Have fun!" << std::endl;
 
+
+
     while (!glfwWindowShouldClose(window)) {
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -151,9 +121,14 @@ int main() {
         double deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
-        // Update the objects
-        game.checkCollisions();
-        game.update(deltaTime);
+        // Make sure physics update per second is about 120
+        while (deltaTime > 0) {
+            game.checkCollisions();
+            float step = std::min(deltaTime, 0.008);
+            game.update(step);
+            deltaTime -= step;
+        }
+
         game.draw(renderer);
 
         // Swap buffers
@@ -169,7 +144,7 @@ int main() {
         frameCount++;
         double currentFPSTime = glfwGetTime();
         double elapsedTime = currentFPSTime - lastFPSTime;
-        if (elapsedTime >= 5.0) {
+        if (elapsedTime >= 1.0) {
             std::cout << "FPS: " << frameCount/elapsedTime << std::endl;
             frameCount = 0;
             lastFPSTime = currentFPSTime;
