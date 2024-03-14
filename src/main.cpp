@@ -123,9 +123,10 @@ int main() {
     std::cout << "Press C to create a new cube at origin with random speed and color" << std::endl;
     std::cout << "Press T to change the draw mode" << std::endl;
     std::cout << "Press ESC to exit" << std::endl;
-    std::cout << "Press W, A, S, D, left shift, space to move the camera" << std::endl;
+    std::cout << "Press W, A, S, D, left shift, space to move the camera relative to the orientation" << std::endl;
     std::cout << "Press R to reset the camera" << std::endl;
-    std::cout << "You can change the way you face using your mouse! Just drag it" << std::endl;
+    std::cout << "You can change the way you face using your mouse! Just drag it, no roll only yaw and pitch" << std::endl;
+    std::cout << "Use the mouse wheel to change the fov" << std::endl;
     std::cout << "Have fun!" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
