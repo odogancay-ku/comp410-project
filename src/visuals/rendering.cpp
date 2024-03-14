@@ -27,13 +27,12 @@ void Renderer::drawObject(const Object &object) {
 
     GLint translationLoc = glGetUniformLocation(programID, "translation");
     glUniform3f(translationLoc, object.position.x, object.position.y, object.position.z);
-    GLuint VBO,VAO;
+    GLuint VBO, VAO;
     glGenBuffers(1, &VBO);
     glGenVertexArrays(1, &VAO);
 
 
     for (int i = 0; i < object.indices.size(); i += 3) {
-
 
 
         vec3 vertex1 = object.vertices[object.indices[i]];

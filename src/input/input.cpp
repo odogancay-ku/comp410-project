@@ -9,8 +9,8 @@ std::map<int, bool> InputHandler::keys;
 std::map<int, bool> InputHandler::mouseButtons;
 Camera InputHandler::camera;
 Renderer InputHandler::renderer;
-Game* InputHandler::game;
-std::vector<Object>* InputHandler::objects;
+Game *InputHandler::game;
+std::vector<Object> *InputHandler::objects;
 int InputHandler::drawMode = 0;
 double InputHandler::lastX = 0.0;
 double InputHandler::lastY = 0.0;
@@ -25,7 +25,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 
     // Iterate over keys and do actions for true ones
 
-    for (auto const &pressed_key : InputHandler::keys) {
+    for (auto const &pressed_key: InputHandler::keys) {
         if (pressed_key.second) {
             if (pressed_key.first == GLFW_KEY_W) {
                 InputHandler::camera.moveForward(1.0f);
@@ -46,17 +46,20 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
                 InputHandler::camera.yaw = -90.0f;
                 InputHandler::camera.pitch = -0.0f;
                 InputHandler::camera.fov = 90.0f;
-                InputHandler::renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw, InputHandler::camera.pitch);
-                InputHandler::renderer.createAndSetPerspectiveProjectionMatrix(InputHandler::renderer.windowWidth, InputHandler::renderer.windowHeight, InputHandler::camera.fov);
+                InputHandler::renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw,
+                                                 InputHandler::camera.pitch);
+                InputHandler::renderer.createAndSetPerspectiveProjectionMatrix(InputHandler::renderer.windowWidth,
+                                                                               InputHandler::renderer.windowHeight,
+                                                                               InputHandler::camera.fov);
             } else if (pressed_key.first == GLFW_KEY_P) {
                 // Give a little velocity to non static objects
                 for (auto &object: *InputHandler::objects) {
                     if (!object.isStatic) {
                         // Give random velocity to the object
                         float maxVelocity = 25.0f;
-                        object.velocity.x = (rand() % 100) / 100.0f * maxVelocity*2- maxVelocity;
-                        object.velocity.y = (rand() % 100) / 100.0f * maxVelocity*2- maxVelocity;
-                        object.velocity.z = (rand() % 100) / 100.0f * maxVelocity*2- maxVelocity;
+                        object.velocity.x = (rand() % 100) / 100.0f * maxVelocity * 2 - maxVelocity;
+                        object.velocity.y = (rand() % 100) / 100.0f * maxVelocity * 2 - maxVelocity;
+                        object.velocity.z = (rand() % 100) / 100.0f * maxVelocity * 2 - maxVelocity;
                     }
                 }
             } else if (pressed_key.first == GLFW_KEY_T) {
@@ -94,7 +97,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
                 color.y = (rand() % 100) / 100.0f;
                 color.z = (rand() % 100) / 100.0f;
 
-                float size = (rand() % 100) / 100.0f * 2.0f+0.2f;
+                float size = (rand() % 100) / 100.0f * 2.0f + 0.2f;
 
                 Cube cube({0, 0, 0}, color, size);
                 cube.velocity = speed;
@@ -113,7 +116,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
                 color.y = (rand() % 100) / 100.0f;
                 color.z = (rand() % 100) / 100.0f;
 
-                float size = (rand() % 100) / 100.0f * 2.0f+0.2f;
+                float size = (rand() % 100) / 100.0f * 2.0f + 0.2f;
 
                 Bunny bunny({0, 0, 0}, color, size);
                 bunny.velocity = speed;
@@ -131,7 +134,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
                 color.y = (rand() % 100) / 100.0f;
                 color.z = (rand() % 100) / 100.0f;
 
-                float size = (rand() % 100) / 100.0f * 1.0f+0.2f;
+                float size = (rand() % 100) / 100.0f * 1.0f + 0.2f;
 
                 Sphere sphere({0, 0, 0}, color, size);
                 sphere.velocity = speed;
@@ -142,7 +145,8 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
         }
     }
 
-    InputHandler::renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw, InputHandler::camera.pitch);
+    InputHandler::renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw,
+                                     InputHandler::camera.pitch);
 
 }
 
@@ -186,11 +190,12 @@ void cursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
     if (InputHandler::camera.pitch < -89.0f)
         InputHandler::camera.pitch = -89.0f;
 
-    InputHandler::renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw, InputHandler::camera.pitch);
+    InputHandler::renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw,
+                                     InputHandler::camera.pitch);
 
 }
 
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+void scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     // Adjust the fov based on the yoffset of the scroll wheel
     InputHandler::camera.fov -= yoffset;
 
@@ -200,7 +205,9 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
     if (InputHandler::camera.fov > 145.0f)
         InputHandler::camera.fov = 145.0f;
 
-    InputHandler::renderer.createAndSetPerspectiveProjectionMatrix(InputHandler::renderer.windowWidth, InputHandler::renderer.windowHeight, InputHandler::camera.fov);
+    InputHandler::renderer.createAndSetPerspectiveProjectionMatrix(InputHandler::renderer.windowWidth,
+                                                                   InputHandler::renderer.windowHeight,
+                                                                   InputHandler::camera.fov);
 
 }
 
@@ -215,7 +222,7 @@ InputHandler::InputHandler(GLFWwindow *window, Game &_game, Renderer &_renderer,
     registerScrollCallback(window);
 }
 
-void InputHandler::registerScrollCallback(GLFWwindow* window) {
+void InputHandler::registerScrollCallback(GLFWwindow *window) {
     std::cout << "registering scroll callback" << std::endl;
     glfwSetScrollCallback(window, scrollCallback);
 }

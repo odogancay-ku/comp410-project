@@ -36,10 +36,7 @@ void Game::checkCollisions() {
         }
 
 
-
         for (int j = i + 1; j < objects.size(); j++) {
-
-
 
 
             if (!objects[j].isColliding) {

@@ -5,7 +5,7 @@
 #include <string>
 #include <glew.h>
 
-std::string readShaderSource(const std::string& filename);
+std::string readShaderSource(const std::string &filename);
 
 
 #endif

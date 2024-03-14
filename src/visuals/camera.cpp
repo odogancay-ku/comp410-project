@@ -19,8 +19,6 @@ void Camera::moveLeft(float amount) {
 }
 
 
-
-
 void Camera::moveX(float amount) {
     position.x += amount * speed;
 }

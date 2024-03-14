@@ -100,12 +100,6 @@ int main() {
     double frameCount = 0;
     double lastFPSTime = glfwGetTime();
 
-    // Print all the objects
-//    for (auto &object: game.objects) {
-//        std::cout << "Object id: " << object.id << std::endl;
-//        std::cout << "Object position: " << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
-//        std::cout << "Object velocity: " << object.velocity.x << " " << object.velocity.y << " " << object.velocity.z << std::endl;
-//    }
 
     std::cout << "WELCOME! Press P to give a little velocity to non static objects" << std::endl;
     std::cout << "Press C to create a new cube at origin with random speed and color" << std::endl;
@@ -115,10 +109,10 @@ int main() {
     std::cout << "Press ESC to exit" << std::endl;
     std::cout << "Press W, A, S, D, left shift, space to move the camera relative to the orientation" << std::endl;
     std::cout << "Press R to reset the camera" << std::endl;
-    std::cout << "You can change the way you face using your mouse! Just drag it, no roll only yaw and pitch" << std::endl;
+    std::cout << "You can change the way you face using your mouse! Just drag it, no roll only yaw and pitch"
+              << std::endl;
     std::cout << "Use the mouse wheel to change the fov" << std::endl;
     std::cout << "Have fun!" << std::endl;
-
 
 
     while (!glfwWindowShouldClose(window)) {
@@ -153,7 +147,7 @@ int main() {
         double currentFPSTime = glfwGetTime();
         double elapsedTime = currentFPSTime - lastFPSTime;
         if (elapsedTime >= 5.0) {
-            std::cout << "FPS: " << frameCount/elapsedTime << std::endl;
+            std::cout << "FPS: " << frameCount / elapsedTime << std::endl;
             frameCount = 0;
             lastFPSTime = currentFPSTime;
 

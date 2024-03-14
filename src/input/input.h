@@ -12,13 +12,14 @@
 
 class InputHandler {
 public:
-    InputHandler(GLFWwindow* window, Game &game, Renderer &renderer, Camera &camera);
+    InputHandler(GLFWwindow *window, Game &game, Renderer &renderer, Camera &camera);
+
     bool isKeyPressed(int key);
+
     bool isMouseButtonPressed(int button);
 
     static std::map<int, bool> keys;
     static std::map<int, bool> mouseButtons;
-
 
 
     static void registerKeyCallback(GLFWwindow *window);
@@ -34,8 +35,8 @@ public:
     static bool firstMouse;
     static Renderer renderer;
     static Camera camera;
-    static Game* game;
-    static std::vector<Object>* objects;
+    static Game *game;
+    static std::vector<Object> *objects;
     static int drawMode;
 };
 

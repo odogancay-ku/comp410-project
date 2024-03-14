@@ -34,14 +34,13 @@ public:
 
     std::vector<vec3> vertices = {};
     std::vector<vec3> normals = {};
-    std::vector<vec3> colors= {};
+    std::vector<vec3> colors = {};
     std::vector<GLuint> indices = {};
 
     std::vector<vec3> hitBoxVertices = {};
 
 
-
-    Object(): id(nextId++) {
+    Object() : id(nextId++) {
     }
 
     void update(float dt);
@@ -68,40 +67,40 @@ public:
         this->isColliding = true;
 
         vertices = {
-            vec3(-sideLength/2, -sideLength/2, -sideLength/2),
-            vec3(sideLength/2, -sideLength/2, -sideLength/2),
-            vec3(sideLength/2, sideLength/2, -sideLength/2),
-            vec3(-sideLength/2, sideLength/2, -sideLength/2),
-            vec3(-sideLength/2, -sideLength/2, sideLength/2),
-            vec3(sideLength/2, -sideLength/2, sideLength/2),
-            vec3(sideLength/2, sideLength/2, sideLength/2),
-            vec3(-sideLength/2, sideLength/2, sideLength/2)
+                vec3(-sideLength / 2, -sideLength / 2, -sideLength / 2),
+                vec3(sideLength / 2, -sideLength / 2, -sideLength / 2),
+                vec3(sideLength / 2, sideLength / 2, -sideLength / 2),
+                vec3(-sideLength / 2, sideLength / 2, -sideLength / 2),
+                vec3(-sideLength / 2, -sideLength / 2, sideLength / 2),
+                vec3(sideLength / 2, -sideLength / 2, sideLength / 2),
+                vec3(sideLength / 2, sideLength / 2, sideLength / 2),
+                vec3(-sideLength / 2, sideLength / 2, sideLength / 2)
 
         };
 
         normals = {
-            vec3(0, 0, -1),
-            vec3(0, 0, 1),
-            vec3(1, 0, 0),
-            vec3(-1, 0, 0),
-            vec3(0, 1, 0),
-            vec3(0, -1, 0)
+                vec3(0, 0, -1),
+                vec3(0, 0, 1),
+                vec3(1, 0, 0),
+                vec3(-1, 0, 0),
+                vec3(0, 1, 0),
+                vec3(0, -1, 0)
         };
 
         colors = std::vector<vec3>(8, color);
 
         indices = {
-            0, 1, 2, 0, 2, 3,
-            4, 5, 6, 4, 6, 7,
-            0, 4, 7, 0, 7, 3,
-            1, 5, 6, 1, 6, 2,
-            0, 1, 5, 0, 5, 4,
-            3, 2, 6, 3, 6, 7
+                0, 1, 2, 0, 2, 3,
+                4, 5, 6, 4, 6, 7,
+                0, 4, 7, 0, 7, 3,
+                1, 5, 6, 1, 6, 2,
+                0, 1, 5, 0, 5, 4,
+                3, 2, 6, 3, 6, 7
         };
 
         hitBoxVertices = {
-            vec3(-sideLength/2, -sideLength/2, -sideLength/2),
-            vec3(sideLength/2, sideLength/2, sideLength/2),
+                vec3(-sideLength / 2, -sideLength / 2, -sideLength / 2),
+                vec3(sideLength / 2, sideLength / 2, sideLength / 2),
         };
     }
 };
@@ -110,7 +109,7 @@ class Sphere : public Object {
 public:
     Sphere(vec3 position, vec3 color, float radius) {
         this->position = position;
-        this->mass = 4.0f/3.0f * M_PI * pow(radius, 3); // Mass is proportional to the volume
+        this->mass = 4.0f / 3.0f * M_PI * pow(radius, 3); // Mass is proportional to the volume
         this->restitution = 0.8f; // You can adjust this value
         this->friction = 0.8f; // You can adjust this value
         this->isStatic = false;
@@ -122,12 +121,12 @@ public:
 
         // The hitbox of the sphere is a box that completely encloses the sphere.
         hitBoxVertices = {
-            vec3(-radius, -radius, -radius),
-            vec3(radius, radius, radius),
+                vec3(-radius, -radius, -radius),
+                vec3(radius, radius, radius),
         };
     }
 
-    void generateVertices(float radius, vec3 color, int slices=27, int stacks = 27) {
+    void generateVertices(float radius, vec3 color, int slices = 27, int stacks = 27) {
         for (int i = 0; i <= stacks; ++i) {
             float phi = static_cast<float>(i) * M_PI / static_cast<float>(stacks);
             for (int j = 0; j <= slices; ++j) {
@@ -135,7 +134,7 @@ public:
                 float x = std::sin(phi) * std::cos(theta);
                 float y = std::cos(phi);
                 float z = std::sin(phi) * std::sin(theta);
-                vertices.push_back(vec3{x, y, z}*radius);
+                vertices.push_back(vec3{x, y, z} * radius);
                 colors.push_back(color);
                 normals.push_back(vec3{x, y, z});
             }
@@ -156,9 +155,11 @@ public:
 
 };
 
-void loadOffModel(const std::string& filename, std::vector<vec3> &vertices, std::vector<vec3> &normals, std::vector<vec3> &colors, std::vector<GLuint> &indices, std::vector<vec3> &hitboxVertices, float scale, vec3 color);
+void loadOffModel(const std::string &filename, std::vector<vec3> &vertices, std::vector<vec3> &normals,
+                  std::vector<vec3> &colors, std::vector<GLuint> &indices, std::vector<vec3> &hitboxVertices,
+                  float scale, vec3 color);
 
-class Bunny: public Object {
+class Bunny : public Object {
 
 public:
     Bunny(vec3 position, vec3 color, float scale) {
