@@ -158,5 +158,39 @@ public:
 
 };
 
+void loadOffModel(const std::string& filename, std::vector<vec3> &vertices, std::vector<vec3> &normals, std::vector<vec3> &colors, std::vector<GLuint> &indices, std::vector<vec3> &hitboxVertices, float scale, vec3 color);
+
+class Bunny: public Object {
+
+public:
+    Bunny(vec3 position, vec3 color, float scale) {
+        this->position = position;
+        this->mass = scale;
+        this->restitution = 0.8f;
+        this->friction = 0.8f;
+        this->isStatic = false;
+        this->isAffectedByGravity = true;
+        this->isSurface = false;
+        this->isColliding = true;
+
+        std::vector<vec3> vertices;
+        std::vector<vec3> normals;
+        std::vector<vec3> colors;
+        std::vector<GLuint> indices;
+        std::vector<vec3> hitBoxVertices;
+
+        loadOffModel("assets/models/bunny.off", vertices, normals, colors, indices, hitBoxVertices, scale, color);
+
+        this->vertices = vertices;
+        this->normals = normals;
+        this->colors = colors;
+        this->indices = indices;
+        this->hitBoxVertices = hitBoxVertices;
+
+
+    }
+
+};
+
 
 #endif //OBJECT_H

@@ -101,6 +101,20 @@ int main() {
     sphere1.restitution = 0.8f;
     game.addObject(sphere1);
 
+
+    Bunny bunny1({1.2f, 0, -1.0f}, {1.0f, 1.0f, 0.0f}, 3.0f);
+    bunny1.velocity = {0, 0, 0};
+    bunny1.restitution = 0.8f;
+    bunny1.isStatic = false;
+    game.addObject(bunny1);
+
+    std::cout << "Bunny created" << std::endl;
+    std::cout << "Bunny hitbox:" << std::endl;
+    for (auto &vertex: bunny1.hitBoxVertices) {
+        std::cout << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
+    }
+
+
     InputHandler::camera.yaw = -90.0f;
     InputHandler::camera.pitch = -0.0f;
     InputHandler::camera.position = {0.0f, 0.0f, renderer.boundingBoxWidth};

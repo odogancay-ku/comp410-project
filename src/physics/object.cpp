@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <fstream>
 #include "object.h"
 
 int Object::nextId = 0;
@@ -27,12 +28,16 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
         Object &dynamicObject = isStatic ? other : *this;
 
 
+
+
         // Separate the objects by calculating the closest side of the static object to the collision point
         vec3 min = staticObject.position + staticObject.hitBoxVertices[0];
         vec3 max = staticObject.position + staticObject.hitBoxVertices[1];
 
         vec3 min2 = dynamicObject.position + dynamicObject.hitBoxVertices[0];
         vec3 max2 = dynamicObject.position + dynamicObject.hitBoxVertices[1];
+
+        vec3 dynamicObjectCenter = (min2 + max2) / 2.0f;
 
         // Calculate the overlap in all three dimensions
 
@@ -52,7 +57,7 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
             separationVector.z = overlapZ;
         }
 
-        vec3 normal = normalize(dynamicObject.position - collisionPoint);
+        vec3 normal = normalize(dynamicObjectCenter - collisionPoint);
 
 
         vec3 relativeVelocity = dynamicObject.velocity;
@@ -73,14 +78,9 @@ void Object::handleCollision(Object &other, vec3 collisionPoint) {
         dynamicObject.position += separationVector;
 
 
-
-
-
         return;
 
     }
-
-
 
 
     vec3 relativeVelocity = velocity - other.velocity;
@@ -163,55 +163,100 @@ vec3 Object::calculateCollisionPoint(Object &other) {
     return collisionPoint;
 }
 
-// Helper function to find the normal of a triangle given three points
-vec3 findTriangleNormal(const vec3 &p1, const vec3 &p2, const vec3 &p3) {
-    return normalize(cross(p2 - p1, p3 - p1));
-}
 
-// Helper function to check if two line segments intersect
-bool segmentsIntersect(const vec3 &p1, const vec3 &q1, const vec3 &p2, const vec3 &q2) {
-    vec3 u = q1 - p1;
-    vec3 v = q2 - p2;
-    vec3 w = p1 - p2;
-    float denominator = dot(u, v) * dot(u, v) - dot(u, u) * dot(v, v);
+void loadOffModel(const std::string &filename, std::vector<vec3> &vertices, std::vector<vec3> &normals,
+                  std::vector<vec3> &colors, std::vector<GLuint> &indices, std::vector<vec3> &hitboxVertices,
+                  float scale, vec3 color) {
 
-    // Check if segments are parallel
-    if (abs(denominator) < 0.0001) {
-        return false;
+    // Confirm the file is off file by checking the first line
+    std::ifstream file(filename);
+    std::string firstLine;
+    std::getline(file, firstLine);
+    if (firstLine != "OFF") {
+        std::cout << "ERROR: File is not in OFF format" << std::endl;
+        exit(1);
     }
 
-    float s = (dot(u, v) * dot(w, v) - dot(v, v) * dot(w, u)) / denominator;
-    float t = (dot(u, v) * dot(w, u) - dot(u, u) * dot(w, v)) / denominator;
+    // Read the number of vertices, faces, and edges
 
-    // Check if intersection point lies within both segments
-    return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
-}
+    int numVertices, numFaces, numEdges;
+    file >> numVertices >> numFaces >> numEdges;
 
-bool checkFaceIntersection(const std::vector<vec3> &triangle1, const std::vector<vec3> &triangle2) {
+    // Read the vertices
+    for (int i = 0; i < numVertices; ++i) {
+        float x, y, z;
+        file >> x >> y >> z;
 
-    vec3 normal1 = findTriangleNormal(triangle1[0], triangle1[1], triangle1[2]);
-    vec3 normal2 = findTriangleNormal(triangle2[0], triangle2[1], triangle2[2]);
-
-    // Check if the planes are parallel
-    if (abs(dot(normal1, normal2)) > 0.999) {
-        return false; // Planes are parallel, triangles cannot intersect
+        vertices.push_back(vec3(x, y, z));
+        colors.push_back(color);
     }
 
-    // Find the intersection line of the two planes
-    vec3 intersectionDir = cross(normal1, normal2);
-
-    // Check if the intersection line intersects both triangles
-    for (size_t i = 0; i < 3; ++i) {
-        for (size_t j = 0; j < 3; ++j) {
-            if (segmentsIntersect(triangle1[i], triangle1[(i + 1) % 3], triangle2[j], triangle2[(j + 1) % 3])) {
-                return true; // Intersection found
-            }
+    // Read the faces
+    for (int i = 0; i < numFaces; ++i) {
+        int numSides;
+        file >> numSides;
+        for (int j = 0; j < numSides; ++j) {
+            GLuint index;
+            file >> index;
+            indices.push_back(index);
         }
     }
 
-    return false; // No intersection found
 
+    file.close();
+
+    // Rotate the object 90 degrees around the x axis
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        float y = vertices[i].y;
+        float z = vertices[i].z;
+        vertices[i].y = z;
+        vertices[i].z = -y;
+    }
+
+
+    // Calculate the bounding box of the object, it will be used for collision detection
+    float minX = vertices[0].x;
+    float minY = vertices[0].y;
+    float minZ = vertices[0].z;
+    float maxX = vertices[0].x;
+    float maxY = vertices[0].y;
+    float maxZ = vertices[0].z;
+
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        if (vertices[i].x < minX) minX = vertices[i].x;
+        if (vertices[i].y < minY) minY = vertices[i].y;
+        if (vertices[i].z < minZ) minZ = vertices[i].z;
+        if (vertices[i].x > maxX) maxX = vertices[i].x;
+        if (vertices[i].y > maxY) maxY = vertices[i].y;
+        if (vertices[i].z > maxZ) maxZ = vertices[i].z;
+    }
+
+    // Calculate the vectoral distance between the min and max points
+    vec3 min = vec3(minX, minY, minZ);
+    vec3 max = vec3(maxX, maxY, maxZ);
+
+    vec3 distance = max - min;
+    float lenDistance = length(distance);
+
+    // Calculate the ratio of the distance to the scale
+    float scaleRatio = scale / lenDistance;
+
+    vec3 scaledMin = min * scaleRatio;
+    vec3 scaledMax = max * scaleRatio;
+
+    // Iterate over indices and normals and scale them
+
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        vertices[i] *= scaleRatio;
+        normals.push_back(normalize(vertices[i]));
+    }
+
+    for (size_t i = 0; i < normals.size(); ++i) {
+        normals[i] *= scaleRatio;
+    }
+
+    hitboxVertices.push_back(scaledMin);
+    hitboxVertices.push_back(scaledMax);
 }
-
 
 

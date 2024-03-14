@@ -24,6 +24,7 @@ void Renderer::drawObject(const Object &object) {
         return;
     }
 
+
     GLint translationLoc = glGetUniformLocation(programID, "translation");
     glUniform3f(translationLoc, object.position.x, object.position.y, object.position.z);
     GLuint VBO,VAO;
@@ -31,16 +32,19 @@ void Renderer::drawObject(const Object &object) {
     glGenVertexArrays(1, &VAO);
 
 
-
     for (int i = 0; i < object.indices.size(); i += 3) {
+
+
 
         vec3 vertex1 = object.vertices[object.indices[i]];
         vec3 vertex2 = object.vertices[object.indices[i + 1]];
         vec3 vertex3 = object.vertices[object.indices[i + 2]];
 
+
         vec3 normal1 = object.normals[object.indices[i]];
         vec3 normal2 = object.normals[object.indices[i + 1]];
         vec3 normal3 = object.normals[object.indices[i + 2]];
+
 
         vec3 color1 = object.colors[object.indices[i]];
         vec3 color2 = object.colors[object.indices[i + 1]];

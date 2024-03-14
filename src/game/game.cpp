@@ -35,7 +35,12 @@ void Game::checkCollisions() {
             continue;
         }
 
+
+
         for (int j = i + 1; j < objects.size(); j++) {
+
+
+
 
             if (!objects[j].isColliding) {
                 continue;
@@ -44,6 +49,7 @@ void Game::checkCollisions() {
             if (objects[i].isStatic && objects[j].isStatic) {
                 continue;
             }
+
 
             if (objects[i].checkCollision(objects[j])) {
                 vec3 collisionPoint = objects[i].calculateCollisionPoint(objects[j]);
