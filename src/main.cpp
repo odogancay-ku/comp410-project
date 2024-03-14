@@ -120,6 +120,7 @@ int main() {
 //    }
 
     std::cout << "WELCOME! Press P to give a little velocity to non static objects" << std::endl;
+    std::cout << "Press C to create a new cube at origin with random speed and color" << std::endl;
     std::cout << "Press T to change the draw mode" << std::endl;
     std::cout << "Press ESC to exit" << std::endl;
     std::cout << "Press W, A, S, D, left shift, space to move the camera" << std::endl;
