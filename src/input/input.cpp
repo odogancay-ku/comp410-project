@@ -119,6 +119,24 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
                 bunny.velocity = speed;
                 bunny.restitution = 0.8f;
                 InputHandler::game->addObject(bunny);
+            } else if (pressed_key.first == GLFW_KEY_V) {
+                // Create a new sphere at origin with random speed and color
+                vec3 speed = {0, 0, 0};
+                speed.x = (rand() % 100) / 100.0f * 15.0f;
+                speed.y = (rand() % 100) / 100.0f * 15.0f;
+                speed.z = (rand() % 100) / 100.0f * 15.0f;
+
+                vec3 color = {0, 0, 0};
+                color.x = (rand() % 100) / 100.0f;
+                color.y = (rand() % 100) / 100.0f;
+                color.z = (rand() % 100) / 100.0f;
+
+                float size = (rand() % 100) / 100.0f * 2.0f+0.2f;
+
+                Sphere sphere({0, 0, 0}, color, size);
+                sphere.velocity = speed;
+                sphere.restitution = 0.8f;
+                InputHandler::game->addObject(sphere);
             }
 
         }
