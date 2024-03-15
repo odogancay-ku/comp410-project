@@ -49,6 +49,10 @@ public:
     void createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight, float fov);
 
     void addObjectVerticesAndIndices(const Object &object, std::vector<GLfloat> &data, std::vector<GLuint> &indices);
+
+    void drawObjectsByTypes(std::vector<Object> *objectsByType);
+
+    void drawObjectsWithModels(const std::vector<Object> &objects);
 };
 
 #endif //RENDERING_H

@@ -174,7 +174,8 @@ void loadOffModel(const std::string &filename, std::vector<vec3> &vertices, std:
     std::ifstream file(filename);
     std::string firstLine;
     std::getline(file, firstLine);
-    if (firstLine != "OFF") {
+    if (firstLine.compare("OFF") == 0) {
+        std::cout << firstLine << std::endl;
         std::cout << "ERROR: File is not in OFF format" << std::endl;
         exit(1);
     }
@@ -184,13 +185,14 @@ void loadOffModel(const std::string &filename, std::vector<vec3> &vertices, std:
     int numVertices, numFaces, numEdges;
     file >> numVertices >> numFaces >> numEdges;
 
+
     // Read the vertices
     for (int i = 0; i < numVertices; ++i) {
         float x, y, z;
         file >> x >> y >> z;
 
         vertices.push_back(vec3(x, y, z));
-        colors.push_back(color);
+        colors.push_back({0.8f, 0.8f, 0.8f});
 //        colors.push_back(vec3{rand()%100/100.0f, rand()%100/100.0f, rand()%100/100.0f});
     }
 

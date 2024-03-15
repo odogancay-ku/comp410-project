@@ -15,7 +15,7 @@ public:
 
     int id;
 
-    int type;
+    int type=0;
 
     vec3 position;
     vec3 velocity;
@@ -33,6 +33,7 @@ public:
     bool isSurface;
     bool isHidden = false;
     bool applyAcceleration = true;
+    int scale; // Only used for objects with models
 
     std::vector<vec3> vertices = {};
     std::vector<vec3> normals = {};

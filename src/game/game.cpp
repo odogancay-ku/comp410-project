@@ -7,6 +7,7 @@
 
 void Game::addObject(const Object &object) {
     objects.push_back(object);
+    objectsByTypes[object.type].push_back(object);
 }
 
 void Game::draw(Renderer &renderer) {

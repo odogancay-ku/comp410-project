@@ -11,7 +11,8 @@
 class Game {
 public:
     std::vector<Object> objects = {};
-    std::vector<Object> objectsByTypes[4] = {};
+    std::vector<Object> objectsByTypes[4] = {{}, {}, {}, {}};
+    // 0 - unclassified objects 1 - cube 2 - sphere 3 - bunny
 
     Object magicalObject;
 

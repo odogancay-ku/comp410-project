@@ -10,6 +10,30 @@
 #include "rendering.h"
 #include "utility.h"
 
+void Renderer::drawObjectsByTypes(std::vector<Object> objectsByType[]) {
+
+    drawObjects(objectsByType[0]);
+
+    for (int i = 1; i < 4; i++) {
+        drawObjectsWithModels(objectsByType[i]);
+    }
+
+}
+
+void Renderer::drawObjectsWithModels(const std::vector<Object> &objects) {
+    GLuint VBO, VAO, EBO;
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO); // Generate a new EBO
+    glGenVertexArrays(1, &VAO);
+
+    std::vector<GLfloat> data;
+    std::vector<GLuint> indices;
+
+    // Only load vertices once
+
+
+}
+
 
 void Renderer::drawObjects(const std::vector<Object> &objects) {
     GLuint VBO, VAO, EBO;
@@ -39,7 +63,7 @@ void Renderer::drawObjects(const std::vector<Object> &objects) {
     // Color attribute
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
-    // Position attribute
+    // World position translation attribute
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) (9 * sizeof(float)));
     glEnableVertexAttribArray(3);
 
