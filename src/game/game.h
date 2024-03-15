@@ -11,6 +11,8 @@
 class Game {
 public:
     std::vector<Object> objects = {};
+    std::vector<Object> objectsByTypes[4] = {};
+
     Object magicalObject;
 
     Game();

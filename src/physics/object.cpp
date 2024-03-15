@@ -191,6 +191,7 @@ void loadOffModel(const std::string &filename, std::vector<vec3> &vertices, std:
 
         vertices.push_back(vec3(x, y, z));
         colors.push_back(color);
+//        colors.push_back(vec3{rand()%100/100.0f, rand()%100/100.0f, rand()%100/100.0f});
     }
 
     // Read the faces

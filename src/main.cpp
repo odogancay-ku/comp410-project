@@ -114,6 +114,7 @@ int main() {
     std::cout << "Use the mouse wheel to change the fov" << std::endl;
     std::cout << "Have fun!" << std::endl;
 
+    double dt_step = 0.008f;
 
     while (!glfwWindowShouldClose(window)) {
         // Clear the screen
@@ -123,19 +124,24 @@ int main() {
         double deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
-        // Make sure physics update per second is about 120
-        while (deltaTime > 0) {
+
+        while (deltaTime > dt_step) {
             game.checkCollisions();
-            float step = std::min(deltaTime, 0.008);
+            double step = std::min(deltaTime, dt_step);
             game.update(step);
             deltaTime -= step;
         }
 
+
         game.draw(renderer);
+
 
         // Swap buffers
         glfwSwapBuffers(window);
+
+
         glfwPollEvents();
+
 
         GLenum error = glGetError();
 
