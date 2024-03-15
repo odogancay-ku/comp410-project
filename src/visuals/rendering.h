@@ -47,6 +47,8 @@ public:
     void setCamera(const vec3 &position, float yaw, float pitch);
 
     void createAndSetPerspectiveProjectionMatrix(int windowWidth, int windowHeight, float fov);
+
+    void addObjectVerticesAndIndices(const Object &object, std::vector<GLfloat> &data, std::vector<GLuint> &indices);
 };
 
 #endif //RENDERING_H

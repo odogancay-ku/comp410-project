@@ -12,50 +12,69 @@
 
 
 void Renderer::drawObjects(const std::vector<Object> &objects) {
+    GLuint VBO, VAO, EBO;
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO); // Generate a new EBO
+    glGenVertexArrays(1, &VAO);
+
+
+    std::vector<GLfloat> data;
+    std::vector<GLuint> indices;
+
     for (const auto &object: objects) {
-        drawObject(object);
+        addObjectVerticesAndIndices(object, data, indices);
     }
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(GLfloat), &data[0], GL_STATIC_DRAW);
+
+    glBindVertexArray(VAO);
+
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) 0);
+    glEnableVertexAttribArray(0);
+    // Normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) (3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // Color attribute
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) (6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    // Position attribute
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) (9 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Bind the EBO
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0],
+                 GL_STATIC_DRAW); // Upload the indices to the EBO
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // Use glDrawElements instead of glDrawArrays
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO); // Delete the EBO
+    glDeleteVertexArrays(1, &VAO);
 
 }
 
-void Renderer::drawObject(const Object &object) {
+void
+Renderer::addObjectVerticesAndIndices(const Object &object, std::vector<GLfloat> &data, std::vector<GLuint> &indices) {
 
     if (object.isHidden) {
         return;
     }
 
+    for (int i = 0; i < object.vertices.size(); ++i) {
+        vec3 vertex = object.vertices[i];
+        vec3 normal = object.normals[i];
+        vec3 color = object.colors[i];
 
-    GLint translationLoc = glGetUniformLocation(programID, "translation");
-    glUniform3f(translationLoc, object.position.x, object.position.y, object.position.z);
-    GLuint VBO, VAO;
-    glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &VAO);
-
-
-    for (int i = 0; i < object.indices.size(); i += 3) {
-
-
-        vec3 vertex1 = object.vertices[object.indices[i]];
-        vec3 vertex2 = object.vertices[object.indices[i + 1]];
-        vec3 vertex3 = object.vertices[object.indices[i + 2]];
-
-
-        vec3 normal1 = object.normals[object.indices[i]];
-        vec3 normal2 = object.normals[object.indices[i + 1]];
-        vec3 normal3 = object.normals[object.indices[i + 2]];
-
-
-        vec3 color1 = object.colors[object.indices[i]];
-        vec3 color2 = object.colors[object.indices[i + 1]];
-        vec3 color3 = object.colors[object.indices[i + 2]];
-
-        drawTriangle(vertex1, vertex2, vertex3,
-                     normal1, normal2, normal3,
-                     color1, color2, color3, VBO, VAO);
+        data.insert(data.end(), {vertex.x, vertex.y, vertex.z, normal.x, normal.y, normal.z, color.x, color.y, color.z,
+                                 object.position.x, object.position.y, object.position.z});
     }
 
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
+    int offset = data.size() / 12 - object.vertices.size();
+
+    for (GLuint index: object.indices) {
+        indices.push_back(index+offset);
+    }
+
 }
 
 

@@ -15,6 +15,8 @@ public:
 
     int id;
 
+    int type;
+
     vec3 position;
     vec3 velocity;
     vec3 acceleration;
@@ -35,7 +37,7 @@ public:
     std::vector<vec3> vertices = {};
     std::vector<vec3> normals = {};
     std::vector<vec3> colors = {};
-    std::vector<GLuint> indices = {};
+    std::vector<GLuint> indices = {}; // ALWAYS MULTIPLES OF 3
 
     std::vector<vec3> hitBoxVertices = {};
 
@@ -57,6 +59,7 @@ public:
 class Cube : public Object {
 public:
     Cube(vec3 position, vec3 color, float sideLength) {
+        this->type = 1;
         this->position = position;
         this->mass = sideLength; // You can adjust this value
         this->restitution = 0.8f; // You can adjust this value
@@ -108,6 +111,7 @@ public:
 class Sphere : public Object {
 public:
     Sphere(vec3 position, vec3 color, float radius) {
+        this->type = 2;
         this->position = position;
         this->mass = 4.0f / 3.0f * M_PI * pow(radius, 3); // Mass is proportional to the volume
         this->restitution = 0.8f; // You can adjust this value
@@ -126,7 +130,7 @@ public:
         };
     }
 
-    void generateVertices(float radius, vec3 color, int slices = 27, int stacks = 27) {
+    void generateVertices(float radius, vec3 color, int slices = 36, int stacks = 36) {
         for (int i = 0; i <= stacks; ++i) {
             float phi = static_cast<float>(i) * M_PI / static_cast<float>(stacks);
             for (int j = 0; j <= slices; ++j) {
@@ -135,6 +139,7 @@ public:
                 float y = std::cos(phi);
                 float z = std::sin(phi) * std::sin(theta);
                 vertices.push_back(vec3{x, y, z} * radius);
+//                colors.push_back(vec3{rand()%100/100.0f, rand()%100/100.0f, rand()%100/100.0f});
                 colors.push_back(color);
                 normals.push_back(vec3{x, y, z});
             }
@@ -163,6 +168,7 @@ class Bunny : public Object {
 
 public:
     Bunny(vec3 position, vec3 color, float scale) {
+        this->type = 3;
         this->position = position;
         this->mass = scale;
         this->restitution = 0.8f;
