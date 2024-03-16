@@ -13,10 +13,10 @@ class Cube : public Object {
 
 
 public:
-    Cube(GLfloat scale) {
+    explicit Cube(GLfloat scale) {
         this->scale = scale;
     }
 
-}
+};
 
 #endif //HOMEWORK1_CUBE_H

@@ -15,6 +15,14 @@
 class Level {
 
 public:
+
+    Level() {
+        std::cout << "Level created" << std::endl;
+
+        objects = std::map<ModelTypes, std::vector<Object>>();
+    }
+
+
     Environment environment;
 
     std::map<ModelTypes, std::vector<Object>> objects;
@@ -23,7 +31,7 @@ public:
     void addObject(const Object &object);
 
 
-    Level HW1();
+    static Level* HW1();
 
 
 };

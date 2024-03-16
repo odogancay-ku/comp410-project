@@ -7,17 +7,15 @@
 
 
 #include <glew.h>
+#include <glm/ext/matrix_float4x4.hpp>
 #include <glm/vec3.hpp>
 #include <vector>
 
 class Camera {
 private:
-    static Camera *activeInstance;
+    static inline Camera *activeInstance = nullptr;
 
-    Camera();
-
-
-
+public:
     constexpr static GLfloat originalYaw = 0.0f;
     constexpr static GLfloat originalPitch = 0.0f;
     static glm::vec3 originalPosition;
@@ -40,10 +38,9 @@ private:
     bool movingUp;
     bool movingDown;
 
-public:
     static Camera *getActiveInstance() {
         if (activeInstance == nullptr) {
-            activeInstance = new Camera();
+            exit(1);
         }
         return activeInstance;
     };
@@ -70,13 +67,15 @@ public:
 
     void setMovingDown(bool movingDown);
 
-    static void setActiveInstance(int id) {
-        Camera::activeInstance = &instances[id];
-    }
-
     void offsetFOV(GLfloat fov);
 
-    static std::vector<Camera> instances;
+    inline static std::vector<Camera> instances = std::vector<Camera>();
+
+    Camera();
+
+    static void setActiveInstance(Camera *pCamera);
+
+    void getViewMatrix(glm::mat4 &viewMatrix);
 };
 
 

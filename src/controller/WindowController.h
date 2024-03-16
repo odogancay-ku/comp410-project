@@ -18,15 +18,10 @@ private:
     int width;
     int height;
 
-
-    static WindowController *instance;
-
 public:
 
-    static WindowController *getInstance() {
-        if (instance == nullptr) {
-            instance = new WindowController();
-        }
+    static WindowController& getInstance() {
+        static WindowController instance;
         return instance;
     };
 

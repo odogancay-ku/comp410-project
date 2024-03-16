@@ -8,31 +8,37 @@
 // Main function
 int main() {
 
-    WindowController *windowController = WindowController::getInstance();
+    WindowController windowController = WindowController::getInstance();
 
-    windowController->createFullscreenWindow("Homework 1");
-    GLfloat windowWidth = windowController->getWidth();
-    GLfloat windowHeight = windowController->getHeight();
-    GLFWwindow *window = windowController->getActiveWindow();
+    windowController.createFullscreenWindow("Homework 1");
+    GLfloat windowWidth = windowController.getWidth();
+    GLfloat windowHeight = windowController.getHeight();
+    GLFWwindow *window = windowController.getActiveWindow();
 
+
+    std::cout << "Window created with size: " << windowWidth << "x" << windowHeight << std::endl;
 
     Renderer renderer = Renderer();
+    Renderer::setActiveInstance(&renderer);
 
     renderer.initializeGL();
 
-    GLuint shaderProgram = renderer.loadShaderProgram("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
+    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
+    GLuint shaderProgram = renderer.loadShaderProgram("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
     renderer.useShaderProgram(shaderProgram);
 
-    glm::mat4 projection_matrix = renderer.calculateProjectionMatrix(windowWidth, windowHeight, 90.0f, 0.01, 500.0f);
+    std::cout << "Shader program loaded" << std::endl;
 
-    renderer.setProjectionMatrix(0, projection_matrix);
+    glm::mat4 projection_matrix = renderer.calculateProjectionMatrix(windowWidth, windowHeight, 90.0f, 0.1, 500.0f);
 
-    Camera::instances = {};
-    Camera *camera = Camera::getActiveInstance();
+    renderer.setProjectionMatrix(projection_matrix);
+
+    Camera camera = Camera();
+    Camera::setActiveInstance(&camera);
 
 
-    Game *game = Game::getInstance();
+    Game game = Game::getInstance();
 
 
     InputController inputController = InputController(window);
@@ -41,7 +47,7 @@ int main() {
     ResourceManager::generateExternalModels();
 
 
-    game->setupLevels();
+    game.setupLevels();
 
     double lastTime = glfwGetTime();
 
@@ -82,13 +88,14 @@ int main() {
 
 
         while (deltaTime > dt_step) {
-            game->checkCollisions();
-            game->update(dt_step);
+            std::cout << "Physics step" << std::endl;
+            game.checkCollisions();
+            game.update(dt_step);
             deltaTime -= dt_step;
         }
 
 
-        game->draw(renderer);
+        game.draw();
 
 
         glfwSwapBuffers(window);

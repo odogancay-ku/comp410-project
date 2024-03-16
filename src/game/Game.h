@@ -14,14 +14,16 @@
 class Game {
 
 private:
-    static Game *instance;
 
-    std::vector<Level> levels;
+    std::vector<Level*> levels;
 
-    Level currentLevel;
+    Level* currentLevel;
 
     Game() {
-
+        std::cout << "Game created" << std::endl;
+        currentLevel = nullptr;
+        levels = std::vector<Level*>();
+        setupLevels();
     };
 
 
@@ -30,10 +32,8 @@ private:
 
 public:
 
-    static Game *getInstance() {
-        if (instance == nullptr) {
-            instance = new Game();
-        }
+    static Game& getInstance() {
+        static Game instance;
         return instance;
     }
 
@@ -45,7 +45,7 @@ public:
 
     void checkCollisions();
 
-    void draw(Renderer &renderer);
+    void draw();
 
 
 

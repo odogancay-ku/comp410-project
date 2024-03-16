@@ -9,7 +9,6 @@
 #include <glew.h>
 #include <glm/vec3.hpp>
 #include <functional>
-#include "FastNoiseLite.h"
 
 class Environment {
 
@@ -20,8 +19,6 @@ private:
     std::function<glm::vec3(glm::vec3)> gravityFunction;
 
     std::function<glm::vec3(glm::vec3)> windFunction;
-
-    FastNoiseLite noise;
 
 
 public:

@@ -5,29 +5,40 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include "InputController.h"
 
+double InputController::lastX = 0;
+double InputController::lastY = 0;
+bool InputController::firstMouse = true;
 
 InputController::InputController(GLFWwindow *window) {
+
+
+    this->registerKeyCallback(window);
+    this->registerMouseButtonCallback(window);
+    this->registerCursorPosCallback(window);
+    this->registerScrollCallback(window);
+    this->registerReshapeCallback(window);
 
 }
 
 void InputController::registerKeyCallback(GLFWwindow *window) {
-
+    glfwSetKeyCallback(window, InputController::keyCallback);
 }
 
 void InputController::registerMouseButtonCallback(GLFWwindow *window) {
-
+    glfwSetMouseButtonCallback(window, InputController::mouseButtonCallback);
 }
 
 void InputController::registerCursorPosCallback(GLFWwindow *window) {
-
+    glfwSetCursorPosCallback(window, InputController::cursorPosCallback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void InputController::registerScrollCallback(GLFWwindow *window) {
-
+    glfwSetScrollCallback(window, InputController::scrollCallback);
 }
 
 void InputController::registerReshapeCallback(GLFWwindow *window) {
-
+    glfwSetFramebufferSizeCallback(window, InputController::reshapeCallback);
 }
 
 
@@ -72,9 +83,9 @@ void InputController::keyCallback(GLFWwindow *window, int key, int scancode, int
             } else if (pressed_key.first == GLFW_KEY_V) {
                 Game::addRandomSphere();
             } else if (pressed_key.first == GLFW_KEY_I) {
-                WindowController::getInstance()->setWidth(WindowController::getInstance()->getWidth() - 10);
+                WindowController::getInstance().setWidth(WindowController::getInstance().getWidth() - 10);
             } else if (pressed_key.first == GLFW_KEY_O) {
-                WindowController::getInstance()->setWidth(WindowController::getInstance()->getWidth() + 10);
+                WindowController::getInstance().setWidth(WindowController::getInstance().getWidth() + 10);
             } else if (pressed_key.first == GLFW_KEY_LEFT_ALT) {
                 if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -88,7 +99,7 @@ void InputController::keyCallback(GLFWwindow *window, int key, int scancode, int
 }
 
 
-void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+void InputController::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
     if (action == GLFW_PRESS) {
         InputController::mouseButtons[button] = true;
         double x, y;
@@ -116,9 +127,6 @@ void InputController::cursorPosCallback(GLFWwindow *window, double xpos, double 
 
 
     Camera::getActiveInstance()->offsetOrientation(xoffset,yoffset);
-
-
-
 }
 
 void InputController::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {

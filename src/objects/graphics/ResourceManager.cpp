@@ -81,6 +81,10 @@ void ResourceManager::generateBuiltinModels() {
 
     generateSphere(sphereModelData.vertices, sphereModelData.normals, sphereModelData.indices, 3);
 
+    for (int i = 0; i < sphereModelData.vertices.size(); ++i) {
+        sphereModelData.colorVertices.emplace_back(1.0f, 0.0f, 0.0f);
+    }
+
     ResourceManager::addModel(ModelTypes::SPHERE, sphereModelData);
 
 
@@ -137,6 +141,7 @@ void generateSphere(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& no
     normals.resize(vertices.size());
     for (size_t i = 0; i < vertices.size(); ++i) {
         normals[i] = normalize(vertices[i]);
+
     }
 
     // Generate indices

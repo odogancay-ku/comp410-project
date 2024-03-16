@@ -17,10 +17,10 @@
 
 class InputController {
 public:
-    InputController(GLFWwindow *window);
+    explicit InputController(GLFWwindow *window);
 
-    static std::map<int, bool> keys;
-    static std::map<int, bool> mouseButtons;
+    static inline std::map<int, bool> keys = std::map<int, bool>();
+    static inline std::map<int, bool> mouseButtons = std::map<int, bool>();
 
     void registerKeyCallback(GLFWwindow *window);
 
@@ -35,18 +35,16 @@ public:
     static double lastX;
     static double lastY;
     static bool firstMouse;
-    static Camera camera;
-    static int drawMode;
 
-    void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
-    void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+    static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 
-    void cursorPosCallback(GLFWwindow *window, double xpos, double ypos);
+    static void cursorPosCallback(GLFWwindow *window, double xpos, double ypos);
 
-    void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
+    static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 
-    void reshapeCallback(GLFWwindow *window, int width, int height);
+    static void reshapeCallback(GLFWwindow *window, int width, int height);
 
 };
 

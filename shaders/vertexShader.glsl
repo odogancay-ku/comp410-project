@@ -6,13 +6,14 @@ layout (location = 3) in vec3 worldPos;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
+uniform mat4 ModelMatrix;
 
 out vec3 Normal;
 out vec3 Color;
 
 void main()
 {
-    gl_Position = ProjectionMatrix * ViewMatrix * vec4(aPos + worldPos, 1.0);
+    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(worldPos, 1.0);
     Normal = normal;
     Color = aColor;
 }

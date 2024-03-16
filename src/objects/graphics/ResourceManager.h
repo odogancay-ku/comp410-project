@@ -42,16 +42,13 @@ struct ModelData {
 // Resource Manager class to manage loading and sharing of model data
 class ResourceManager {
 private:
-    static ModelData models[ModelTypes::END_OF_TYPES_MARKER];
+    static inline ModelData models[ModelTypes::END_OF_TYPES_MARKER] = {};
 
-    static ResourceManager *instance;
 
 public:
 
-    static ResourceManager *getInstance() {
-        if (instance == nullptr) {
-            instance = new ResourceManager();
-        }
+    static ResourceManager& getInstance() {
+        static ResourceManager instance;
         return instance;
     };
 

@@ -13,7 +13,7 @@
 
 class Object {
 
-protected:
+public:
 
     bool canMove = true;
     bool canRotate = true;
@@ -32,14 +32,13 @@ protected:
     glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    glm::vec3 rotation;
+    glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 angularVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 angularAcceleration;
+    glm::vec3 angularAcceleration = glm::vec3(0.0f, 0.0f, 0.0f);
 
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
 
-public:
     Object();
 
 
