@@ -7,24 +7,24 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "rendering.h"
 #include "utility.h"
+
+
 
 void Renderer::drawObjectsByTypes(std::vector<Object> objectsByType[]) {
 
     drawObjects(objectsByType[0]);
 
     for (int i = 1; i < 4; i++) {
-        drawObjectsWithModels(objectsByType[i]);
+        drawObjectsWithModels(objectsByType[i], i);
     }
 
 }
 
-void Renderer::drawObjectsWithModels(const std::vector<Object> &objects) {
-    GLuint VBO, VAO, EBO;
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO); // Generate a new EBO
-    glGenVertexArrays(1, &VAO);
+void Renderer::drawObjectsWithModels(const std::vector<Object> &objects, int type) {
 
     std::vector<GLfloat> data;
     std::vector<GLuint> indices;
