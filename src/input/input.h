@@ -38,6 +38,8 @@ public:
     static Game *game;
     static std::vector<Object> *objects;
     static int drawMode;
+
+    void registerReshapeCallback(GLFWwindow *window);
 };
 
 #endif //INPUT_H

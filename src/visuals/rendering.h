@@ -35,7 +35,7 @@ public:
 
     void drawObjects(const std::vector<Object> &objects);
 
-
+    GLuint VBO, VAO, EBO;
     GLuint programID;
     float aspectRatio;
     float boundingBoxWidth = 10.0f;

@@ -42,6 +42,12 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
             } else if (pressed_key.first == GLFW_KEY_ESCAPE) {
                 glfwSetWindowShouldClose(window, true);
             } else if (pressed_key.first == GLFW_KEY_R) {
+                const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+                int windowWidth = mode->width;
+                int windowHeight = mode->height;
+                glfwSetWindowSize(window, windowWidth, windowHeight);
+                InputHandler::renderer.windowWidth = windowWidth;
+                InputHandler::renderer.windowHeight = windowHeight;
                 InputHandler::camera.position = {0.0f, 0.0f, InputHandler::renderer.boundingBoxWidth};
                 InputHandler::camera.yaw = -90.0f;
                 InputHandler::camera.pitch = -0.0f;
@@ -140,6 +146,20 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
                 sphere.velocity = speed;
                 sphere.restitution = 0.8f;
                 InputHandler::game->addObject(sphere);
+            } else if (pressed_key.first == GLFW_KEY_I) {
+                // Decrease the window width
+                glfwSetWindowSize(window, InputHandler::renderer.windowWidth - 10, InputHandler::renderer.windowHeight);
+                InputHandler::renderer.windowWidth -= 10;
+            } else if (pressed_key.first == GLFW_KEY_O) {
+                glfwSetWindowSize(window, InputHandler::renderer.windowWidth + 10, InputHandler::renderer.windowHeight);
+                InputHandler::renderer.windowWidth += 10;
+            } else if (pressed_key.first == GLFW_KEY_LEFT_ALT) {
+                // Toggle mouse cursor visibility
+                if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                } else {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                }
             }
 
         }
@@ -211,6 +231,11 @@ void scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
 
 }
 
+void reshapeCallback(GLFWwindow *window, int width, int height) {
+    glViewport(0, 0, width, height);
+    InputHandler::renderer.createAndSetPerspectiveProjectionMatrix(width, height, InputHandler::camera.fov);
+}
+
 InputHandler::InputHandler(GLFWwindow *window, Game &_game, Renderer &_renderer, Camera &_camera) {
     InputHandler::camera = _camera;
     InputHandler::renderer = _renderer;
@@ -220,6 +245,7 @@ InputHandler::InputHandler(GLFWwindow *window, Game &_game, Renderer &_renderer,
     registerMouseButtonCallback(window);
     registerCursorPosCallback(window);
     registerScrollCallback(window);
+    registerReshapeCallback(window);
 }
 
 void InputHandler::registerScrollCallback(GLFWwindow *window) {
@@ -241,6 +267,11 @@ void InputHandler::registerCursorPosCallback(GLFWwindow *window) {
     std::cout << "registering cursor position callback" << std::endl;
     glfwSetCursorPosCallback(window, cursorPosCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void InputHandler::registerReshapeCallback(GLFWwindow *window) {
+    std::cout << "registering reshape callback" << std::endl;
+    glfwSetWindowSizeCallback(window, reshapeCallback);
 }
 
 bool InputHandler::isKeyPressed(int key) {

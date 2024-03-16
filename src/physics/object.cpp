@@ -170,12 +170,20 @@ void loadOffModel(const std::string &filename, std::vector<vec3> &vertices, std:
                   std::vector<vec3> &colors, std::vector<GLuint> &indices, std::vector<vec3> &hitboxVertices,
                   float scale, vec3 color) {
 
+    // Print first 10 lines
+    std::ifstream file1(filename);
+    std::string line;
+    for (int i = 0; i < 10; ++i) {
+        std::getline(file1, line);
+        std::cout << line << std::endl;
+    }
+
     // Confirm the file is off file by checking the first line
     std::ifstream file(filename);
     std::string firstLine;
     std::getline(file, firstLine);
-    if (firstLine.compare("OFF") == 0) {
-        std::cout << firstLine << std::endl;
+    if (firstLine != "OFF") {
+        std::cout << firstLine.data() << std::endl;
         std::cout << "ERROR: File is not in OFF format" << std::endl;
         exit(1);
     }

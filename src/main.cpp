@@ -16,6 +16,7 @@ int main() {
     int windowWidth = mode->width;
     int windowHeight = mode->height;
 
+
     // Create a window
     GLFWwindow *window = glfwCreateWindow(windowWidth, windowHeight, "Magic Bunny", nullptr, nullptr);
     if (!window) {

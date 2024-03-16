@@ -185,7 +185,7 @@ public:
         std::vector<GLuint> indices;
         std::vector<vec3> hitBoxVertices;
 
-        loadOffModel("assets/models/bunny.off", vertices, normals, colors, indices, hitBoxVertices, scale, color);
+        loadOffModel("assets/models/a.off", vertices, normals, colors, indices, hitBoxVertices, scale, color);
 
         this->vertices = vertices;
         this->normals = normals;

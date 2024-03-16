@@ -17,7 +17,7 @@ vpath %.cpp src src/visuals
 # Source
 SRCS = $(shell find src -name "*.cpp")
 
-#
+
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 
 # Name of the program
@@ -25,6 +25,8 @@ TARGET = main
 
 # Default rule
 all: clean $(TARGET) run clean
+
+all-nvidia: clean $(TARGET) run-nvidia clean
 
 # Rule to compile .cpp files to object files
 %.o: %.cpp
@@ -37,6 +39,9 @@ $(TARGET): $(OBJS)
 # Rule to run the program
 run: $(TARGET)
 	./$(TARGET)
+
+run-nvidia: $(TARGET)
+	__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ./main
 
 # Clean rule
 clean:

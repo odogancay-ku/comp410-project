@@ -36,10 +36,7 @@ void Renderer::drawObjectsWithModels(const std::vector<Object> &objects) {
 
 
 void Renderer::drawObjects(const std::vector<Object> &objects) {
-    GLuint VBO, VAO, EBO;
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO); // Generate a new EBO
-    glGenVertexArrays(1, &VAO);
+
 
 
     std::vector<GLfloat> data;
@@ -71,9 +68,6 @@ void Renderer::drawObjects(const std::vector<Object> &objects) {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0],
                  GL_STATIC_DRAW); // Upload the indices to the EBO
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // Use glDrawElements instead of glDrawArrays
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO); // Delete the EBO
-    glDeleteVertexArrays(1, &VAO);
 
 }
 
@@ -101,37 +95,6 @@ Renderer::addObjectVerticesAndIndices(const Object &object, std::vector<GLfloat>
 
 }
 
-
-void Renderer::drawTriangle(const vec3 &vertex1, const vec3 &vertex2, const vec3 &vertex3,
-                            const vec3 &normal1, const vec3 &normal2, const vec3 &normal3,
-                            const vec3 &color1, const vec3 &color2, const vec3 &color3, GLuint VBO, GLuint VAO) {
-    GLfloat vertices[] = {
-            vertex1.x, vertex1.y, vertex1.z, normal1.x, normal1.y, normal1.z,
-            vertex2.x, vertex2.y, vertex2.z, normal2.x, normal2.y, normal2.z,
-            vertex3.x, vertex3.y, vertex3.z, normal3.x, normal3.y, normal3.z
-    };
-
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(VAO);
-
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) nullptr);
-    glEnableVertexAttribArray(0);
-    // Normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    GLint colorLoc = glGetUniformLocation(programID, "objectColor");
-
-    // Set the value of the uniform variable
-    glUniform3f(colorLoc, color1.x, color1.y, color1.z);
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-}
 
 GLuint Renderer::loadShaders(const std::string &vertexShaderFilename, const std::string &fragmentShaderFilename) {
     vertexShaderSource = readShaderSource(vertexShaderFilename);
@@ -204,6 +167,9 @@ GLuint Renderer::loadShaders(const std::string &vertexShaderFilename, const std:
 
 Renderer::Renderer(const std::string &vertexShaderFile, const std::string &fragmentShaderFile) {
     loadShaders(vertexShaderFile, fragmentShaderFile);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO); // Generate a new EBO
+    glGenVertexArrays(1, &VAO);
 }
 
 void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight, float fov) {
@@ -211,6 +177,10 @@ void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _wi
     windowWidth = _windowWidth;
     windowHeight = _windowHeight;
     aspectRatio = (float) windowWidth / (float) windowHeight;
+
+    if (aspectRatio < 1.0f) {
+        fov = 2 * atan(tan(fov * (M_PI / 180) / 2) * (1 / aspectRatio)) * (180 / M_PI);
+    }
 
 
     // Calculate the projection matrix
