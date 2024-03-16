@@ -1,100 +1,47 @@
-#include "visuals/rendering.h"
-#include "physics/object.h"
-#include "game/game.h"
-#include "input/input.h"
+#include "renderer/Renderer.h"
+#include <GLFW/glfw3.h>
+#include "controller/WindowController.h"
+#include "camera/Camera.h"
+#include "controller/InputController.h"
+#include "game/Game.h"
 
 // Main function
 int main() {
-    // Initialize GLFW
-    if (!glfwInit()) {
-        // Initialization failed
-        return -1;
-    }
 
-    // Create a fullscreen window
-    const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    int windowWidth = mode->width;
-    int windowHeight = mode->height;
+    WindowController *windowController = WindowController::getInstance();
+
+    windowController->createFullscreenWindow("Homework 1");
+    GLfloat windowWidth = windowController->getWidth();
+    GLfloat windowHeight = windowController->getHeight();
+    GLFWwindow *window = windowController->getActiveWindow();
 
 
-    // Create a window
-    GLFWwindow *window = glfwCreateWindow(windowWidth, windowHeight, "Magic Bunny", nullptr, nullptr);
-    if (!window) {
-        // Window or OpenGL context creation failed
-        glfwTerminate();
-        return -1;
-    }
+    Renderer renderer = Renderer();
 
-    // Make the window's context current
-    glfwMakeContextCurrent(window);
+    renderer.initializeGL();
 
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        // GLEW initialization failed
-        glfwTerminate();
-        return -1;
-    }
+    GLuint shaderProgram = renderer.loadShaderProgram("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
 
-    // Create an instance of the Renderer class
-    Renderer renderer("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
-    renderer.windowWidth = windowWidth;
-    renderer.windowHeight = windowHeight;
+    renderer.useShaderProgram(shaderProgram);
 
-    Game game;
+    glm::mat4 projection_matrix = renderer.calculateProjectionMatrix(windowWidth, windowHeight, 90.0f, 0.01, 500.0f);
 
-    Camera camera;
+    renderer.setProjectionMatrix(0, projection_matrix);
 
-    InputHandler inputHandler(window, game, renderer, camera);
-
-    // Enable depth testing
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    Camera::instances = {};
+    Camera *camera = Camera::getActiveInstance();
 
 
-    // Set the perspective projection matrix
-    renderer.createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight, 90.0f);
+    Game *game = Game::getInstance();
 
 
-    // Create the surfaces using renderer.boundingBox values
+    InputController inputController = InputController(window);
+
+    ResourceManager::generateBuiltinModels();
+    ResourceManager::generateExternalModels();
 
 
-    Cube backWall({0.0f, 0.0f, -renderer.boundingBoxWidth}, {0.5f, 0.5f, 0.0f}, renderer.boundingBoxWidth);
-    backWall.isStatic = true;
-    game.addObject(backWall);
-
-    Cube frontWall({0.0f, 0.0f, renderer.boundingBoxWidth}, {0.0f, 0.0f, 0.5f}, renderer.boundingBoxWidth);
-    frontWall.isStatic = true;
-    frontWall.isHidden = true;
-    game.addObject(frontWall);
-
-    Cube leftWall({-renderer.boundingBoxWidth, 0.0f, 0.0f}, {0.5f, 0.0f, 0.5f}, renderer.boundingBoxWidth);
-    leftWall.isStatic = true;
-    game.addObject(leftWall);
-
-    Cube rightWall({renderer.boundingBoxWidth, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}, renderer.boundingBoxWidth);
-    rightWall.isStatic = true;
-    game.addObject(rightWall);
-
-    Cube bottomWall({0.0f, -renderer.boundingBoxWidth, 0.0f}, {0.5f, 0.5f, 0.5f}, renderer.boundingBoxWidth);
-    bottomWall.isStatic = true;
-    game.addObject(bottomWall);
-
-    Cube topWall({0.0f, renderer.boundingBoxWidth, 0.0f}, {0.5f, 0.5f, 0.5f}, renderer.boundingBoxWidth);
-    topWall.isStatic = true;
-    game.addObject(topWall);
-
-    Cube cube({0, 0, 0}, {0, 0, 1}, 1);
-    cube.velocity = {3.0f, 1.0f, 2.0f};
-    cube.isAffectedByGravity = false;
-    cube.applyAcceleration = false;
-    cube.restitution = 1.0f;
-    game.addObject(cube);
-
-    InputHandler::camera.yaw = -90.0f;
-    InputHandler::camera.pitch = -0.0f;
-    InputHandler::camera.position = {0.0f, 0.0f, renderer.boundingBoxWidth};
-
-    renderer.setCamera(InputHandler::camera.position, InputHandler::camera.yaw, InputHandler::camera.pitch);
+    game->setupLevels();
 
     double lastTime = glfwGetTime();
 
@@ -135,20 +82,16 @@ int main() {
 
 
         while (deltaTime > dt_step) {
-            game.checkCollisions();
-            double step = std::min(deltaTime, dt_step);
-            game.update(step);
-            deltaTime -= step;
+            game->checkCollisions();
+            game->update(dt_step);
+            deltaTime -= dt_step;
         }
 
 
-        game.draw(renderer);
+        game->draw(renderer);
 
 
-        // Swap buffers
         glfwSwapBuffers(window);
-
-
         glfwPollEvents();
 
 
@@ -165,17 +108,6 @@ int main() {
             std::cout << "FPS: " << frameCount / elapsedTime << std::endl;
             frameCount = 0;
             lastFPSTime = currentFPSTime;
-
-            // Print all the objects
-//            for (auto &object: game.objects) {
-//                std::cout << "Object id: " << object.id << std::endl;
-//                std::cout << "Object position: " << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
-//                std::cout << "Object velocity: " << object.velocity.x << " " << object.velocity.y << " " << object.velocity.z << std::endl;
-//            }
-//
-//             Print memory usage
-//            std::cout << "Memory usage: " << game.objects.size()*sizeof (Object) << std::endl;
-
         }
 
 
