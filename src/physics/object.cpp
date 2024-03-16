@@ -170,13 +170,6 @@ void loadOffModel(const std::string &filename, std::vector<vec3> &vertices, std:
                   std::vector<vec3> &colors, std::vector<GLuint> &indices, std::vector<vec3> &hitboxVertices,
                   float scale, vec3 color) {
 
-    // Print first 10 lines
-    std::ifstream file1(filename);
-    std::string line;
-    for (int i = 0; i < 10; ++i) {
-        std::getline(file1, line);
-        std::cout << line << std::endl;
-    }
 
     // Confirm the file is off file by checking the first line
     std::ifstream file(filename);

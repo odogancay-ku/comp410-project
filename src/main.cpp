@@ -112,6 +112,14 @@ int main() {
     std::cout << "Press R to reset the camera" << std::endl;
     std::cout << "You can change the way you face using your mouse! Just drag it, no roll only yaw and pitch"
               << std::endl;
+    std::cout
+            << "For this to work we had to hide the mouse and fix it. "
+               "Press alt to toggle this. "
+               "You will need to test out the reshape callback functionality. "
+               "Press alt, go out of full screen, "
+               "either resize with the mouse or press alt again and keep pressing I and O. "
+               "This will be enough to showcase window resize callback"
+            << std::endl;
     std::cout << "Use the mouse wheel to change the fov" << std::endl;
     std::cout << "Have fun!" << std::endl;
 

@@ -17,6 +17,7 @@ public:
 
     int type=0;
 
+
     vec3 position;
     vec3 velocity;
     vec3 acceleration;
@@ -185,7 +186,7 @@ public:
         std::vector<GLuint> indices;
         std::vector<vec3> hitBoxVertices;
 
-        loadOffModel("assets/models/a.off", vertices, normals, colors, indices, hitBoxVertices, scale, color);
+        loadOffModel("assets/models/b.off", vertices, normals, colors, indices, hitBoxVertices, scale, color);
 
         this->vertices = vertices;
         this->normals = normals;
@@ -197,5 +198,36 @@ public:
 
 };
 
+class Surprise : public Object {
+
+public:
+    Surprise(vec3 position, vec3 color, float scale) {
+        this->type = 3;
+        this->position = position;
+        this->mass = scale;
+        this->restitution = 0.8f;
+        this->friction = 0.8f;
+        this->isStatic = false;
+        this->isAffectedByGravity = true;
+        this->isSurface = false;
+        this->isColliding = true;
+
+        std::vector<vec3> vertices;
+        std::vector<vec3> normals;
+        std::vector<vec3> colors;
+        std::vector<GLuint> indices;
+        std::vector<vec3> hitBoxVertices;
+
+        loadOffModel("assets/models/a.off", vertices, normals, colors, indices, hitBoxVertices, scale, color);
+
+        this->vertices = vertices;
+        this->normals = normals;
+        this->colors = colors;
+        this->indices = indices;
+        this->hitBoxVertices = hitBoxVertices;
+
+    }
+
+};
 
 #endif //OBJECT_H
