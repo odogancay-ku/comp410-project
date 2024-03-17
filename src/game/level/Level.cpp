@@ -24,14 +24,25 @@ Level* Level::HW1() {
 
     std::cout << "Adding objects" << std::endl;
 
-    Cube* cube = new Cube(10.0f);
 
-    cube->canMove = false;
-    cube->position = glm::vec3(0.0f, 0.0f, -20.0f);
-    cube->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    cube->applyGravity = false;
 
-    level->addObject(*cube);
+    // Generate 100 spheres on a grid with 10 unit spaces
+
+    for (int i = -5; i < 10; i++) {
+        for (int j = -5; j < 10; j++) {
+
+            auto* sphere = new Sphere(5.0f);
+
+            sphere->position = glm::vec3(i * 10.0f, -10.0f, j * 10.0f);
+            sphere->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+            sphere->applyGravity = false;
+            sphere->canMove = false;
+            sphere->applyDrag = false;
+            sphere->angularVelocity = glm::vec3(15.0f, 15.0f, 15.0f);
+            level->addObject(*sphere);
+
+        }
+    }
 
 //    Camera::getActiveInstance()->setFollowObject(cube);
 

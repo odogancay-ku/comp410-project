@@ -47,6 +47,30 @@ void InputController::keyCallback(GLFWwindow *window, int key, int scancode, int
         InputController::keys[key] = true;
     } else if (action == GLFW_RELEASE) {
         InputController::keys[key] = false;
+
+        switch (key) {
+            case GLFW_KEY_W:
+                Camera::getActiveInstance()->setMovingForward(false);
+                break;
+            case GLFW_KEY_S:
+                Camera::getActiveInstance()->setMovingBackward(false);
+                break;
+            case GLFW_KEY_A:
+                Camera::getActiveInstance()->setMovingLeft(false);
+                break;
+            case GLFW_KEY_D:
+                Camera::getActiveInstance()->setMovingRight(false);
+                break;
+            case GLFW_KEY_SPACE:
+                Camera::getActiveInstance()->setMovingUp(false);
+                break;
+            case GLFW_KEY_LEFT_SHIFT:
+                Camera::getActiveInstance()->setMovingDown(false);
+                break;
+            default:
+                break;
+        }
+
     }
 
     // Iterate over keys and do actions for true ones
@@ -54,21 +78,17 @@ void InputController::keyCallback(GLFWwindow *window, int key, int scancode, int
     for (auto const &pressed_key: InputController::keys) {
         if (pressed_key.second) {
             if (pressed_key.first == GLFW_KEY_W) {
-//                Camera::getActiveInstance()->setMovingForward(true);
-                Camera::getActiveInstance()-> position.z -= 0.5;
+                Camera::getActiveInstance()->setMovingForward(true);
             } else if (pressed_key.first == GLFW_KEY_S) {
-//                Camera::getActiveInstance()->setMovingBackward(true);
-                Camera::getActiveInstance()-> position.z += 0.5;
+                Camera::getActiveInstance()->setMovingBackward(true);
             } else if (pressed_key.first == GLFW_KEY_A) {
-//                Camera::getActiveInstance()->setMovingLeft(true);
-                Camera::getActiveInstance()-> position.x -= 0.5;
+                Camera::getActiveInstance()->setMovingLeft(true);
             } else if (pressed_key.first == GLFW_KEY_D) {
-//                Camera::getActiveInstance()->setMovingRight(true);
-                Camera::getActiveInstance()-> position.x += 0.5;
+                Camera::getActiveInstance()->setMovingRight(true);
             } else if (pressed_key.first == GLFW_KEY_SPACE) {
-                Camera::getActiveInstance()->position.y += 0.5;
+                Camera::getActiveInstance()->setMovingUp(true);
             } else if (pressed_key.first == GLFW_KEY_LEFT_SHIFT) {
-                Camera::getActiveInstance()->position.y -= 0.5;
+                Camera::getActiveInstance()->setMovingDown(true);
             } else if (pressed_key.first == GLFW_KEY_ESCAPE) {
                 glfwSetWindowShouldClose(window, true);
             } else if (pressed_key.first == GLFW_KEY_R) {

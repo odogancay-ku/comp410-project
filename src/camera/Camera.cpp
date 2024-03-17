@@ -25,6 +25,7 @@ Camera::Camera() {
     movingUp = false;
 
     position = originalPosition;
+    velocity = glm::vec3(0, 0, 0);
     canMove = true;
 
 }
@@ -36,29 +37,37 @@ void Camera::updateOrientation(GLfloat yaw, GLfloat pitch) {
 
 void Camera::update(GLfloat dt) {
 
+    velocity = glm::vec3(0, 0, 0);
+
     if (movingForward) {
-        position += glm::vec3(cos(yaw), 0, sin(yaw)) * speed * dt;
+        velocity += glm::vec3(cos(glm::radians(yaw)), 0, sin(glm::radians(yaw)));
     }
 
     if (movingBackward) {
-        position -= glm::vec3(cos(yaw), 0, sin(yaw)) * speed * dt;
-    }
-
-    if (movingLeft) {
-        position -= glm::vec3(sin(yaw), 0, -cos(yaw)) * speed * dt;
+        velocity -= glm::vec3(cos(glm::radians(yaw)), 0, sin(glm::radians(yaw)));
     }
 
     if (movingRight) {
-        position += glm::vec3(sin(yaw), 0, -cos(yaw)) * speed * dt;
+        velocity -= glm::vec3(sin(glm::radians(yaw)), 0, -cos(glm::radians(yaw)));
+    }
+
+    if (movingLeft) {
+        velocity += glm::vec3(sin(glm::radians(yaw)), 0, -cos(glm::radians(yaw)));
     }
 
     if (movingUp) {
-        position += glm::vec3(0, 1, 0) * speed * dt;
+        velocity += glm::vec3(0, 1, 0);
     }
 
     if (movingDown) {
-        position -= glm::vec3(0, 1, 0) * speed * dt;
+        velocity -= glm::vec3(0, 1, 0);
     }
+
+    if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0){
+        velocity = glm::normalize(velocity) * speed;
+    }
+
+    position += velocity * dt;
 
 }
 
@@ -108,9 +117,10 @@ void Camera::offsetFOV(GLfloat fov) {
     this->fov += fov;
 }
 
-void Camera::offsetOrientation(GLfloat yaw, GLfloat pitch) {
-    this->yaw += yaw * sensitivity;
-    this->pitch += pitch * sensitivity;
+void Camera::offsetOrientation(GLfloat _yaw, GLfloat _pitch) {
+
+    this->yaw += _yaw * sensitivity;
+    this->pitch += _pitch * sensitivity;
 
     if (this->pitch > 89.0f) {
         this->pitch = 89.0f;
@@ -118,10 +128,12 @@ void Camera::offsetOrientation(GLfloat yaw, GLfloat pitch) {
         this->pitch = -89.0f;
     }
 
-    if (this->yaw > 360.0f) {
-        this->yaw = 0.0f;
-    } else if (this->yaw < 0.0f) {
-        this->yaw = 360.0f;
+    // Ensure yaw stays within [0, 360) degrees
+    while (this->yaw >= 360.0f) {
+        this->yaw -= 360.0f;
+    }
+    while (this->yaw < -360.0f) {
+        this->yaw += 360.0f;
     }
 
 }
@@ -133,45 +145,3 @@ void Camera::setActiveInstance(Camera *pCamera) {
 void Camera::setFollowObject(Object *object) {
     followObject = object;
 }
-
-void Camera::getViewMatrix(glm::mat4 &viewMatrix) {
-    if (followObject != nullptr) {
-        // Make sure up and direction is not the same
-        glm::vec3 direction;
-        direction = normalize(followObject->position-position);
-        glm::vec3 absoluteUp = glm::vec3(0.0f, 1.0f, 0.0f);
-        glm::vec3 right = normalize(cross(direction, absoluteUp));
-        glm::vec3 up = normalize(cross(right, direction));
-        std::cout << "Up: " << up.x << " " << up.y << " " << up.z << std::endl;
-        viewMatrix = glm::lookAt(followObject->position, position, up);
-        std::cout << "Following object at " << followObject->position.x << " " << followObject->position.y << " " << followObject->position.z  << std::endl;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                std::cout << viewMatrix[i][j] << " ";
-            }
-            std::cout << std::endl;
-        }
-        return;
-    }
-
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction = normalize(direction);
-
-    // Calculate the right and up vector
-    glm::vec3 right = normalize(cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
-    glm::vec3 up = normalize(cross(right, direction));
-
-    glm::vec3 glmPosition = glm::vec3(position.x, position.y, position.z);
-    glm::vec3 glmDirection = glm::vec3(direction.x, direction.y, direction.z);
-    glm::vec3 glmUp = glm::vec3(up.x, up.y, up.z);
-
-    // Create the view matrix
-    glm::mat4 glmView = glm::lookAt(glmPosition, glmPosition + glmDirection, glmUp);
-
-
-    viewMatrix = glmView;
-}
-

@@ -17,10 +17,10 @@ private:
     static inline Camera *activeInstance = nullptr;
 
 public:
-    constexpr static GLfloat originalYaw = 45.0f;
+    constexpr static GLfloat originalYaw = 0.0f;
     constexpr static GLfloat originalPitch = 0.0f;
     static glm::vec3 originalPosition;
-    constexpr static GLfloat originalSpeed = 5.0f;
+    constexpr static GLfloat originalSpeed = 10.0f;
     constexpr static GLfloat originalFov = 90.0f;
 
     GLfloat fov = originalFov;
@@ -29,6 +29,7 @@ public:
     GLfloat speed = originalSpeed;
     GLfloat sensitivity = 1.0f;
     glm::vec3 position;
+    glm::vec3 velocity;
 
     bool canMove;
 
@@ -79,7 +80,6 @@ public:
 
     static void setActiveInstance(Camera *pCamera);
 
-    void getViewMatrix(glm::mat4 &viewMatrix);
 
     void setFollowObject(Object *object);
 

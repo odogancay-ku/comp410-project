@@ -26,9 +26,6 @@ void Game::update(GLfloat dt) {
 
     glm::vec3 position = camera->position;
 
-    std::cout << "Camera updated at:" << position.x << "," << position.y << "," << position.z << std::endl;
-    std::cout << "Pitch: " << camera->pitch << " Yaw: " << camera->yaw << std::endl;
-
     for (auto &pair : currentLevel->objects) {
 
         for (auto &object : pair.second) {

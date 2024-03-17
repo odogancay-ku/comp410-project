@@ -78,13 +78,10 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
     uniform mat4 ViewMatrix; // Same for all instances and vertices
      */
 
+    // TODO USE LOADED DATA
     //std::cout << "Binding VAO: " << modelData.VAO << " " << modelData.VBO << " "<< modelData.EBO << std::endl;
     // Bind the VAO that you want to draw
     //glBindVertexArray(modelData.VAO);
-
-    std::cout << "Drawing " << instanceCount << " instances of " << type << std::endl;
-    std::cout << "Model matrix columns: " << modelMatrixColumns.size() << std::endl;
-    std::cout << "Colors: " << colors.size() << std::endl;
 
     std::vector<glm::vec3> verticesAndNormals = {};
 
@@ -146,7 +143,6 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
     glEnableVertexAttribArray(6);
 
 
-    checkOpenGLError("drawInstancesOfModel");
 
     glDrawElementsInstanced(GL_TRIANGLES, modelData.indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
 
@@ -174,70 +170,42 @@ void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _wi
 
 void Renderer::createAndSetViewMatrix() {
 
-    Camera camera = *Camera::getActiveInstance();
+    Camera* camera = Camera::getActiveInstance();
 
-    // Calculate the new direction vector
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
-    direction.y = sin(glm::radians(camera.pitch));
-    direction.z = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
-    direction = normalize(direction);
+    if (camera->followObject != nullptr) {
+        // Make sure up and direction is not the same
+        glm::vec3 direction;
+        direction = normalize(camera->followObject->position-camera->position);
+        glm::vec3 absoluteUp = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 right = normalize(cross(direction, absoluteUp));
+        glm::vec3 up = normalize(cross(right, direction));
+        viewMatrix = glm::lookAt(camera->position, camera->followObject->position, up);
+
+        // Update yaw and pitch too
+
+        camera->yaw = glm::degrees(atan2(direction.z, direction.x));
+        camera->pitch = glm::degrees(asin(direction.y));
+
+    } else {
+        // Calculate the new direction vector
+        glm::vec3 direction;
+        direction.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+        direction.y = sin(glm::radians(camera->pitch));
+        direction.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+        direction = normalize(direction);
 
 
-    // Calculate the right and up vector
-    glm::vec3 right = normalize(cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
-    glm::vec3 up = normalize(cross(right, direction));
+        // Calculate the right and up vector
+        glm::vec3 right = normalize(cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
+        glm::vec3 up = normalize(cross(right, direction));
+
+        // Create the view matrix
+        viewMatrix = glm::lookAt(camera->position, camera->position + direction, up);
+    }
 
 
-    // Create the view matrix
-    viewMatrix = glm::lookAt(camera.position, camera.position + direction, up);
 
     // Pass the view matrix to the shader program
     GLint viewLoc = glGetUniformLocation(shaderProgram, "ViewMatrix");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-}
-
-glm::vec3 Renderer::simulateMVP(glm::vec3 originalPosition, glm::mat4 modelMatrix) {
-    glm::vec4 vertex = glm::vec4(0.5, 0.5f, 0.5f, 1.0f);
-    glm::vec4 position = glm::vec4(originalPosition, 1.0f);
-
-    std::cout << "Original position: " << (originalPosition.x + vertex.x * modelMatrix[0][0]) << " "
-              << (originalPosition.y + vertex.y * modelMatrix[1][1]) << " "
-              << (originalPosition.z + vertex.z * modelMatrix[2][2]) << std::endl;
-
-    std::cout << "Model matrix: " << modelMatrix[0][0] << " " << modelMatrix[1][0] << " " << modelMatrix[2][0] << " "
-              << modelMatrix[3][0] << std::endl;
-    std::cout << "Model matrix: " << modelMatrix[0][1] << " " << modelMatrix[1][1] << " " << modelMatrix[2][1] << " "
-              << modelMatrix[3][1] << std::endl;
-    std::cout << "Model matrix: " << modelMatrix[0][2] << " " << modelMatrix[1][2] << " " << modelMatrix[2][2] << " "
-              << modelMatrix[3][2] << std::endl;
-    std::cout << "Model matrix: " << modelMatrix[0][3] << " " << modelMatrix[1][3] << " " << modelMatrix[2][3] << " "
-              << modelMatrix[3][3] << std::endl;
-
-    std::cout << "View matrix: " << viewMatrix[0][0] << " " << viewMatrix[1][0] << " " << viewMatrix[2][0] << " "
-              << viewMatrix[3][0] << std::endl;
-    std::cout << "View matrix: " << viewMatrix[0][1] << " " << viewMatrix[1][1] << " " << viewMatrix[2][1] << " "
-              << viewMatrix[3][1] << std::endl;
-    std::cout << "View matrix: " << viewMatrix[0][2] << " " << viewMatrix[1][2] << " " << viewMatrix[2][2] << " "
-              << viewMatrix[3][2] << std::endl;
-    std::cout << "View matrix: " << viewMatrix[0][3] << " " << viewMatrix[1][3] << " " << viewMatrix[2][3] << " "
-              << viewMatrix[3][3] << std::endl;
-
-    std::cout << "Projection matrix: " << projectionMatrix[0][0] << " " << projectionMatrix[1][0] << " "
-              << projectionMatrix[2][0] << " " << projectionMatrix[3][0] << std::endl;
-    std::cout << "Projection matrix: " << projectionMatrix[0][1] << " " << projectionMatrix[1][1] << " "
-              << projectionMatrix[2][1] << " " << projectionMatrix[3][1] << std::endl;
-    std::cout << "Projection matrix: " << projectionMatrix[0][2] << " " << projectionMatrix[1][2] << " "
-              << projectionMatrix[2][2] << " " << projectionMatrix[3][2] << std::endl;
-    std::cout << "Projection matrix: " << projectionMatrix[0][3] << " " << projectionMatrix[1][3] << " "
-              << projectionMatrix[2][3] << " " << projectionMatrix[3][3] << std::endl;
-
-    glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
-    glm::vec4 mvpPosition = mvp * vertex;
-    mvpPosition /= mvpPosition.w;
-
-    std::cout << "Position: " << mvpPosition.x << " " << mvpPosition.y << " " << mvpPosition.z << " " << mvpPosition.w
-              << std::endl;
-
-    return position;
 }

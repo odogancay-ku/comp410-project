@@ -13,9 +13,8 @@ class Sphere : public Object {
     GLfloat radius;
 
 public:
-    Sphere(GLfloat radius, glm::vec3 position) {
+    explicit Sphere(GLfloat radius) {
         this->radius = radius;
-        this->position = position;
         this->modelType = ModelTypes::SPHERE;
     }
 
