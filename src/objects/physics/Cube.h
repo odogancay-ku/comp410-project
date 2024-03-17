@@ -15,6 +15,7 @@ class Cube : public Object {
 public:
     explicit Cube(GLfloat scale) {
         this->scale = scale;
+        this->modelType = ModelTypes::CUBE;
     }
 
 };

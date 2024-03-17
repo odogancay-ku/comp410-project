@@ -2,9 +2,9 @@
 out vec4 FragColor;
 
 in vec3 Normal;
-in vec3 Color; // New input for the color
+in vec3 Color;
 
 void main()
 {
-    FragColor = vec4(Color, 1.0f); // Use the passed color instead of a uniform
+    FragColor = vec4(Color, 1.0f);
 }

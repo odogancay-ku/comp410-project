@@ -5,6 +5,7 @@
 #include "controller/InputController.h"
 #include "game/Game.h"
 
+
 // Main function
 int main() {
 
@@ -18,24 +19,22 @@ int main() {
 
     std::cout << "Window created with size: " << windowWidth << "x" << windowHeight << std::endl;
 
-    Renderer renderer = Renderer();
-    Renderer::setActiveInstance(&renderer);
+    auto* renderer = new Renderer();
+    Renderer::setActiveInstance(renderer);
 
-    renderer.initializeGL();
+    renderer->initializeGL();
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    GLuint shaderProgram = renderer.loadShaderProgram("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
-    renderer.useShaderProgram(shaderProgram);
+    GLuint shaderProgram = renderer->loadShaderProgram("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
+    renderer->useShaderProgram(shaderProgram);
 
-    std::cout << "Shader program loaded" << std::endl;
+    std::cout << "Shader program loaded " << renderer->shaderProgram << std::endl;
 
-    glm::mat4 projection_matrix = renderer.calculateProjectionMatrix(windowWidth, windowHeight, 90.0f, 0.1, 500.0f);
+    renderer->createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight, 90);
 
-    renderer.setProjectionMatrix(projection_matrix);
-
-    Camera camera = Camera();
-    Camera::setActiveInstance(&camera);
+    auto* camera = new Camera();
+    Camera::setActiveInstance(camera);
 
 
     Game game = Game::getInstance();
@@ -45,9 +44,6 @@ int main() {
 
     ResourceManager::generateBuiltinModels();
     ResourceManager::generateExternalModels();
-
-
-    game.setupLevels();
 
     double lastTime = glfwGetTime();
 
@@ -88,7 +84,6 @@ int main() {
 
 
         while (deltaTime > dt_step) {
-            std::cout << "Physics step" << std::endl;
             game.checkCollisions();
             game.update(dt_step);
             deltaTime -= dt_step;
@@ -107,6 +102,7 @@ int main() {
         if (error != GL_NO_ERROR) {
             std::cout << "OpenGL Error: " << error << std::endl;
         }
+
 
         frameCount++;
         double currentFPSTime = glfwGetTime();

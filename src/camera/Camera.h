@@ -10,6 +10,7 @@
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/vec3.hpp>
 #include <vector>
+#include "../objects/physics/Object.h"
 
 class Camera {
 private:
@@ -37,6 +38,9 @@ public:
     bool movingRight;
     bool movingUp;
     bool movingDown;
+
+    Object* followObject = nullptr;
+
 
     static Camera *getActiveInstance() {
         if (activeInstance == nullptr) {
@@ -76,6 +80,10 @@ public:
     static void setActiveInstance(Camera *pCamera);
 
     void getViewMatrix(glm::mat4 &viewMatrix);
+
+    void setFollowObject(Object *object);
+
+    void setViewMatrix(GLuint program);
 };
 
 

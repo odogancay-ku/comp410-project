@@ -7,8 +7,10 @@
 
 
 #include <glew.h>
+#include <glm/ext.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <iostream>
+#include <glm/ext/matrix_clip_space.hpp>
 #include "../controller/WindowController.h"
 #include "../objects/physics/Object.h"
 
@@ -19,8 +21,10 @@ private:
     static inline Renderer *activeInstance = nullptr;
     static std::vector<Renderer> instances;
 
-    GLuint shaderProgram;
     GLuint VBO, VAO, EBO;
+    GLuint IBO;
+    GLuint vboVertex, vboInstance;
+    GLuint vboColorVertex;
 
 public:
     static Renderer *getActiveInstance() {
@@ -42,6 +46,9 @@ public:
         std::cout << "Loading shader program" << std::endl;
         std::basic_string<char> vertexShaderSource = readShaderFile(vertexShaderPath);
         std::basic_string<char> fragmentShaderSource = readShaderFile(fragmentShaderPath);
+
+        std::cout << "Vertex shader source: " << vertexShaderSource << std::endl;
+        std::cout << "Fragment shader source: " << fragmentShaderSource << std::endl;
 
         // Create a vertex shader object
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -104,7 +111,7 @@ public:
         if (error != GL_NO_ERROR) {
             std::cout << "OpenGL Error: " << error << std::endl;
         }
-
+        std::cout << "Shader program loaded " << _shaderProgram << std::endl;
         return _shaderProgram;
     }
 
@@ -121,21 +128,28 @@ public:
     }
 
     // Set view matrix uniform value in shader program
-    void setViewMatrix(const glm::mat4 &viewMatrix) {
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "ViewMatrix"), 1, GL_FALSE, &viewMatrix[0][0]);
+    void setViewMatrix(const glm::mat4 viewMatrix) {
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
         checkOpenGLError("setViewMatrix");
     }
 
     // Set projection matrix uniform value in shader program
-    void setProjectionMatrix(const glm::mat4 &projectionMatrix) {
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "ProjectionMatrix"), 1, GL_FALSE, &projectionMatrix[0][0]);
+    void setProjectionMatrix(const glm::mat4 projectionMatrix) {
+
+        GLint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "ProjectionMatrix");
+
+        if (projectionMatrixLocation == -1) {
+            std::cerr << "Projection matrix location not found" << std::endl;
+            exit(1);
+        }
+
+        glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         checkOpenGLError("setProjectionMatrix");
     }
 
 
-    void setModelMatrix(glm::mat4& modelMatrix) {
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "ModelMatrix"), 1, GL_FALSE, &modelMatrix[0][0])
-    }
+
+
 
     // Generate the projection matrix using the existing values
     glm::mat4 calculateProjectionMatrix(GLfloat _windowWidth, GLfloat _windowHeight, GLfloat fov, GLfloat nearPlane,
@@ -149,16 +163,8 @@ public:
             fov = 2 * atan(tan(fov * (M_PI / 180) / 2) * (1 / aspectRatio)) * (180 / M_PI);
         }
 
+        glm::mat4 projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
 
-        // Calculate the projection matrix
-        float f = 1.0f / tan(fov * 0.5f * (M_PI / 180.0f));
-        float rangeInv = 1.0f / (nearPlane - farPlane);
-
-        glm::mat4 projectionMatrix = {
-                f / aspectRatio, 0.0f,0.0f,                                     0.0f,
-                0.0f,            f,    0.0f,                                    0.0f,
-                0.0f,            0.0f, (nearPlane + farPlane) * rangeInv,       -1.0f,
-                0.0f,            0.0f, nearPlane * farPlane * rangeInv * 2.0f, 0.0f};
 
         return projectionMatrix;
     }
@@ -173,11 +179,15 @@ public:
 
         // Enable depth testing
         glEnable(GL_DEPTH_TEST);
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);
+        glGenBuffers(1, &vboVertex);
+        glGenBuffers(1, &vboInstance);
         glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &IBO);
+        glGenBuffers(1, &vboColorVertex);
     }
 
     void drawObject(Object &object);
@@ -190,7 +200,13 @@ public:
 
     static void checkOpenGLError(const std::string &at);
 
-    void drawInstancesOfModel(const ModelTypes types, std::vector<Object> *pVector);
+    void drawInstancesOfModel(const ModelTypes type, std::vector<Object> *pVector);
+
+    GLuint shaderProgram;
+
+    void createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight, float fov);
+
+    void createAndSetViewMatrix();
 };
 
 

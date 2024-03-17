@@ -9,6 +9,7 @@
 #include <vector>
 #include <glew.h>
 #include <glm/vec3.hpp>
+#include <glm/ext/matrix_float4x4.hpp>
 #include "../graphics/ResourceManager.h"
 
 class Object {
@@ -47,6 +48,9 @@ public:
     ModelTypes modelType;
     bool isHidden = false;
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    glm::mat4 getModelMatrix();
+
 };
 
 

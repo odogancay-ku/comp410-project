@@ -7,15 +7,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/trigonometric.hpp>
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 #include "Camera.h"
+#include "../objects/physics/Object.h"
 
-glm::vec3 Camera::originalPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 Camera::originalPosition = glm::vec3(0,0,0);
 
 Camera::Camera() {
     // Get next id
     instances.push_back(*this);
 
-    position = glm::vec3{0.0f, 0.0f, 0.0f};
     movingForward = false;
     movingBackward = false;
     movingLeft = false;
@@ -29,6 +30,7 @@ Camera::Camera() {
     speed = originalSpeed;
     position = originalPosition;
     canMove = true;
+
 }
 
 void Camera::updateOrientation(GLfloat yaw, GLfloat pitch) {
@@ -132,7 +134,30 @@ void Camera::setActiveInstance(Camera *pCamera) {
     activeInstance = pCamera;
 }
 
+void Camera::setFollowObject(Object *object) {
+    followObject = object;
+}
+
 void Camera::getViewMatrix(glm::mat4 &viewMatrix) {
+    if (followObject != nullptr) {
+        // Make sure up and direction is not the same
+        glm::vec3 direction;
+        direction = normalize(followObject->position-position);
+        glm::vec3 absoluteUp = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 right = normalize(cross(direction, absoluteUp));
+        glm::vec3 up = normalize(cross(right, direction));
+        std::cout << "Up: " << up.x << " " << up.y << " " << up.z << std::endl;
+        viewMatrix = glm::lookAt(followObject->position, position, up);
+        std::cout << "Following object at " << followObject->position.x << " " << followObject->position.y << " " << followObject->position.z  << std::endl;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                std::cout << viewMatrix[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }
+        return;
+    }
+
     glm::vec3 direction;
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     direction.y = sin(glm::radians(pitch));
@@ -148,6 +173,33 @@ void Camera::getViewMatrix(glm::mat4 &viewMatrix) {
     glm::vec3 glmUp = glm::vec3(up.x, up.y, up.z);
 
     // Create the view matrix
-    viewMatrix = glm::lookAt(glmPosition, glmPosition + glmDirection, glmUp);
+    glm::mat4 glmView = glm::lookAt(glmPosition, glmPosition + glmDirection, glmUp);
+
+
+    viewMatrix = glmView;
+}
+
+void Camera::setViewMatrix(GLuint program) {
+    // Calculate the new direction vector
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction = normalize(direction);
+
+    // Calculate the right and up vector
+    glm::vec3 right = normalize(cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
+    glm::vec3 up = normalize(cross(right, direction));
+
+    glm::vec3 glmPosition = glm::vec3(position.x, position.y, position.z);
+    glm::vec3 glmDirection = glm::vec3(direction.x, direction.y, direction.z);
+    glm::vec3 glmUp = glm::vec3(up.x, up.y, up.z);
+
+    // Create the view matrix
+    glm::mat4 glmView = glm::lookAt(glmPosition, glmPosition + glmDirection, glmUp);
+
+    // Pass the view matrix to the shader program
+    GLint viewLoc = glGetUniformLocation(program, "ViewMatrix");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glmView));
 }
 

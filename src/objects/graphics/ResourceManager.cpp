@@ -81,6 +81,10 @@ void ResourceManager::generateBuiltinModels() {
 
     generateSphere(sphereModelData.vertices, sphereModelData.normals, sphereModelData.indices, 3);
 
+    std::cout << "Sphere vertices: " << sphereModelData.vertices.size() << std::endl;
+    std::cout << "Sphere normals: " << sphereModelData.normals.size() << std::endl;
+    std::cout << "Sphere indices: " << sphereModelData.indices.size() << std::endl;
+
     for (int i = 0; i < sphereModelData.vertices.size(); ++i) {
         sphereModelData.colorVertices.emplace_back(1.0f, 0.0f, 0.0f);
     }
@@ -124,7 +128,7 @@ void divideTriangle(std::vector<glm::vec3>& vertices, const glm::vec3& a, const 
 }
 
 // Function to generate normals and indices
-void generateSphere(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::vector<GLuint> indices, int subdivisions) {
+void generateSphere(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::vector<GLuint>& indices, int subdivisions) {
     // Initial vertices of a tetrahedron
     glm::vec3 v0 = glm::normalize(glm::vec3 {1.0f, 0.0f, -1.0f / std::sqrt(2.0f)});
     glm::vec3 v1 = glm::normalize(glm::vec3 {-1.0f, 0.0f, -1.0f / std::sqrt(2.0f)});

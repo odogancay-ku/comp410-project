@@ -4,6 +4,8 @@
 
 #include "Level.h"
 #include "../../objects/physics/Sphere.h"
+#include "../../objects/physics/Cube.h"
+#include "../../camera/Camera.h"
 
 
 Level* Level::HW1() {
@@ -22,12 +24,17 @@ Level* Level::HW1() {
 
     std::cout << "Adding objects" << std::endl;
 
-    Sphere sphere = Sphere(1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+    Cube* cube = new Cube(10.0f);
 
-    sphere.canMove = false;
-    sphere.applyGravity = false;
+    cube->canMove = false;
+    cube->position = glm::vec3(0.0f, 0.0f, -20.0f);
+    cube->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    cube->applyGravity = false;
 
-    level->addObject(sphere);
+    level->addObject(*cube);
+
+//    Camera::getActiveInstance()->setFollowObject(cube);
+
 
     std::cout << "Objects added" << std::endl;
 

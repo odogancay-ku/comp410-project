@@ -119,7 +119,7 @@ public:
     static void generateExternalModels();
 };
 
-void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> indices,
+void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint>& indices,
                     int subdivisions);
 
 #endif //HOMEWORK1_RESOURCEMANAGER_H
