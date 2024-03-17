@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <glm/vec3.hpp>
+#include <glm/gtx/norm.hpp>
 #include <unordered_map>
 #include <string>
 #include <stdexcept>
@@ -65,58 +66,11 @@ public:
 
         models[modelIndex] = modelData;
 
+        std::cout << "Model added: " << modelIndex << std::endl;
+        std::cout << "Model added: " << models[modelIndex]->type << std::endl;
+        std::cout << "Model added: " << models[modelIndex]->indices.size() << std::endl;
+
 //        bufferModelData((ModelTypes) modelIndex, modelData);
-
-
-    }
-
-    // Load model from file and store in the ResourceManager
-    static void loadModel(const std::string &filePath, const int modelIndex) {
-
-        // Load model data from file
-        std::ifstream file(filePath);
-        if (!file.is_open()) {
-            throw std::runtime_error("Failed to open file: " + filePath);
-        }
-
-        ModelData* modelData = new ModelData();
-        std::string line;
-        std::string firstLine;
-        std::getline(file, firstLine);
-        if (firstLine != "OFF") {
-            std::cout << firstLine.data() << std::endl;
-            std::cout << "ERROR: File is not in OFF format" << std::endl;
-            exit(1);
-        }
-
-        // Read the number of vertices, faces, and edges
-
-        int numVertices, numFaces, numEdges;
-        file >> numVertices >> numFaces >> numEdges;
-
-
-        // Read the vertices
-        for (int i = 0; i < numVertices; ++i) {
-            float x, y, z, cx, cy, cz;
-            file >> x >> y >> z >> cx >> cy >> cz;
-
-            modelData->vertices.emplace_back(x, y, z);
-            modelData->colorVertices.emplace_back(0.8f, 0.8f, 0.8f);
-        }
-
-        // Read the faces
-        for (int i = 0; i < numFaces; ++i) {
-            int numSides;
-            file >> numSides;
-            for (int j = 0; j < numSides; ++j) {
-                GLuint index;
-                file >> index;
-                modelData->indices.push_back(index);
-            }
-        }
-
-        // Store loaded model data in the ResourceManager
-        addModel(modelIndex, modelData);
 
 
     }
@@ -130,6 +84,7 @@ public:
 
     void static bufferModelData(ModelTypes modelType, ModelData* modelData);
 
+    static void loadModel(const std::string &filePath, ModelData* modelIndex);
 };
 
 void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint>& indices,

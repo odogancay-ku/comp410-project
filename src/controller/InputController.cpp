@@ -161,6 +161,6 @@ void InputController::scrollCallback(GLFWwindow *window, double xoffset, double 
 
 void InputController::reshapeCallback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
-
+    Renderer::getActiveInstance()->createAndSetPerspectiveProjectionMatrix(width, height);
 }
 

@@ -10,11 +10,10 @@
 
 class Sphere : public Object {
 
-    GLfloat radius;
 
 public:
-    explicit Sphere(GLfloat radius) {
-        this->radius = radius;
+    explicit Sphere(GLfloat scale) {
+        this->scale = scale;
         this->modelType = ModelTypes::SPHERE;
     }
 

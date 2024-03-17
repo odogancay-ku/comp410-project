@@ -5,7 +5,6 @@
 #include <glm/ext/matrix_transform.hpp>
 #include "Object.h"
 #include "Sphere.h"
-#include "Player.h"
 
 
 Object::Object() {
@@ -37,6 +36,7 @@ glm::mat4 Object::getModelMatrix() {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::scale(model, glm::vec3(scale, scale, scale));
+    model = glm::scale(model, stretch);
     model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));

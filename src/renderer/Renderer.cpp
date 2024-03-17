@@ -7,6 +7,8 @@
 #include "Renderer.h"
 #include "../camera/Camera.h"
 
+int Renderer::drawMode = 0;
+
 std::string Renderer::readShaderFile(const char *path) {
 
     std::ifstream file(path);
@@ -22,6 +24,21 @@ std::string Renderer::readShaderFile(const char *path) {
 
 
 void Renderer::nextDrawMode() {
+
+    // Set the draw mode to the next mode
+    drawMode = (drawMode + 1) % 3;
+
+    switch (drawMode) {
+        case 0:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            break;
+        case 1:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            break;
+        case 2:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+            break;
+    }
 
 }
 
@@ -53,11 +70,17 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
     std::vector<glm::vec3> colors = {};
 
     for (auto &object: *pVector) {
+
+        if (object.isHidden) {
+            continue;
+        }
+
         glm::mat4 modelMatrix = object.getModelMatrix();
         modelMatrixColumns.push_back(modelMatrix[0]);
         modelMatrixColumns.push_back(modelMatrix[1]);
         modelMatrixColumns.push_back(modelMatrix[2]);
         modelMatrixColumns.push_back(modelMatrix[3]);
+
     }
 
     colors.reserve(modelData.colorVertices.size());
@@ -147,6 +170,8 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
     glDrawElementsInstanced(GL_TRIANGLES, modelData.indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
 
     glBindVertexArray(0);
+
+    checkOpenGLError("drawInstancesOfModel");
 
 
 }

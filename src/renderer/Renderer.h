@@ -160,6 +160,8 @@ public:
     void createAndSetViewMatrix();
 
     glm::vec3 simulateMVP(glm::vec3 originalPosition, glm::mat4 modelMatrix);
+
+    static int drawMode;
 };
 
 

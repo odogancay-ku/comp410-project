@@ -25,6 +25,7 @@ public:
     bool applyFriction = true;
 
     GLfloat scale = 1.0f;
+    glm::vec3 stretch = glm::vec3(1.0f, 1.0f, 1.0f);
 
     GLfloat mass = 1.0f;
     GLfloat restitution = 0.8f;
