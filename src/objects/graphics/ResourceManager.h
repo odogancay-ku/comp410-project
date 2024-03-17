@@ -14,6 +14,7 @@
 #include <sstream>
 #include <glew.h>
 #include <iostream>
+#include <map>
 
 enum ModelTypes {
     CUBE,
@@ -33,6 +34,10 @@ enum ModelTypes {
 // Define a structure to hold vertices and indices
 struct ModelData {
     ModelTypes type;
+    GLuint VAO;
+    GLuint VBO;
+    GLuint EBO;
+
     std::vector<glm::vec3> vertices;
     std::vector<GLuint> indices;
     std::vector<glm::vec3> normals;
@@ -42,7 +47,8 @@ struct ModelData {
 // Resource Manager class to manage loading and sharing of model data
 class ResourceManager {
 private:
-    static inline ModelData models[ModelTypes::END_OF_TYPES_MARKER] = {};
+    static inline ModelData* models[ModelTypes::END_OF_TYPES_MARKER] = {};
+
 
 
 public:
@@ -54,8 +60,14 @@ public:
 
     static void generateBuiltinModels();
 
-    static void addModel(const int modelIndex, const ModelData &modelData) {
+    static void addModel(const int modelIndex, ModelData* modelData) {
+
+
         models[modelIndex] = modelData;
+
+//        bufferModelData((ModelTypes) modelIndex, modelData);
+
+
     }
 
     // Load model from file and store in the ResourceManager
@@ -67,7 +79,7 @@ public:
             throw std::runtime_error("Failed to open file: " + filePath);
         }
 
-        ModelData modelData;
+        ModelData* modelData = new ModelData();
         std::string line;
         std::string firstLine;
         std::getline(file, firstLine);
@@ -88,8 +100,8 @@ public:
             float x, y, z, cx, cy, cz;
             file >> x >> y >> z >> cx >> cy >> cz;
 
-            modelData.vertices.emplace_back(x, y, z);
-            modelData.colorVertices.emplace_back(0.8f, 0.8f, 0.8f);
+            modelData->vertices.emplace_back(x, y, z);
+            modelData->colorVertices.emplace_back(0.8f, 0.8f, 0.8f);
         }
 
         // Read the faces
@@ -99,24 +111,25 @@ public:
             for (int j = 0; j < numSides; ++j) {
                 GLuint index;
                 file >> index;
-                modelData.indices.push_back(index);
+                modelData->indices.push_back(index);
             }
         }
 
         // Store loaded model data in the ResourceManager
         addModel(modelIndex, modelData);
+
+
     }
 
-    // Get model data from ResourceManager
-    static ModelData getModel(const int modelIndex) {
-        return models[modelIndex];
-    }
 
-    static ModelData getModel(const ModelTypes modelType) {
+    static ModelData* getModel(const ModelTypes modelType) {
         return models[modelType];
     }
 
     static void generateExternalModels();
+
+    void static bufferModelData(ModelTypes modelType, ModelData* modelData);
+
 };
 
 void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint>& indices,

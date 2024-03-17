@@ -1,11 +1,11 @@
 #version 330 core
-layout (location = 0) in vec4 ModelMatrix_Column0;
-layout (location = 1) in vec4 ModelMatrix_Column1;
-layout (location = 2) in vec4 ModelMatrix_Column2;
-layout (location = 3) in vec4 ModelMatrix_Column3;
-layout (location = 4) in vec4 localPosition;
-layout (location = 5) in vec4 vertexNormal;
-layout (location = 6) in vec4 vertexColor;
+layout (location = 0) in vec3 localPosition;
+layout (location = 1) in vec3 vertexNormal;
+layout (location = 2) in vec4 ModelMatrix_Column0;
+layout (location = 3) in vec4 ModelMatrix_Column1;
+layout (location = 4) in vec4 ModelMatrix_Column2;
+layout (location = 5) in vec4 ModelMatrix_Column3;
+layout (location = 6) in vec3 vertexColor;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
@@ -23,7 +23,7 @@ void main()
     ModelMatrix[2] = ModelMatrix_Column2;
     ModelMatrix[3] = ModelMatrix_Column3;
 
-    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(localPosition);
+    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(localPosition,1.0);
     Normal = vertexNormal;
     Color = vertexColor;
 }

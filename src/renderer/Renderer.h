@@ -135,7 +135,7 @@ public:
 
         // Enable depth testing
         glEnable(GL_DEPTH_TEST);
-        glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);

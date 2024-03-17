@@ -44,23 +44,15 @@ struct Vertex {
 
 void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVector) {
     // Set up VBOs for vertex data and instance-specific data
-    ModelData modelData = ResourceManager::getModel(type);
+    ModelData modelData = *ResourceManager::getModel(type);
 
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices = modelData.indices;
     GLuint instanceCount = pVector->size();
 
-    for (int i = 0; i < modelData.vertices.size(); ++i) {
-        Vertex vertex{};
-        vertex.position = modelData.vertices[i];
-        vertex.normal = modelData.normals[i];
-        vertices.push_back(vertex);
-    }
 
     std::vector<glm::vec4> modelMatrixColumns = {};
     std::vector<glm::vec3> colors = {};
 
-    for (auto &object : *pVector) {
+    for (auto &object: *pVector) {
         glm::mat4 modelMatrix = object.getModelMatrix();
         modelMatrixColumns.push_back(modelMatrix[0]);
         modelMatrixColumns.push_back(modelMatrix[1]);
@@ -68,7 +60,8 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
         modelMatrixColumns.push_back(modelMatrix[3]);
     }
 
-    for (auto colorVertex : modelData.colorVertices) {
+    colors.reserve(modelData.colorVertices.size());
+    for (auto colorVertex: modelData.colorVertices) {
         colors.push_back(colorVertex);
     }
 
@@ -77,41 +70,88 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
     layout (location = 1) in vec4 ModelMatrix_Column1; // Same for all indices in same instances
     layout (location = 2) in vec4 ModelMatrix_Column2; // Same for all indices in same instances
     layout (location = 3) in vec4 ModelMatrix_Column3; // Same for all indices in same instances
-    layout (location = 4) in vec4 localPosition; // Same for same indices in different instances
-    layout (location = 5) in vec4 vertexNormal; // Same for same indices in different instances
+    layout (location = 4) in vec4 localPosition; // Same for same indices in different instances // Buffer already existing
+    layout (location = 5) in vec4 vertexNormal; // Same for same indices in different instances // Buffer already existing
     layout (location = 6) in vec4 vertexColor; // Different for all vertices
 
     uniform mat4 ProjectionMatrix; // Same for all instances and vertices
     uniform mat4 ViewMatrix; // Same for all instances and vertices
      */
 
-    // Bind vertex buffers for position, normal, and color
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+    //std::cout << "Binding VAO: " << modelData.VAO << " " << modelData.VBO << " "<< modelData.EBO << std::endl;
+    // Bind the VAO that you want to draw
+    //glBindVertexArray(modelData.VAO);
 
-    // Set up vertex attribute pointers for position and normal
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-    glEnableVertexAttribArray(1);
+    std::cout << "Drawing " << instanceCount << " instances of " << type << std::endl;
+    std::cout << "Model matrix columns: " << modelMatrixColumns.size() << std::endl;
+    std::cout << "Colors: " << colors.size() << std::endl;
 
+    std::vector<glm::vec3> verticesAndNormals = {};
 
-    // Bind buffer for instance-specific data (model matrix columns)
-    glBindBuffer(GL_ARRAY_BUFFER, instanceModelMatrixVBO);
-    glBufferData(GL_ARRAY_BUFFER, instanceCount * 4 * sizeof(glm::vec4), modelMatrixColumns.data(), GL_STATIC_DRAW);
-
-    // Set up vertex attribute pointers for instance-specific data
-    // Assuming model matrix columns start from location 2
-    for (GLuint i = 0; i < 4; ++i) {
-        glEnableVertexAttribArray(i);
-        glVertexAttribPointer(i, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(i * sizeof(glm::vec4)));
-        glVertexAttribDivisor(i, 1); // Set divisor for instanced rendering
+    for (int i = 0; i < modelData.vertices.size(); ++i) {
+        verticesAndNormals.push_back(modelData.vertices[i]);
+        // If normal is not available, use the vertex as normal
+        if (i < modelData.normals.size()) {
+            verticesAndNormals.push_back(modelData.normals[i]);
+        } else {
+            verticesAndNormals.push_back(modelData.vertices[i]);
+        }
     }
 
+    glBindVertexArray(VAO);
 
-    glDrawArraysInstanced(GL_TRIANGLES, 0, indices.size(), instanceCount);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, verticesAndNormals.size() * sizeof(glm::vec3), &verticesAndNormals[0],
+                 GL_STATIC_DRAW);
 
-    std::cout << "Draw call using instanced rendering" << std::endl;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelData.indices.size() * sizeof(GLuint), &modelData.indices[0],
+                 GL_STATIC_DRAW);
+
+
+    // Set the vertex attribute pointers
+
+    // Position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) 0);
+    glEnableVertexAttribArray(0);
+
+    // Normal
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+    // Bind this VBO and upload the data to it
+    glBindBuffer(GL_ARRAY_BUFFER, instanceModelMatrixVBO);
+    glBufferData(GL_ARRAY_BUFFER, modelMatrixColumns.size() * sizeof(glm::vec4), &modelMatrixColumns[0],
+                 GL_STATIC_DRAW);
+
+
+
+    // Set the vertex attribute pointers for the instance-specific data
+    for (int i = 2; i < 6; i++) {
+
+        glVertexAttribPointer(i, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(GLfloat),  (GLvoid *) ((i-2) * 4 *sizeof(GLfloat)));
+        glVertexAttribDivisor(i, 1);
+        glEnableVertexAttribArray(i);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorVertexVBO);
+    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), &colors[0], GL_STATIC_DRAW);
+
+    // Set the vertex attribute pointer for the color data
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+    glEnableVertexAttribArray(6);
+
+
+    checkOpenGLError("drawInstancesOfModel");
+
+    glDrawElementsInstanced(GL_TRIANGLES, modelData.indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
+
+    glBindVertexArray(0);
+
 
 }
 
@@ -138,12 +178,11 @@ void Renderer::createAndSetViewMatrix() {
 
     // Calculate the new direction vector
     glm::vec3 direction;
-    direction.x = cos(glm::radians(camera.yaw + 90)) * cos(glm::radians(camera.pitch));
+    direction.x = cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
     direction.y = sin(glm::radians(camera.pitch));
-    direction.z = -1 * sin(glm::radians(camera.yaw + 90)) * cos(glm::radians(camera.pitch));
+    direction.z = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
     direction = normalize(direction);
 
-    std::cout << "Direction: " << direction.x << " " << direction.y << " " << direction.z << std::endl;
 
     // Calculate the right and up vector
     glm::vec3 right = normalize(cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
