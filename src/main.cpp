@@ -31,10 +31,11 @@ int main() {
 
     std::cout << "Shader program loaded " << renderer->shaderProgram << std::endl;
 
-    renderer->createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight, 90);
-
     auto* camera = new Camera();
     Camera::setActiveInstance(camera);
+
+    renderer->createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight);
+
 
 
     Game game = Game::getInstance();

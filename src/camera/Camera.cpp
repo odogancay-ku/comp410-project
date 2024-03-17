@@ -24,10 +24,6 @@ Camera::Camera() {
     movingDown = false;
     movingUp = false;
 
-    fov = originalFov;
-    yaw = originalYaw;
-    pitch = originalPitch;
-    speed = originalSpeed;
     position = originalPosition;
     canMove = true;
 
@@ -177,29 +173,5 @@ void Camera::getViewMatrix(glm::mat4 &viewMatrix) {
 
 
     viewMatrix = glmView;
-}
-
-void Camera::setViewMatrix(GLuint program) {
-    // Calculate the new direction vector
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction = normalize(direction);
-
-    // Calculate the right and up vector
-    glm::vec3 right = normalize(cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
-    glm::vec3 up = normalize(cross(right, direction));
-
-    glm::vec3 glmPosition = glm::vec3(position.x, position.y, position.z);
-    glm::vec3 glmDirection = glm::vec3(direction.x, direction.y, direction.z);
-    glm::vec3 glmUp = glm::vec3(up.x, up.y, up.z);
-
-    // Create the view matrix
-    glm::mat4 glmView = glm::lookAt(glmPosition, glmPosition + glmDirection, glmUp);
-
-    // Pass the view matrix to the shader program
-    GLint viewLoc = glGetUniformLocation(program, "ViewMatrix");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glmView));
 }
 

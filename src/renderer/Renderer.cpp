@@ -20,66 +20,6 @@ std::string Renderer::readShaderFile(const char *path) {
     return ss.str();
 }
 
-void Renderer::drawObject(Object &object) {
-
-    std::vector<GLfloat> data;
-    std::vector<GLuint> indices;
-
-    addObjectVerticesAndIndices(object, data, indices);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    checkOpenGLError("BIND VBO");
-    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(GLfloat), &data[0], GL_STATIC_DRAW);
-    checkOpenGLError("BUFFER DATA");
-
-    glBindVertexArray(VAO);
-    checkOpenGLError("BIND VAO");
-
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) nullptr);
-    glEnableVertexAttribArray(0);
-    // Normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) (3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // Color attribute
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) (6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    // World position translation attribute
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void *) (9 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // Bind the EBO
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0],
-                 GL_STATIC_DRAW); // Upload the indices to the EBO
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT,
-                   nullptr); // Use glDrawElements instead of glDrawArrays
-
-}
-
-void Renderer::addObjectVerticesAndIndices(Object &object, std::vector<GLfloat> &data, std::vector<GLuint> &indices) {
-
-    if (object.isHidden) {
-        return;
-    }
-
-    ModelData modelData = ResourceManager::getModel(object.modelType);
-
-    for (int i = 0; i < modelData.vertices.size(); ++i) {
-
-        glm::vec3 vertex = modelData.vertices[i];
-        glm::vec3 normal = modelData.normals[i];
-        glm::vec3 color = modelData.colorVertices[i];
-
-        data.insert(data.end(), {vertex.x, vertex.y, vertex.z, normal.x, normal.y, normal.z, color.x, color.y, color.z,
-                                 object.position.x, object.position.y, object.position.z});
-    }
-
-    for (GLuint index: modelData.indices) {
-        indices.push_back(index);
-    }
-
-
-}
 
 void Renderer::nextDrawMode() {
 
@@ -101,17 +41,14 @@ struct Vertex {
     glm::vec3 normal;
 };
 
-struct InstanceData {
-    glm::mat4 modelMatrix;
-    std::vector<glm::vec3> colorVertices; // Instance-specific color vertices
-};
 
-void Renderer::drawInstancesOfModel(const ModelTypes type, std::vector<Object> *pVector) {
+void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVector) {
     // Set up VBOs for vertex data and instance-specific data
     ModelData modelData = ResourceManager::getModel(type);
 
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices = modelData.indices;
+    GLuint instanceCount = pVector->size();
 
     for (int i = 0; i < modelData.vertices.size(); ++i) {
         Vertex vertex{};
@@ -120,119 +57,148 @@ void Renderer::drawInstancesOfModel(const ModelTypes type, std::vector<Object> *
         vertices.push_back(vertex);
     }
 
-    std::vector<InstanceData> instanceDatas{};
-    for (auto &object: *pVector) {
-        InstanceData instanceData{};
-        instanceData.modelMatrix = object.getModelMatrix();
+    std::vector<glm::vec4> modelMatrixColumns = {};
+    std::vector<glm::vec3> colors = {};
 
-        glm::mat4 p = calculateProjectionMatrix(1920, 1000, 90, 0.1f, 500.0f);
-        glm::mat4 v;
-        Camera::getActiveInstance()->getViewMatrix(v);
-        glm::mat4 m = instanceData.modelMatrix;
-
-        glm::mat4 mvp = p * v * m;
-
-        glm::vec4 result = mvp * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-        std::cout << "MVP: " << result.x << " " << result.y << " " << result.z << " " << result.w << std::endl;
-        std::cout << object.position.x << " " << object.position.y << " " << object.position.z << std::endl;
-
-        instanceData.colorVertices = modelData.colorVertices;
-        instanceDatas.push_back(instanceData);
+    for (auto &object : *pVector) {
+        glm::mat4 modelMatrix = object.getModelMatrix();
+        modelMatrixColumns.push_back(modelMatrix[0]);
+        modelMatrixColumns.push_back(modelMatrix[1]);
+        modelMatrixColumns.push_back(modelMatrix[2]);
+        modelMatrixColumns.push_back(modelMatrix[3]);
     }
 
-    // Bind and fill vertex buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vboVertex);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-    checkOpenGLError("vertexBuffer");
-
-    // Bind and fill instance buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vboInstance);
-    glBufferData(GL_ARRAY_BUFFER, instanceDatas.size() * sizeof(InstanceData), &instanceDatas[0], GL_STATIC_DRAW);
-    checkOpenGLError("instanceBuffer");
-
-    // Set up instance buffer object (VBO) for instance-specific color vertices
-    size_t expectedSize = instanceDatas.size() * modelData.colorVertices.size() * sizeof(glm::vec3);
-    glBindBuffer(GL_ARRAY_BUFFER, vboColorVertex);
-    glBufferData(GL_ARRAY_BUFFER, expectedSize, nullptr, GL_STATIC_DRAW);
-    checkOpenGLError("instanceColorBuffer");
-
-    size_t offset = 0;
-    for (const auto &instanceData: instanceDatas) {
-        glBufferSubData(GL_ARRAY_BUFFER, offset, instanceData.colorVertices.size() * sizeof(glm::vec3),
-                        &instanceData.colorVertices[0]);
-        offset += instanceData.colorVertices.size() * sizeof(glm::vec3);
+    for (auto colorVertex : modelData.colorVertices) {
+        colors.push_back(colorVertex);
     }
-    checkOpenGLError("instanceColorBuffer");
 
-    // Bind vertex array object (VAO)
-    glBindVertexArray(VAO);
+    /**
+    layout (location = 0) in vec4 ModelMatrix_Column0; // Same for all indices in same instance
+    layout (location = 1) in vec4 ModelMatrix_Column1; // Same for all indices in same instances
+    layout (location = 2) in vec4 ModelMatrix_Column2; // Same for all indices in same instances
+    layout (location = 3) in vec4 ModelMatrix_Column3; // Same for all indices in same instances
+    layout (location = 4) in vec4 localPosition; // Same for same indices in different instances
+    layout (location = 5) in vec4 vertexNormal; // Same for same indices in different instances
+    layout (location = 6) in vec4 vertexColor; // Different for all vertices
 
-    // Vertex attribute setup
-    glBindBuffer(GL_ARRAY_BUFFER, vboVertex);
-    // Vertex position attribute (location = 1)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, position));
-    glEnableVertexAttribArray(1); // Location 1: Position
-    checkOpenGLError("vertexAttribute");
+    uniform mat4 ProjectionMatrix; // Same for all instances and vertices
+    uniform mat4 ViewMatrix; // Same for all instances and vertices
+     */
 
-    // Vertex normal attribute (location = 2)
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
-    glEnableVertexAttribArray(2); // Location 2: Normal
-    checkOpenGLError("vertexAttribute");
+    // Bind vertex buffers for position, normal, and color
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
-    // ModelMatrix attribute (location = 0)
-    // For model matrix, set up attributes for each column (4 attributes)
-    for (unsigned int i = 0; i < 4; ++i) {
-        glEnableVertexAttribArray(0 + i);
-        glVertexAttribPointer(0 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void *) (sizeof(float) * i * 4));
-        glVertexAttribDivisor(0 + i, 1); // This attribute advances once per instance
+    // Set up vertex attribute pointers for position and normal
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(1);
+
+
+    // Bind buffer for instance-specific data (model matrix columns)
+    glBindBuffer(GL_ARRAY_BUFFER, instanceModelMatrixVBO);
+    glBufferData(GL_ARRAY_BUFFER, instanceCount * 4 * sizeof(glm::vec4), modelMatrixColumns.data(), GL_STATIC_DRAW);
+
+    // Set up vertex attribute pointers for instance-specific data
+    // Assuming model matrix columns start from location 2
+    for (GLuint i = 0; i < 4; ++i) {
+        glEnableVertexAttribArray(i);
+        glVertexAttribPointer(i, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(i * sizeof(glm::vec4)));
+        glVertexAttribDivisor(i, 1); // Set divisor for instanced rendering
     }
-    checkOpenGLError("modelMatrixAttribute");
 
-    // Color attribute (location = 3)
-    glBindBuffer(GL_ARRAY_BUFFER, vboColorVertex);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *) 0);
-    glEnableVertexAttribArray(3); // Location 3: Color
-    glVertexAttribDivisor(3, 1); // This attribute advances once per instance
-    checkOpenGLError("colorAttribute");
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
-    checkOpenGLError("indexBuffer");
+    glDrawArraysInstanced(GL_TRIANGLES, 0, indices.size(), instanceCount);
 
-    // Draw call
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
-    checkOpenGLError("drawInstancesOfModel");
+    std::cout << "Draw call using instanced rendering" << std::endl;
+
 }
 
-void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight, float fov) {
-    // Define projection matrix parameters
+
+void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight) {
     float aspectRatio = (float) _windowWidth / (float) _windowHeight;
+
+    float fov = Camera::getActiveInstance()->fov;
 
     if (aspectRatio < 1.0f) {
         fov = 2 * atan(tan(fov * (M_PI / 180) / 2) * (1 / aspectRatio)) * (180 / M_PI);
     }
 
-    float nearPlane = 0.1f;
-    float farPlane = 500.0f;
-
-    // Calculate the projection matrix
-    float f = 1.0f / tan(fov * 0.5f * (M_PI / 180.0f));
-    float rangeInv = 1.0f / (nearPlane - farPlane);
-
-    float projectionMatrix[16] = {
-            f / aspectRatio, 0.0f, 0.0f, 0.0f,
-            0.0f, f, 0.0f, 0.0f,
-            0.0f, 0.0f, (nearPlane + farPlane) * rangeInv, -1.0f,
-            0.0f, 0.0f, nearPlane * farPlane * rangeInv * 2.0f, 0.0f};
-
+    projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
 
     // Pass the projection matrix to the shader program
     GLint projectionLoc = glGetUniformLocation(shaderProgram, "ProjectionMatrix");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projectionMatrix);
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 }
 
 void Renderer::createAndSetViewMatrix() {
-    Camera::getActiveInstance()->setViewMatrix(shaderProgram);
+
+    Camera camera = *Camera::getActiveInstance();
+
+    // Calculate the new direction vector
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(camera.yaw + 90)) * cos(glm::radians(camera.pitch));
+    direction.y = sin(glm::radians(camera.pitch));
+    direction.z = -1 * sin(glm::radians(camera.yaw + 90)) * cos(glm::radians(camera.pitch));
+    direction = normalize(direction);
+
+    std::cout << "Direction: " << direction.x << " " << direction.y << " " << direction.z << std::endl;
+
+    // Calculate the right and up vector
+    glm::vec3 right = normalize(cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
+    glm::vec3 up = normalize(cross(right, direction));
+
+
+    // Create the view matrix
+    viewMatrix = glm::lookAt(camera.position, camera.position + direction, up);
+
+    // Pass the view matrix to the shader program
+    GLint viewLoc = glGetUniformLocation(shaderProgram, "ViewMatrix");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+}
+
+glm::vec3 Renderer::simulateMVP(glm::vec3 originalPosition, glm::mat4 modelMatrix) {
+    glm::vec4 vertex = glm::vec4(0.5, 0.5f, 0.5f, 1.0f);
+    glm::vec4 position = glm::vec4(originalPosition, 1.0f);
+
+    std::cout << "Original position: " << (originalPosition.x + vertex.x * modelMatrix[0][0]) << " "
+              << (originalPosition.y + vertex.y * modelMatrix[1][1]) << " "
+              << (originalPosition.z + vertex.z * modelMatrix[2][2]) << std::endl;
+
+    std::cout << "Model matrix: " << modelMatrix[0][0] << " " << modelMatrix[1][0] << " " << modelMatrix[2][0] << " "
+              << modelMatrix[3][0] << std::endl;
+    std::cout << "Model matrix: " << modelMatrix[0][1] << " " << modelMatrix[1][1] << " " << modelMatrix[2][1] << " "
+              << modelMatrix[3][1] << std::endl;
+    std::cout << "Model matrix: " << modelMatrix[0][2] << " " << modelMatrix[1][2] << " " << modelMatrix[2][2] << " "
+              << modelMatrix[3][2] << std::endl;
+    std::cout << "Model matrix: " << modelMatrix[0][3] << " " << modelMatrix[1][3] << " " << modelMatrix[2][3] << " "
+              << modelMatrix[3][3] << std::endl;
+
+    std::cout << "View matrix: " << viewMatrix[0][0] << " " << viewMatrix[1][0] << " " << viewMatrix[2][0] << " "
+              << viewMatrix[3][0] << std::endl;
+    std::cout << "View matrix: " << viewMatrix[0][1] << " " << viewMatrix[1][1] << " " << viewMatrix[2][1] << " "
+              << viewMatrix[3][1] << std::endl;
+    std::cout << "View matrix: " << viewMatrix[0][2] << " " << viewMatrix[1][2] << " " << viewMatrix[2][2] << " "
+              << viewMatrix[3][2] << std::endl;
+    std::cout << "View matrix: " << viewMatrix[0][3] << " " << viewMatrix[1][3] << " " << viewMatrix[2][3] << " "
+              << viewMatrix[3][3] << std::endl;
+
+    std::cout << "Projection matrix: " << projectionMatrix[0][0] << " " << projectionMatrix[1][0] << " "
+              << projectionMatrix[2][0] << " " << projectionMatrix[3][0] << std::endl;
+    std::cout << "Projection matrix: " << projectionMatrix[0][1] << " " << projectionMatrix[1][1] << " "
+              << projectionMatrix[2][1] << " " << projectionMatrix[3][1] << std::endl;
+    std::cout << "Projection matrix: " << projectionMatrix[0][2] << " " << projectionMatrix[1][2] << " "
+              << projectionMatrix[2][2] << " " << projectionMatrix[3][2] << std::endl;
+    std::cout << "Projection matrix: " << projectionMatrix[0][3] << " " << projectionMatrix[1][3] << " "
+              << projectionMatrix[2][3] << " " << projectionMatrix[3][3] << std::endl;
+
+    glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
+    glm::vec4 mvpPosition = mvp * vertex;
+    mvpPosition /= mvpPosition.w;
+
+    std::cout << "Position: " << mvpPosition.x << " " << mvpPosition.y << " " << mvpPosition.z << " " << mvpPosition.w
+              << std::endl;
+
+    return position;
 }

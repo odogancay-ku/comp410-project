@@ -22,11 +22,18 @@ private:
     static std::vector<Renderer> instances;
 
     GLuint VBO, VAO, EBO;
-    GLuint IBO;
-    GLuint vboVertex, vboInstance;
-    GLuint vboColorVertex;
+    GLuint instanceModelMatrixVBO;
+    GLuint colorVertexVBO;
+    GLfloat nearPlane = 0.1f;
+    GLfloat farPlane = 500.0f;
 
 public:
+
+    glm::mat4 projectionMatrix;
+    glm::mat4 viewMatrix;
+    GLuint shaderProgram;
+
+
     static Renderer *getActiveInstance() {
         if (activeInstance == nullptr) {
             exit(1);
@@ -106,11 +113,7 @@ public:
         glDeleteShader(fragmentShader);
         glDeleteShader(vertexShader);
 
-        GLenum error = glGetError();
-
-        if (error != GL_NO_ERROR) {
-            std::cout << "OpenGL Error: " << error << std::endl;
-        }
+        checkOpenGLError("loadShaderProgram");
         std::cout << "Shader program loaded " << _shaderProgram << std::endl;
         return _shaderProgram;
     }
@@ -120,55 +123,8 @@ public:
         shaderProgram = _shaderProgram;
         glUseProgram(shaderProgram);
 
-        GLenum error = glGetError();
-
-        if (error != GL_NO_ERROR) {
-            std::cout << "OpenGL Error: " << error << std::endl;
-        }
+        checkOpenGLError("useShaderProgram");
     }
-
-    // Set view matrix uniform value in shader program
-    void setViewMatrix(const glm::mat4 viewMatrix) {
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        checkOpenGLError("setViewMatrix");
-    }
-
-    // Set projection matrix uniform value in shader program
-    void setProjectionMatrix(const glm::mat4 projectionMatrix) {
-
-        GLint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "ProjectionMatrix");
-
-        if (projectionMatrixLocation == -1) {
-            std::cerr << "Projection matrix location not found" << std::endl;
-            exit(1);
-        }
-
-        glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-        checkOpenGLError("setProjectionMatrix");
-    }
-
-
-
-
-
-    // Generate the projection matrix using the existing values
-    glm::mat4 calculateProjectionMatrix(GLfloat _windowWidth, GLfloat _windowHeight, GLfloat fov, GLfloat nearPlane,
-                                GLfloat farPlane) {
-
-        GLfloat windowWidth = _windowWidth;
-        GLfloat windowHeight = _windowHeight;
-        GLfloat aspectRatio = windowWidth / windowHeight;
-
-        if (aspectRatio < 1.0f) {
-            fov = 2 * atan(tan(fov * (M_PI / 180) / 2) * (1 / aspectRatio)) * (180 / M_PI);
-        }
-
-        glm::mat4 projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
-
-
-        return projectionMatrix;
-    }
-
 
     void initializeGL() {
         glewExperimental = GL_TRUE;
@@ -183,16 +139,12 @@ public:
 
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);
-        glGenBuffers(1, &vboVertex);
-        glGenBuffers(1, &vboInstance);
         glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &IBO);
-        glGenBuffers(1, &vboColorVertex);
+        glGenBuffers(1, &instanceModelMatrixVBO);
+        glGenBuffers(1, &colorVertexVBO);
+        checkOpenGLError("initializeGL");
     }
 
-    void drawObject(Object &object);
-
-    void addObjectVerticesAndIndices(Object &object, std::vector<GLfloat> &data, std::vector<GLuint> &indices);
 
     static void nextDrawMode();
 
@@ -200,13 +152,14 @@ public:
 
     static void checkOpenGLError(const std::string &at);
 
-    void drawInstancesOfModel(const ModelTypes type, std::vector<Object> *pVector);
+    void drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVector);
 
-    GLuint shaderProgram;
 
-    void createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight, float fov);
+    void createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight);
 
     void createAndSetViewMatrix();
+
+    glm::vec3 simulateMVP(glm::vec3 originalPosition, glm::mat4 modelMatrix);
 };
 
 

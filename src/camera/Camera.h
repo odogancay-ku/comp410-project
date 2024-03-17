@@ -17,16 +17,16 @@ private:
     static inline Camera *activeInstance = nullptr;
 
 public:
-    constexpr static GLfloat originalYaw = 0.0f;
+    constexpr static GLfloat originalYaw = 45.0f;
     constexpr static GLfloat originalPitch = 0.0f;
     static glm::vec3 originalPosition;
     constexpr static GLfloat originalSpeed = 5.0f;
     constexpr static GLfloat originalFov = 90.0f;
 
-    GLfloat fov;
-    GLfloat yaw;
-    GLfloat pitch;
-    GLfloat speed;
+    GLfloat fov = originalFov;
+    GLfloat yaw = originalYaw;
+    GLfloat pitch = originalPitch;
+    GLfloat speed = originalSpeed;
     GLfloat sensitivity = 1.0f;
     glm::vec3 position;
 
@@ -83,7 +83,6 @@ public:
 
     void setFollowObject(Object *object);
 
-    void setViewMatrix(GLuint program);
 };
 
 
