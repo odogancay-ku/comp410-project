@@ -9,7 +9,7 @@
 // Main function
 int main() {
 
-    WindowController* windowController = WindowController::getInstance();
+    WindowController *windowController = WindowController::getInstance();
 
     windowController->createFullscreenWindow("Homework 1");
     GLfloat windowWidth = windowController->getWidth();
@@ -19,7 +19,7 @@ int main() {
 
     std::cout << "Window created with size: " << windowWidth << "x" << windowHeight << std::endl;
 
-    auto* renderer = new Renderer();
+    auto *renderer = new Renderer();
     Renderer::setActiveInstance(renderer);
 
     renderer->initializeGL();
@@ -31,14 +31,13 @@ int main() {
 
     std::cout << "Shader program loaded " << renderer->shaderProgram << std::endl;
 
-    auto* camera = new Camera();
+    auto *camera = new Camera();
     Camera::setActiveInstance(camera);
 
     renderer->createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight);
 
 
-
-    Game* game = Game::getInstance();
+    Game *game = Game::getInstance();
 
 
     InputController inputController = InputController(window);
@@ -53,9 +52,9 @@ int main() {
 
 
     std::cout << "WELCOME! Press P to give a little velocity to non static objects" << std::endl;
-    std::cout << "Press C to create a new cube at origin with random speed and color" << std::endl;
-    std::cout << "Press V to create a new sphere at origin with random speed and color" << std::endl;
-    std::cout << "Press B to create a new bunny at origin with random speed and color" << std::endl;
+    std::cout << "Press L to change the object model" << std::endl;
+    std::cout << "Press H to show hitboxes, you might need to switch to point or line draw mode to see them"
+              << std::endl;
     std::cout << "Press T to change the draw mode" << std::endl;
     std::cout << "Press ESC to exit" << std::endl;
     std::cout << "Press W, A, S, D, left shift, space to move the camera relative to the orientation" << std::endl;
@@ -67,7 +66,7 @@ int main() {
                "Press alt to toggle this. "
                "You will need to test out the reshape callback functionality. "
                "Press alt, go out of full screen, "
-               "either resize with the mouse or press alt again and keep pressing I and O. "
+               "resize with the mouse "
                "This will be enough to showcase window resize callback"
             << std::endl;
     std::cout << "Use the mouse wheel to change the fov" << std::endl;
@@ -82,7 +81,6 @@ int main() {
         double currentTime = glfwGetTime();
         double deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-
 
 
         while (deltaTime > dt_step) {
