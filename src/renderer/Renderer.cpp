@@ -64,7 +64,7 @@ struct Vertex {
 };
 
 
-void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object*> *pVector, bool hitboxes) {
+void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVector, bool hitboxes) {
     // Set up VBOs for vertex data and instance-specific data
     ModelData modelData = *ResourceManager::getModel(type);
 
@@ -80,36 +80,16 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object*> *pVect
         // Draw wireframe
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        // Create prism vertices and indices using the hitbox
-        glm::vec3 min = modelData.hitbox[0];
-        glm::vec3 max = modelData.hitbox[1];
 
-        vertices = {
-            glm::vec3(min.x, min.y, min.z),
-            glm::vec3(max.x, min.y, min.z),
-            glm::vec3(max.x, max.y, min.z),
-            glm::vec3(min.x, max.y, min.z),
-            glm::vec3(min.x, min.y, max.z),
-            glm::vec3(max.x, min.y, max.z),
-            glm::vec3(max.x, max.y, max.z),
-            glm::vec3(min.x, max.y, max.z)
-        };
+        vertices = modelData.hitboxVertices;
 
-        indices = {
-                0, 1, 2, 2, 3, 0,
-                1, 5, 6, 6, 2, 1,
-                7, 6, 5, 5, 4, 7,
-                4, 0, 3, 3, 7, 4,
-                3, 2, 6, 6, 7, 3,
-                4, 5, 1, 1, 0, 4
-
-        };
+        indices = modelData.hitboxIndices;
 
         // Calculate the vertex normals not faces
-        for (int i = 0; i < indices.size(); i+=2) {
+        for (int i = 0; i < indices.size(); i += 2) {
             glm::vec3 vertex1 = vertices[indices[i]];
-            glm::vec3 vertex2 = vertices[indices[i+1]];
-            glm::vec3 normal = glm::normalize(glm::cross(vertex2-vertex1, glm::vec3(0.0f, 0.0f, 1.0f)));
+            glm::vec3 vertex2 = vertices[indices[i + 1]];
+            glm::vec3 normal = glm::normalize(glm::cross(vertex2 - vertex1, glm::vec3(0.0f, 0.0f, 1.0f)));
             normals.push_back(normal);
             normals.push_back(normal);
         }
@@ -209,7 +189,8 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object*> *pVect
     // Set the vertex attribute pointers for the instance-specific data
     for (int i = 2; i < 6; i++) {
 
-        glVertexAttribPointer(i, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(GLfloat),  (GLvoid *) ((i-2) * 4 *sizeof(GLfloat)));
+        glVertexAttribPointer(i, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(GLfloat),
+                              (GLvoid *) ((i - 2) * 4 * sizeof(GLfloat)));
         glVertexAttribDivisor(i, 1);
         glEnableVertexAttribArray(i);
     }
@@ -221,7 +202,6 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object*> *pVect
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
     glEnableVertexAttribArray(6);
-
 
 
     glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
@@ -256,12 +236,12 @@ void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _wi
 
 void Renderer::createAndSetViewMatrix() {
 
-    Camera* camera = Camera::getActiveInstance();
+    Camera *camera = Camera::getActiveInstance();
 
     if (camera->followObject != nullptr) {
         // Make sure up and direction is not the same
         glm::vec3 direction;
-        direction = normalize(camera->followObject->position-camera->position);
+        direction = normalize(camera->followObject->position - camera->position);
         glm::vec3 absoluteUp = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 right = normalize(cross(direction, absoluteUp));
         glm::vec3 up = normalize(cross(right, direction));

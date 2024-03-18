@@ -13,7 +13,7 @@ Object::Object() {
     id = nextId++;
 }
 
-void Object::update(GLfloat dt,  Environment *environment) {
+void Object::update(GLfloat dt, Environment *environment) {
 
     // Dynamic updates
 
@@ -21,7 +21,7 @@ void Object::update(GLfloat dt,  Environment *environment) {
         if (environment->gravityFunction != nullptr) {
 
             glm::vec3 gravity = environment->gravityFunction(this->position);
-            velocity += dt*gravity;
+            velocity += dt * gravity;
         }
     }
 
@@ -62,100 +62,82 @@ double scalarProjection(glm::vec3 point, glm::vec3 normal) {
     return glm::dot(point, normal) / glm::dot(normal, normal);
 }
 
+// Function to compute the projection of a box onto an axis
+std::pair<double, double> projectBox(std::vector<glm::vec3> box, glm::vec3 axis) {
+    double min = scalarProjection(box[0], axis);
+    double max = min;
+
+    for (auto vertex: box) {
+        double scalar = scalarProjection(vertex, axis);
+        if (scalar < min) {
+            min = scalar;
+        } else if (scalar > max) {
+            max = scalar;
+        }
+    }
+
+    return std::make_pair(min, max);
+}
+
+// Function to check if two ranges overlap
+bool rangesOverlap(std::pair<double, double> range1, std::pair<double, double> range2) {
+    return range1.first <= range2.second && range1.second >= range2.first;
+}
+
+// Function to check if two boxes collide
+bool doesCollide(std::vector<glm::vec3> box1, std::vector<glm::vec3> box2) {
+    std::vector<glm::vec3> axes = {glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1)};
+
+    for (auto axis: axes) {
+        auto box1Range = projectBox(box1, axis);
+        auto box2Range = projectBox(box2, axis);
+
+        if (!rangesOverlap(box1Range, box2Range)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 void Object::checkCollision(Object *otherObject) {
 
-// I am assuming normal is a unit vector
-// although the overlap algorithm will still
-// work even if normal is not a unit vector
-//    double scalarProjection(point, normal)
-//    {
-//// http://en.wikipedia.org/wiki/Vector_projection
-//        return point.dot(normal) / normal.dot(normal);
-//    }
-//    Range projectBox(box, normal)
-//    {
-//        Range result;
-//
-//// iterate over each corner in the box
-//        foreach (vertex in box.vertices)
-//        {
-//            double scalar = scalarProjection(vertex, normal);
-//
-//            if first vertex
-//                        {
-//                                result.max = scalar;
-//                        result.min = scalar;
-//                        }
-//                    else if (scalar > result.max)
-//                result.max = scalar;
-//            else if (scalar < result.min)
-//                result.min = scalar;
-//        }
-//    }
-//    bool doesCollide(boxa, boxb)
-//    {
-//// create an array of vectors the represent the combined axis of the two boxes
-//        Array<Vector> boxaxislist;
-//
-//        boxaxislist.append(boxa.axisList);
-//        boxaxislist.append(boxb.axisList);
-//
-//        foreach (axis in boxaxislist)
-//        {
-//            Range boxaRange = projectBox(boxa, axis);
-//            Range boxbRange = projectBox(boxb, axis);
-//
-//            if (!boxaRange.intersects(boxbRange))
-//            {
-//// there was no overlap, we found a plane that separates the two boxes.
-//                return false;
-//            }
-//        }
-//
-//// no plane was found, the boxes must be overlapping
-//        return true;
-//    }
 
-    std::vector<glm::vec3> vertices = {};
-    glm::vec3 normal = glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f));
+    ModelData modelData = *ResourceManager::getModel(modelType);
 
-    // Create vertices from min and max point
-    ModelData* modelData = ResourceManager::getModel(this->modelType);
-    glm::vec3 min = modelData->hitbox[0];
-    glm::vec3 max = modelData->hitbox[1];
+    std::vector<glm::vec3> vertices = modelData.hitboxVertices;
 
-    vertices = {
-        glm::vec3(min.x, min.y, min.z),
-        glm::vec3(max.x, min.y, min.z),
-        glm::vec3(max.x, max.y, min.z),
-        glm::vec3(min.x, max.y, min.z),
-        glm::vec3(min.x, min.y, max.z),
-        glm::vec3(max.x, min.y, max.z),
-        glm::vec3(max.x, max.y, max.z),
-        glm::vec3(min.x, max.y, max.z)
-    };
+    // Apply model matrix to vertices
 
-    // Iterate over each corner in the box
+    glm::mat4 modelMatrix = getModelMatrix();
 
-    std::vector<double> scalarProjections = {};
-
-    for (auto vertex : vertices) {
-        double scalar = scalarProjection(vertex, normal);
-        scalarProjections.push_back(scalar);
+    for (auto &vertex: vertices) {
+        glm::vec4 vertex4 = glm::vec4(vertex, 1.0f);
+        vertex4 = modelMatrix * vertex4;
+        vertex = glm::vec3(vertex4);
     }
 
-    std::vector<double> otherScalarProjections = {};
+    ModelData otherModelData = *ResourceManager::getModel(otherObject->modelType);
 
-    for (auto vertex : vertices) {
-        double scalar = scalarProjection(vertex, normal);
-        otherScalarProjections.push_back(scalar);
+    std::vector<glm::vec3> otherVertices = otherModelData.hitboxVertices;
+
+    // Apply model matrix to vertices
+
+    glm::mat4 otherModelMatrix = otherObject->getModelMatrix();
+
+    for (auto &vertex: otherVertices) {
+        glm::vec4 vertex4 = glm::vec4(vertex, 1.0f);
+        vertex4 = otherModelMatrix * vertex4;
+        vertex = glm::vec3(vertex4);
     }
 
+    if (doesCollide(vertices, otherVertices)) {
+        std::cout << "Collision detected" << std::endl;
 
 
 
-
+    }
 }
+
 
 

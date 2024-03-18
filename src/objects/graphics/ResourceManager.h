@@ -39,7 +39,9 @@ struct ModelData {
     GLuint VBO;
     GLuint EBO;
 
-    std::vector<glm::vec3> hitbox;
+    std::vector<glm::vec3> hitboxVertices;
+    std::vector<GLuint> hitboxIndices;
+    std::vector<glm::vec3> hitboxNormals;
     std::vector<glm::vec3> vertices;
     std::vector<GLuint> indices;
     std::vector<glm::vec3> normals;
@@ -90,7 +92,50 @@ public:
             }
         }
 
-        modelData->hitbox = {min, max};
+        modelData->hitboxVertices = {
+                glm::vec3(min.x, min.y, min.z),
+                glm::vec3(max.x, min.y, min.z),
+                glm::vec3(max.x, max.y, min.z),
+                glm::vec3(min.x, max.y, min.z),
+                glm::vec3(min.x, min.y, max.z),
+                glm::vec3(max.x, min.y, max.z),
+                glm::vec3(max.x, max.y, max.z),
+                glm::vec3(min.x, max.y, max.z)
+        };
+
+        modelData->hitboxIndices = {
+                0, 1, 2, 2, 3, 0,
+                1, 5, 6, 6, 2, 1,
+                7, 6, 5, 5, 4, 7,
+                4, 0, 3, 3, 7, 4,
+                3, 2, 6, 6, 7, 3,
+                4, 5, 1, 1, 0, 4
+        };
+
+        // Initialize all normals to zero
+        modelData->hitboxNormals = std::vector<glm::vec3>(modelData->hitboxVertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
+
+        // Calculate the normals for each face
+        for (int i = 0; i < modelData->hitboxIndices.size(); i += 3) {
+            glm::vec3 v0 = modelData->hitboxVertices[modelData->hitboxIndices[i]];
+            glm::vec3 v1 = modelData->hitboxVertices[modelData->hitboxIndices[i + 1]];
+            glm::vec3 v2 = modelData->hitboxVertices[modelData->hitboxIndices[i + 2]];
+
+            glm::vec3 edge1 = v1 - v0;
+            glm::vec3 edge2 = v2 - v0;
+
+            glm::vec3 faceNormal = glm::cross(edge1, edge2);
+
+            // Add the face's normal to each of the vertices' normals
+            modelData->hitboxNormals[modelData->hitboxIndices[i]] += faceNormal;
+            modelData->hitboxNormals[modelData->hitboxIndices[i + 1]] += faceNormal;
+            modelData->hitboxNormals[modelData->hitboxIndices[i + 2]] += faceNormal;
+        }
+
+        // Normalize each vertex normal
+        for (auto& normal : modelData->hitboxNormals) {
+            normal = glm::normalize(normal);
+        }
 
         models[modelIndex] = modelData;
 
