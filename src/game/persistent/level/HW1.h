@@ -87,11 +87,11 @@ public:
         dumbObject = new Object();
         dumbObject->modelType = ModelTypes::CUBE;
         dumbObject->position = glm::vec3(roomSize, 0.0f, 0.0f);
-        dumbObject->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+        dumbObject->velocity = glm::vec3(1.0f, 1.0f, 1.0f);
         dumbObject->rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
         dumbObject->canMove = true;
         dumbObject->applyGravity = false;
-        dumbObject->scale = 3.0;
+        dumbObject->scale = 1.0;
         addObject(dumbObject);
 
     }

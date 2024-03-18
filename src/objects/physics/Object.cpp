@@ -80,27 +80,47 @@ std::pair<double, double> projectBox(std::vector<glm::vec3> box, glm::vec3 axis)
 }
 
 // Function to check if two ranges overlap
-bool rangesOverlap(std::pair<double, double> range1, std::pair<double, double> range2) {
-    return range1.first <= range2.second && range1.second >= range2.first;
+std::pair<double, double> rangesOverlap(std::pair<double, double> range1, std::pair<double, double> range2) {
+    return { range2.second-range1.first, range1.second - range2.first};
 }
 
+struct CollisionData {
+    bool collision;
+    std::vector<std::pair<double,double>> box1AxisRanges;
+    std::vector<std::pair<double,double>> box2AxisRanges;
+    std::vector<std::pair<double,double>> axisOverlaps;
+};
+
 // Function to check if two boxes collide
-bool doesCollide(std::vector<glm::vec3> box1, std::vector<glm::vec3> box2) {
+CollisionData* doesCollide(std::vector<glm::vec3> box1, std::vector<glm::vec3> box2) {
     std::vector<glm::vec3> axes = {glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1)};
+
+
+    auto* collisionData = new CollisionData();
 
     for (auto axis: axes) {
         auto box1Range = projectBox(box1, axis);
         auto box2Range = projectBox(box2, axis);
 
-        if (!rangesOverlap(box1Range, box2Range)) {
-            return false;
+        collisionData->box1AxisRanges.push_back(box1Range);
+        collisionData->box2AxisRanges.push_back(box2Range);
+
+        std::pair<double, double> overlap = rangesOverlap(box1Range, box2Range);
+
+        if (overlap.first < 0 || overlap.second < 0) {
+            collisionData->collision = false;
+            return collisionData;
         }
+
+        collisionData->axisOverlaps.push_back(overlap);
     }
 
-    return true;
+    return collisionData;
 }
 
 void Object::checkCollision(Object *otherObject) {
+
+
 
 
     ModelData modelData = *ResourceManager::getModel(modelType);
@@ -131,10 +151,46 @@ void Object::checkCollision(Object *otherObject) {
         vertex = glm::vec3(vertex4);
     }
 
-    if (doesCollide(vertices, otherVertices)) {
-        std::cout << "Collision detected" << std::endl;
+    auto collision = doesCollide(vertices, otherVertices);
 
 
+    if (collision.collision) {
+
+        // Detect the collision point
+        std::vector<std::pair<double,double>> axisOverlaps = collision.axisOverlaps;
+        std::vector<std::pair<double,double>> box1AxisRanges = collision.box1AxisRanges;
+        std::vector<std::pair<double,double>> box2AxisRanges = collision.box2AxisRanges;
+
+
+
+
+        // Detect if one of the objects is static
+
+        // Calculate relative velocities, if the objects are separating don't do anything
+
+        glm::vec3 relativeVelocity = velocity - otherObject->velocity;
+
+        // Check if the objects are separating
+
+        double dotProduct = glm::dot(relativeVelocity, position-otherObject->position);
+
+
+        if (dotProduct < 0) {
+
+            return;
+        }
+
+        if (!canMove && otherObject->canMove) {
+            // Move the other object
+            otherObject->velocity *=  -1;
+        } else if (canMove && !otherObject->canMove) {
+            // Move this object
+            velocity *= -1;
+        } else {
+            // Move both objects
+            position -= 0.5f * otherObject->velocity;
+            otherObject->position -= 0.5f * velocity;
+        }
 
     }
 }
