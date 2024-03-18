@@ -28,6 +28,8 @@ Camera::Camera() {
     velocity = glm::vec3(0, 0, 0);
     canMove = true;
 
+    lastDirectionForward = false;
+
 }
 
 void Camera::updateOrientation(GLfloat yaw, GLfloat pitch) {
@@ -39,8 +41,18 @@ void Camera::update(GLfloat dt) {
 
     velocity = glm::vec3(0, 0, 0);
 
+
+    if (lastDirectionForward && movingForward) {
+            speed += speed*dt;
+    } else {
+        speed = originalSpeed;
+    }
+
     if (movingForward) {
+        lastDirectionForward = true;
         velocity += glm::vec3(cos(glm::radians(yaw)), 0, sin(glm::radians(yaw)));
+    } else {
+        lastDirectionForward = false;
     }
 
     if (movingBackward) {
@@ -64,6 +76,9 @@ void Camera::update(GLfloat dt) {
     }
 
     if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0){
+
+
+
         velocity = glm::normalize(velocity) * speed;
     }
 

@@ -10,11 +10,17 @@
 #include <glew.h>
 #include <glm/vec3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
+#include <memory>
 #include "../graphics/ResourceManager.h"
+#include "../../game/persistent/environment/Environment.h"
 
 class Object {
 
 public:
+
+    static int nextId;
+
+    int id;
 
     bool canMove = true;
     bool canRotate = true;
@@ -44,14 +50,15 @@ public:
     Object();
 
 
-    void update(GLfloat dt);
+    void update(GLfloat dt,  Environment *environment);
 
-    ModelTypes modelType;
+    ModelTypes modelType = ModelTypes::CUBE;
     bool isHidden = false;
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 
     glm::mat4 getModelMatrix();
 
+    void checkCollision(Object *pObject);
 };
 
 

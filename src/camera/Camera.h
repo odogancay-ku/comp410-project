@@ -20,7 +20,7 @@ public:
     constexpr static GLfloat originalYaw = 0.0f;
     constexpr static GLfloat originalPitch = 0.0f;
     static glm::vec3 originalPosition;
-    constexpr static GLfloat originalSpeed = 10.0f;
+    constexpr static GLfloat originalSpeed = 7.0f;
     constexpr static GLfloat originalFov = 90.0f;
 
     GLfloat fov = originalFov;
@@ -83,6 +83,7 @@ public:
 
     void setFollowObject(Object *object);
 
+    bool lastDirectionForward;
 };
 
 

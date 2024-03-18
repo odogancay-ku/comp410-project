@@ -28,6 +28,11 @@ void Renderer::nextDrawMode() {
     // Set the draw mode to the next mode
     drawMode = (drawMode + 1) % 3;
 
+    switchDrawMode();
+
+}
+
+void Renderer::switchDrawMode() {
     switch (drawMode) {
         case 0:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -59,23 +64,79 @@ struct Vertex {
 };
 
 
-void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVector) {
+void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object*> *pVector, bool hitboxes) {
     // Set up VBOs for vertex data and instance-specific data
     ModelData modelData = *ResourceManager::getModel(type);
 
+
     GLuint instanceCount = pVector->size();
+
+    std::vector<glm::vec3> vertices = {};
+    std::vector<glm::vec3> normals = {};
+    std::vector<glm::vec3> colors = {};
+    std::vector<GLuint> indices = {};
+
+    if (hitboxes) {
+        // Draw wireframe
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        // Create prism vertices and indices using the hitbox
+        glm::vec3 min = modelData.hitbox[0];
+        glm::vec3 max = modelData.hitbox[1];
+
+        vertices = {
+            glm::vec3(min.x, min.y, min.z),
+            glm::vec3(max.x, min.y, min.z),
+            glm::vec3(max.x, max.y, min.z),
+            glm::vec3(min.x, max.y, min.z),
+            glm::vec3(min.x, min.y, max.z),
+            glm::vec3(max.x, min.y, max.z),
+            glm::vec3(max.x, max.y, max.z),
+            glm::vec3(min.x, max.y, max.z)
+        };
+
+        indices = {
+                0, 1, 2, 2, 3, 0,
+                1, 5, 6, 6, 2, 1,
+                7, 6, 5, 5, 4, 7,
+                4, 0, 3, 3, 7, 4,
+                3, 2, 6, 6, 7, 3,
+                4, 5, 1, 1, 0, 4
+
+        };
+
+        // Calculate the vertex normals not faces
+        for (int i = 0; i < indices.size(); i+=2) {
+            glm::vec3 vertex1 = vertices[indices[i]];
+            glm::vec3 vertex2 = vertices[indices[i+1]];
+            glm::vec3 normal = glm::normalize(glm::cross(vertex2-vertex1, glm::vec3(0.0f, 0.0f, 1.0f)));
+            normals.push_back(normal);
+            normals.push_back(normal);
+        }
+
+        // Try to pick the closest color for each vertex
+        for (int i = 0; i < vertices.size(); i++) {
+            colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+
+
+    } else {
+        vertices = modelData.vertices;
+        normals = modelData.normals;
+        colors = modelData.colorVertices;
+        indices = modelData.indices;
+    }
 
 
     std::vector<glm::vec4> modelMatrixColumns = {};
-    std::vector<glm::vec3> colors = {};
 
     for (auto &object: *pVector) {
 
-        if (object.isHidden) {
+        if (object->isHidden) {
             continue;
         }
 
-        glm::mat4 modelMatrix = object.getModelMatrix();
+        glm::mat4 modelMatrix = object->getModelMatrix();
         modelMatrixColumns.push_back(modelMatrix[0]);
         modelMatrixColumns.push_back(modelMatrix[1]);
         modelMatrixColumns.push_back(modelMatrix[2]);
@@ -83,10 +144,6 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
 
     }
 
-    colors.reserve(modelData.colorVertices.size());
-    for (auto colorVertex: modelData.colorVertices) {
-        colors.push_back(colorVertex);
-    }
 
     /**
     layout (location = 0) in vec4 ModelMatrix_Column0; // Same for all indices in same instance
@@ -108,13 +165,13 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
 
     std::vector<glm::vec3> verticesAndNormals = {};
 
-    for (int i = 0; i < modelData.vertices.size(); ++i) {
-        verticesAndNormals.push_back(modelData.vertices[i]);
+    for (int i = 0; i < vertices.size(); ++i) {
+        verticesAndNormals.push_back(vertices[i]);
         // If normal is not available, use the vertex as normal
-        if (i < modelData.normals.size()) {
-            verticesAndNormals.push_back(modelData.normals[i]);
+        if (i < normals.size()) {
+            verticesAndNormals.push_back(normals[i]);
         } else {
-            verticesAndNormals.push_back(modelData.vertices[i]);
+            verticesAndNormals.push_back(vertices[i]);
         }
     }
 
@@ -125,7 +182,7 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
                  GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelData.indices.size() * sizeof(GLuint), &modelData.indices[0],
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0],
                  GL_STATIC_DRAW);
 
 
@@ -167,12 +224,16 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVecto
 
 
 
-    glDrawElementsInstanced(GL_TRIANGLES, modelData.indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
+    glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
 
     glBindVertexArray(0);
 
     checkOpenGLError("drawInstancesOfModel");
 
+    if (hitboxes) {
+        // Revert to original
+        Renderer::switchDrawMode();
+    }
 
 }
 
@@ -234,3 +295,4 @@ void Renderer::createAndSetViewMatrix() {
     GLint viewLoc = glGetUniformLocation(shaderProgram, "ViewMatrix");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 }
+

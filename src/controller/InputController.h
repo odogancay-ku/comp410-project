@@ -12,7 +12,6 @@
 #include "WindowController.h"
 #include "../camera/Camera.h"
 #include "../objects/physics/Object.h"
-#include "../objects/physics/Sphere.h"
 #include "../game/Game.h"
 
 class InputController {

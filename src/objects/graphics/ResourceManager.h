@@ -22,9 +22,9 @@ enum ModelTypes {
     SPHERE,
     BUNNY,
     MAID,
+    END_OF_TYPES_MARKER,
     CONE,
     CYLINDER,
-    END_OF_TYPES_MARKER,
     TORUS,
     TEAPOT,
     PLANE,
@@ -39,6 +39,7 @@ struct ModelData {
     GLuint VBO;
     GLuint EBO;
 
+    std::vector<glm::vec3> hitbox;
     std::vector<glm::vec3> vertices;
     std::vector<GLuint> indices;
     std::vector<glm::vec3> normals;
@@ -63,6 +64,33 @@ public:
 
     static void addModel(const int modelIndex, ModelData* modelData) {
 
+        // Calculate hitbox
+
+        glm::vec3 min = modelData->vertices[0];
+        glm::vec3 max = modelData->vertices[0];
+
+        for (auto vertex : modelData->vertices) {
+            if (vertex.x < min.x) {
+                min.x = vertex.x;
+            }
+            if (vertex.y < min.y) {
+                min.y = vertex.y;
+            }
+            if (vertex.z < min.z) {
+                min.z = vertex.z;
+            }
+            if (vertex.x > max.x) {
+                max.x = vertex.x;
+            }
+            if (vertex.y > max.y) {
+                max.y = vertex.y;
+            }
+            if (vertex.z > max.z) {
+                max.z = vertex.z;
+            }
+        }
+
+        modelData->hitbox = {min, max};
 
         models[modelIndex] = modelData;
 
@@ -85,6 +113,8 @@ public:
     void static bufferModelData(ModelTypes modelType, ModelData* modelData);
 
     static void loadModel(const std::string &filePath, ModelData* modelIndex);
+
+    static void normalizeObjectSize(ModelData *modelData);
 };
 
 void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint>& indices,

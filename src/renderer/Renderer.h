@@ -152,16 +152,16 @@ public:
 
     static void checkOpenGLError(const std::string &at);
 
-    void drawInstancesOfModel(ModelTypes type, std::vector<Object> *pVector);
+    void drawInstancesOfModel(ModelTypes type, std::vector<Object*> *pVector, bool hitboxes = false);
 
 
     void createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight);
 
     void createAndSetViewMatrix();
 
-    glm::vec3 simulateMVP(glm::vec3 originalPosition, glm::mat4 modelMatrix);
-
     static int drawMode;
+
+    void static switchDrawMode();
 };
 
 

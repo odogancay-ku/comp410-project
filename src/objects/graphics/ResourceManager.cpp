@@ -83,6 +83,8 @@ void ResourceManager::generateBuiltinModels() {
 
     generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices, 5);
 
+
+
     std::cout << "Sphere vertices: " << sphereModelData->vertices.size() << std::endl;
     std::cout << "Sphere normals: " << sphereModelData->normals.size() << std::endl;
     std::cout << "Sphere indices: " << sphereModelData->indices.size() << std::endl;
@@ -196,9 +198,9 @@ void ResourceManager::bufferModelData(ModelTypes modelType, ModelData* modelData
 void divideTriangle(std::vector<glm::vec3> &vertices, const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c,
                     int depth) {
     if (depth == 0) {
-        vertices.push_back(a);
-        vertices.push_back(b);
-        vertices.push_back(c);
+        vertices.push_back(a/2.f);
+        vertices.push_back(b/2.f);
+        vertices.push_back(c/2.f);
     } else {
         // Calculate midpoints
         glm::vec3 ab = glm::normalize(glm::vec3{(a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2});
@@ -309,6 +311,75 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData* modelDat
     glm::vec3 max = modelData->vertices[0];
 
     for (auto vertex: modelData->vertices) {
+
+        if (vertex.x < min.x) {
+            min.x = vertex.x;
+        }
+        if (vertex.y < min.y) {
+            min.y = vertex.y;
+        }
+        if (vertex.z < min.z) {
+            min.z = vertex.z;
+        }
+        if (vertex.x > max.x) {
+            max.x = vertex.x;
+        }
+        if (vertex.y > max.y) {
+            max.y = vertex.y;
+        }
+        if (vertex.z > max.z) {
+            max.z = vertex.z;
+        }
+    }
+
+
+    float normalizingLength = glm::length(max - min) / sqrt(3);
+
+    std::cout << "Min: " << min.x << " " << min.y << " " << min.z << std::endl;
+    std::cout << "Max: " << max.x << " " << max.y << " " << max.z << std::endl;
+    std::cout << "Normalizing length: " << normalizingLength << std::endl;
+
+    // Center and normalize the model
+    glm::vec3 center = (min + max) / 2.0f;
+
+    for (auto &vertex: modelData->vertices) {
+        vertex = (vertex - center) / normalizingLength;
+    }
+
+
+    // Calculate normals without duplicating shared vertices
+
+
+    for (int i = 0; i < modelData->indices.size(); i += 3) {
+        glm::vec3 a = modelData->vertices[modelData->indices[i]];
+        glm::vec3 b = modelData->vertices[modelData->indices[i + 1]];
+        glm::vec3 c = modelData->vertices[modelData->indices[i + 2]];
+
+        glm::vec3 normal = glm::normalize(glm::cross(b - a, c - a));
+
+        modelData->normals[modelData->indices[i]] += normal;
+        modelData->normals[modelData->indices[i + 1]] += normal;
+        modelData->normals[modelData->indices[i + 2]] += normal;
+
+    }
+
+
+
+
+    // Store loaded model data in the ResourceManager
+    ResourceManager::addModel(modelData->type, modelData);
+
+
+}
+
+// Helper Method To Normalize Object Sizes
+
+void ResourceManager::normalizeObjectSize(ModelData* modelData) {
+    // Calculate the smallest bounding box
+    glm::vec3 min = modelData->vertices[0];
+    glm::vec3 max = modelData->vertices[0];
+
+    for (auto vertex: modelData->vertices) {
         if (vertex.x < min.x) {
             min.x = vertex.x;
         }
@@ -337,28 +408,4 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData* modelDat
     for (auto &vertex: modelData->vertices) {
         vertex = (vertex - center) / normalizingLength;
     }
-
-    // Calculate normals without duplicating shared vertices
-
-
-    for (int i = 0; i < modelData->indices.size(); i += 3) {
-        glm::vec3 a = modelData->vertices[modelData->indices[i]];
-        glm::vec3 b = modelData->vertices[modelData->indices[i + 1]];
-        glm::vec3 c = modelData->vertices[modelData->indices[i + 2]];
-
-        glm::vec3 normal = glm::normalize(glm::cross(b - a, c - a));
-
-        modelData->normals[modelData->indices[i]] += normal;
-        modelData->normals[modelData->indices[i + 1]] += normal;
-        modelData->normals[modelData->indices[i + 2]] += normal;
-
-    }
-
-
-
-
-    // Store loaded model data in the ResourceManager
-    ResourceManager::addModel(modelData->type, modelData);
-
-
 }

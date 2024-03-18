@@ -7,39 +7,44 @@
 
 
 #include <vector>
+#include <memory>
 #include "../objects/physics/Object.h"
 #include "../renderer/Renderer.h"
-#include "level/Level.h"
+#include "persistent/level/Level.h"
 
 class Game {
 
 private:
 
-    std::vector<Level*> levels;
-
-    Level* currentLevel;
-
     Game() {
         std::cout << "Game created" << std::endl;
         currentLevel = nullptr;
-        levels = std::vector<Level*>();
+        levels = std::vector<std::shared_ptr<Level>>();
         setupLevels();
     };
 
+    static Game* instance;
 
 
 
 
 public:
 
-    static Game& getInstance() {
-        static Game instance;
+    bool drawHitboxes = false;
+
+    std::vector<std::shared_ptr<Level>> levels;
+
+    std::shared_ptr<Level> currentLevel;
+
+
+    static Game* getInstance() {
+        if (instance == nullptr) {
+            instance = new Game();
+        }
         return instance;
     }
 
     void setupLevels();
-
-    void addObject(const Object &object);
 
     void update(GLfloat dt);
 
@@ -56,6 +61,7 @@ public:
     static void addRandomBunny();
 
     static void addRandomSphere();
+
 };
 
 

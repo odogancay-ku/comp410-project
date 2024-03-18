@@ -38,7 +38,7 @@ int main() {
 
 
 
-    Game game = Game::getInstance();
+    Game* game = Game::getInstance();
 
 
     InputController inputController = InputController(window);
@@ -84,14 +84,18 @@ int main() {
         lastTime = currentTime;
 
 
+
         while (deltaTime > dt_step) {
-            game.checkCollisions();
-            game.update(dt_step);
+            game->checkCollisions();
+            game->update(dt_step);
             deltaTime -= dt_step;
         }
 
+        game->checkCollisions();
+        game->update(deltaTime);
 
-        game.draw();
+
+        game->draw();
 
 
         glfwSwapBuffers(window);

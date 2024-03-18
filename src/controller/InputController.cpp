@@ -2,8 +2,11 @@
 // Created by ofaru on 16.03.2024.
 //
 
+#include <memory>
+#include <iostream>
 #include <glm/ext/matrix_clip_space.hpp>
 #include "InputController.h"
+#include "../game/persistent/level/HW1.h"
 
 double InputController::lastX = 0;
 double InputController::lastY = 0;
@@ -66,6 +69,14 @@ void InputController::keyCallback(GLFWwindow *window, int key, int scancode, int
                 break;
             case GLFW_KEY_LEFT_SHIFT:
                 Camera::getActiveInstance()->setMovingDown(false);
+                break;
+            case GLFW_KEY_L:
+                if (auto hw1 = std::dynamic_pointer_cast<HW1>(Game::getInstance()->currentLevel)) {
+                    hw1->nextDumbObject(); // Access methods specific to EasyLevel
+                }
+                break;
+            case GLFW_KEY_H:
+                Game::getInstance()->drawHitboxes = !Game::getInstance()->drawHitboxes;
                 break;
             default:
                 break;

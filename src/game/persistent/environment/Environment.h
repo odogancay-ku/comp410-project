@@ -13,7 +13,7 @@
 class Environment {
 
 
-private:
+public:
 
     // Function to calculate gravity for any given glm::vec3
     std::function<glm::vec3(glm::vec3)> gravityFunction;
@@ -21,10 +21,6 @@ private:
     std::function<glm::vec3(glm::vec3)> windFunction;
 
 
-public:
-
-    // Environments
-    static Environment Earth();
 
 };
 
