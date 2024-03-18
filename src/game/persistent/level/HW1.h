@@ -30,6 +30,19 @@ public:
 
     void setup() {
 
+        float roomSize = 12;
+
+
+        glm::vec3 lightPos = glm::vec3(roomSize/2, 0.0f, 0.0f);
+
+        GLint lightLoc = glGetUniformLocation(Renderer::getActiveInstance()->shaderProgram, "lightPos");
+        glUniform3fv(lightLoc, 1,  glm::value_ptr(lightPos));
+
+        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        GLint lightColorLoc = glGetUniformLocation(Renderer::getActiveInstance()->shaderProgram, "lightColor");
+        glUniform3fv(lightColorLoc, 1,  glm::value_ptr(lightColor));
+
         std::cout << "Creating persistent HW1" << std::endl;
 
 
@@ -44,7 +57,6 @@ public:
         std::cout << "Adding objects" << std::endl;
 
 
-        float roomSize = 12;
 
 
         auto *cube = new Object();

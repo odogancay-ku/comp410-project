@@ -165,8 +165,14 @@ void Object::checkCollision(Object *otherObject) {
 
         // Find the center of the overlaps
 
+        glm::vec3 axisXmid = glm::vec3(0.5f*(box1AxisRanges[0].first + box1AxisRanges[0].second), 0.5f*(box2AxisRanges[0].first + box2AxisRanges[0].second), 0.5f*(box2AxisRanges[0].first + box2AxisRanges[0].second));
+        glm::vec3 axisYmid = glm::vec3(0.5f*(box1AxisRanges[1].first + box1AxisRanges[1].second), 0.5f*(box2AxisRanges[1].first + box2AxisRanges[1].second), 0.5f*(box2AxisRanges[1].first + box2AxisRanges[1].second));
+        glm::vec3 axisZmid = glm::vec3(0.5f*(box1AxisRanges[2].first + box1AxisRanges[2].second), 0.5f*(box2AxisRanges[2].first + box2AxisRanges[2].second), 0.5f*(box2AxisRanges[2].first + box2AxisRanges[2].second));
 
+        // Find the collision point
+        glm::vec3 collisionPoint = glm::vec3(0.5f*(axisXmid.x + axisYmid.x + axisZmid.x), 0.5f*(axisXmid.y + axisYmid.y + axisZmid.y), 0.5f*(axisXmid.z + axisYmid.z + axisZmid.z));
 
+        std::cout << "Collision point: " << collisionPoint.x << " " << collisionPoint.y << " " << collisionPoint.z << std::endl;
 
         // Detect if one of the objects is static
 
@@ -177,6 +183,8 @@ void Object::checkCollision(Object *otherObject) {
         // Check if the objects are separating
 
         double dotProduct = glm::dot(relativeVelocity, position-otherObject->position);
+
+        std::cout << "Dot product: " << dotProduct << std::endl;
 
 
         if (dotProduct < 0) {
@@ -192,8 +200,9 @@ void Object::checkCollision(Object *otherObject) {
             velocity *= -1;
         } else {
             // Move both objects
-            position -= 0.5f * otherObject->velocity;
-            otherObject->position -= 0.5f * velocity;
+            velocity *= -1;
+            otherObject->velocity *= -1;
+
         }
 
     }

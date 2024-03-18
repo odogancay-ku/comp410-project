@@ -12,6 +12,7 @@ uniform mat4 ViewMatrix;
 
 out vec3 Normal;
 out vec3 Color;
+out vec3 FragPos;
 
 void main()
 {
@@ -22,8 +23,8 @@ void main()
     ModelMatrix[1] = ModelMatrix_Column1;
     ModelMatrix[2] = ModelMatrix_Column2;
     ModelMatrix[3] = ModelMatrix_Column3;
-
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(localPosition,1.0);
+    FragPos = vec3(ModelMatrix * vec4(localPosition,1.0));
     Normal = vertexNormal;
     Color = vertexColor;
 }
