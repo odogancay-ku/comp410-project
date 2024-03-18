@@ -85,7 +85,7 @@ std::pair<double, double> rangesOverlap(std::pair<double, double> range1, std::p
 }
 
 struct CollisionData {
-    bool collision;
+    bool collision= true;
     std::vector<std::pair<double,double>> box1AxisRanges;
     std::vector<std::pair<double,double>> box2AxisRanges;
     std::vector<std::pair<double,double>> axisOverlaps;
@@ -114,6 +114,8 @@ CollisionData* doesCollide(std::vector<glm::vec3> box1, std::vector<glm::vec3> b
 
         collisionData->axisOverlaps.push_back(overlap);
     }
+
+
 
     return collisionData;
 }
@@ -151,15 +153,17 @@ void Object::checkCollision(Object *otherObject) {
         vertex = glm::vec3(vertex4);
     }
 
-    auto collision = doesCollide(vertices, otherVertices);
+    auto* collision = doesCollide(vertices, otherVertices);
 
 
-    if (collision.collision) {
+    if (collision->collision) {
 
         // Detect the collision point
-        std::vector<std::pair<double,double>> axisOverlaps = collision.axisOverlaps;
-        std::vector<std::pair<double,double>> box1AxisRanges = collision.box1AxisRanges;
-        std::vector<std::pair<double,double>> box2AxisRanges = collision.box2AxisRanges;
+        std::vector<std::pair<double,double>> axisOverlaps = collision->axisOverlaps;
+        std::vector<std::pair<double,double>> box1AxisRanges = collision->box1AxisRanges;
+        std::vector<std::pair<double,double>> box2AxisRanges = collision->box2AxisRanges;
+
+        // Find the center of the overlaps
 
 
 
@@ -176,7 +180,7 @@ void Object::checkCollision(Object *otherObject) {
 
 
         if (dotProduct < 0) {
-
+            free(collision);
             return;
         }
 
@@ -193,6 +197,8 @@ void Object::checkCollision(Object *otherObject) {
         }
 
     }
+
+    free(collision);
 }
 
 
