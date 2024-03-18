@@ -33,7 +33,7 @@ public:
         float roomSize = 12;
 
 
-        glm::vec3 lightPos = glm::vec3(roomSize/2, 0.0f, 0.0f);
+        glm::vec3 lightPos = glm::vec3(roomSize*3/4, 0.0f, 0.0f);
 
         GLint lightLoc = glGetUniformLocation(Renderer::getActiveInstance()->shaderProgram, "lightPos");
         glUniform3fv(lightLoc, 1,  glm::value_ptr(lightPos));

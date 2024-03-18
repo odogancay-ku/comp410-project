@@ -127,13 +127,13 @@ void Object::checkCollision(Object *otherObject) {
 
     ModelData modelData = *ResourceManager::getModel(modelType);
 
-    std::vector<glm::vec3> vertices = modelData.hitboxVertices;
+    std::vector<glm::vec3> hitboxVertices = modelData.hitboxVertices;
 
     // Apply model matrix to vertices
 
     glm::mat4 modelMatrix = getModelMatrix();
 
-    for (auto &vertex: vertices) {
+    for (auto &vertex: hitboxVertices) {
         glm::vec4 vertex4 = glm::vec4(vertex, 1.0f);
         vertex4 = modelMatrix * vertex4;
         vertex = glm::vec3(vertex4);
@@ -153,7 +153,7 @@ void Object::checkCollision(Object *otherObject) {
         vertex = glm::vec3(vertex4);
     }
 
-    auto* collision = doesCollide(vertices, otherVertices);
+    auto* collision = doesCollide(hitboxVertices, otherVertices);
 
 
     if (collision->collision) {
@@ -172,6 +172,7 @@ void Object::checkCollision(Object *otherObject) {
         // Find the collision point
         glm::vec3 collisionPoint = glm::vec3(0.5f*(axisXmid.x + axisYmid.x + axisZmid.x), 0.5f*(axisXmid.y + axisYmid.y + axisZmid.y), 0.5f*(axisXmid.z + axisYmid.z + axisZmid.z));
 
+        std::cout << "Object 1 position: " << position.x << " " << position.y << " " << position.z << std::endl;
         std::cout << "Collision point: " << collisionPoint.x << " " << collisionPoint.y << " " << collisionPoint.z << std::endl;
 
         // Detect if one of the objects is static

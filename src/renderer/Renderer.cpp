@@ -269,10 +269,11 @@ void Renderer::createAndSetViewMatrix() {
         viewMatrix = glm::lookAt(camera->position, camera->position + direction, up);
     }
 
-
+    GLint viewLoc = glGetUniformLocation(shaderProgram, "viewPos");
+    glUniform3fv(viewLoc, 1, glm::value_ptr(Camera::getActiveInstance()->position));
 
     // Pass the view matrix to the shader program
-    GLint viewLoc = glGetUniformLocation(shaderProgram, "ViewMatrix");
+    viewLoc = glGetUniformLocation(shaderProgram, "ViewMatrix");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 }
 
