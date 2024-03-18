@@ -25,6 +25,6 @@ void main()
     ModelMatrix[3] = ModelMatrix_Column3;
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(localPosition,1.0);
     FragPos = vec3(ModelMatrix * vec4(localPosition,1.0));
-    Normal = vertexNormal;
+    Normal = mat3(transpose(inverse(ModelMatrix))) * vertexNormal;
     Color = vertexColor;
 }

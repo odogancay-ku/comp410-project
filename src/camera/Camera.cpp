@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Camera.h"
 #include "../objects/physics/Object.h"
+#include "../renderer/Renderer.h"
 
 glm::vec3 Camera::originalPosition = glm::vec3(0,0,0);
 
@@ -122,6 +123,10 @@ void Camera::reset() {
     yaw = originalYaw;
     pitch = originalPitch;
     speed = originalSpeed;
+    fov = originalFov;
+
+
+
 }
 
 void Camera::updateFOV(GLfloat fov) {
@@ -130,6 +135,13 @@ void Camera::updateFOV(GLfloat fov) {
 
 void Camera::offsetFOV(GLfloat fov) {
     this->fov += fov;
+
+    if (this->fov > 145.0f) {
+        this->fov = 145.0f;
+    } else if (this->fov < 45.0f) {
+        this->fov = 45.0f;
+    }
+
 }
 
 void Camera::offsetOrientation(GLfloat _yaw, GLfloat _pitch) {

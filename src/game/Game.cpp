@@ -78,8 +78,11 @@ void Game::checkCollisions() {
         }
     }
 
-    for (auto object1: allObjects) {
-        for (auto object2: allObjects) {
+    for (int i = 0; i < allObjects.size(); i++) {
+        for (int j = i; j < allObjects.size(); j++) {
+
+            Object *object1 = allObjects[i];
+            Object *object2 = allObjects[j];
 
             if (object1 != object2 && object1->canCollide && object2->canCollide && (object1->canMove || object2->canMove)) {
                object1->checkCollision(object2);

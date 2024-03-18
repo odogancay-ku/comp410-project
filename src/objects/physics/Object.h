@@ -27,7 +27,7 @@ public:
     bool canCollide = true;
 
     bool applyGravity = true;
-    bool applyDrag = true;
+    bool applyDrag = false;
     bool applyFriction = true;
 
     GLfloat scale = 1.0f;

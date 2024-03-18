@@ -7,6 +7,8 @@
 #include <iostream>
 #include "WindowController.h"
 
+WindowController* WindowController::instance = nullptr;
+
 void WindowController::createFullscreenWindow(const char *title) {
 
     // Initialize GLFW

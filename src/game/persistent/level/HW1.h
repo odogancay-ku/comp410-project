@@ -30,13 +30,13 @@ public:
 
     void setup() {
 
-        float roomSize = 12;
+        float roomSize = 15;
 
-
-        glm::vec3 lightPos = glm::vec3(roomSize*3/4, 0.0f, 0.0f);
+        glm::vec3 lightPos = glm::vec3(roomSize, roomSize   , 0.0f);
 
         GLint lightLoc = glGetUniformLocation(Renderer::getActiveInstance()->shaderProgram, "lightPos");
         glUniform3fv(lightLoc, 1,  glm::value_ptr(lightPos));
+
 
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
@@ -99,11 +99,14 @@ public:
         dumbObject = new Object();
         dumbObject->modelType = ModelTypes::CUBE;
         dumbObject->position = glm::vec3(roomSize, 0.0f, 0.0f);
-        dumbObject->velocity = glm::vec3(1.0f, 1.0f, 1.0f);
+        dumbObject->velocity = glm::vec3(3.0f, 2.0f, 1.0f);
         dumbObject->rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+//        dumbObject->angularVelocity = glm::vec3(50.0f, 0.0f, 0.0f);
         dumbObject->canMove = true;
         dumbObject->applyGravity = false;
-        dumbObject->scale = 1.0;
+        dumbObject->scale = 2.0;
+        dumbObject->restitution = 1.0;
+        dumbObject->angularVelocity = glm::vec3 (0.0f, 0.0f, 50.0f);
         addObject(dumbObject);
 
     }

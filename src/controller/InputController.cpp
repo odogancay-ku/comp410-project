@@ -104,6 +104,7 @@ void InputController::keyCallback(GLFWwindow *window, int key, int scancode, int
                 glfwSetWindowShouldClose(window, true);
             } else if (pressed_key.first == GLFW_KEY_R) {
                 Camera::getActiveInstance()->reset();
+                Renderer::getActiveInstance()->createAndSetPerspectiveProjectionMatrix(WindowController::getInstance()->getWidth(), WindowController::getInstance()->getHeight());
             } else if (pressed_key.first == GLFW_KEY_P) { ;;
                 Game::pokeObjects();
                 //publishToTopic(Topics::POKE_OBJECTS, "");
@@ -118,9 +119,9 @@ void InputController::keyCallback(GLFWwindow *window, int key, int scancode, int
             } else if (pressed_key.first == GLFW_KEY_V) {
                 Game::addRandomSphere();
             } else if (pressed_key.first == GLFW_KEY_I) {
-                WindowController::getInstance().setWidth(WindowController::getInstance().getWidth() - 10);
+                WindowController::getInstance()->setWidth(WindowController::getInstance()->getWidth() - 10);
             } else if (pressed_key.first == GLFW_KEY_O) {
-                WindowController::getInstance().setWidth(WindowController::getInstance().getWidth() + 10);
+                WindowController::getInstance()->setWidth(WindowController::getInstance()->getWidth() + 10);
             } else if (pressed_key.first == GLFW_KEY_LEFT_ALT) {
                 if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -166,7 +167,8 @@ void InputController::cursorPosCallback(GLFWwindow *window, double xpos, double 
 
 void InputController::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     // Adjust the fov based on the yoffset of the scroll wheel
-    Camera::getActiveInstance()->offsetFOV(yoffset);
+    Camera::getActiveInstance()->offsetFOV(-yoffset);
+    Renderer::getActiveInstance()->createAndSetPerspectiveProjectionMatrix(WindowController::getInstance()->getWidth(), WindowController::getInstance()->getHeight());
 
 }
 

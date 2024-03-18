@@ -9,12 +9,12 @@
 // Main function
 int main() {
 
-    WindowController windowController = WindowController::getInstance();
+    WindowController* windowController = WindowController::getInstance();
 
-    windowController.createFullscreenWindow("Homework 1");
-    GLfloat windowWidth = windowController.getWidth();
-    GLfloat windowHeight = windowController.getHeight();
-    GLFWwindow *window = windowController.getActiveWindow();
+    windowController->createFullscreenWindow("Homework 1");
+    GLfloat windowWidth = windowController->getWidth();
+    GLfloat windowHeight = windowController->getHeight();
+    GLFWwindow *window = windowController->getActiveWindow();
 
 
     std::cout << "Window created with size: " << windowWidth << "x" << windowHeight << std::endl;
