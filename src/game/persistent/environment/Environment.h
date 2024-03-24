@@ -20,6 +20,7 @@ public:
 
     std::function<glm::vec3(glm::vec3)> windFunction;
 
+    std::function<glm::vec3(glm::vec3)> dragFunction;
 
 
 };

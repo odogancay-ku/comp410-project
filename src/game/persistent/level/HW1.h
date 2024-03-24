@@ -98,29 +98,27 @@ public:
 
         dumbObject = new Object();
         dumbObject->modelType = ModelTypes::CUBE;
-        dumbObject->position = glm::vec3(roomSize, 0.0f, -2.0f);
-        dumbObject->velocity = glm::vec3(0.0f, 0.0f, 2.0f);
+        dumbObject->position = glm::vec3(roomSize, -roomSize/2+0.5f, -4.0f);
+        dumbObject->velocity = glm::vec3(0.0f, 0.0f, 4.0f);
         dumbObject->rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
 //        dumbObject->angularVelocity = glm::vec3(50.0f, 0.0f, 0.0f);
         dumbObject->canMove = true;
-        dumbObject->applyGravity = false;
-        dumbObject->scale = 2.0;
+        dumbObject->scale = 1.0;
+        dumbObject->mass = 1.0;
         dumbObject->restitution = 1.0;
 //        dumbObject->angularVelocity = glm::vec3 (0.0f, 0.0f, 50.0f);
         addObject(dumbObject);
 
-        auto dumbObject2 = new Object();
-        dumbObject2->modelType = ModelTypes::CUBE;
-        dumbObject2->position = glm::vec3(roomSize, 0.0f, 2.0f);
-        dumbObject2->velocity = glm::vec3(0.0f, 0.0f, -2.0f);
-        dumbObject2->rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
-//        dumbObject->angularVelocity = glm::vec3(50.0f, 0.0f, 0.0f);
-        dumbObject2->canMove = true;
-        dumbObject2->applyGravity = false;
-        dumbObject2->scale = 2.0;
-        dumbObject2->restitution = 1.0;
+        auto *cube7 = new Object();
+        cube7->modelType = ModelTypes::CUBE;
+        cube7->position = glm::vec3(roomSize, -roomSize/2+1.0f, 4.0f);
+        cube7->canMove = true;
+        cube7->scale = 2.0;
+        cube7->mass = 8.0;
+        cube7->restitution = 1.0;
+        cube7->velocity = glm::vec3(0.0f, 0.0f, -4.0f);
+        addObject(cube7);
 
-        addObject(dumbObject2);
 
     }
 

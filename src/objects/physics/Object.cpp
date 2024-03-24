@@ -13,6 +13,11 @@ int Object::nextId = 0;
 
 Object::Object() {
     id = nextId++;
+    velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
+    angularVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    angularAcceleration = glm::vec3(0.0f, 0.0f, 0.0f);
+    stretch = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 void Object::update(GLfloat dt, Environment *environment) {
@@ -40,7 +45,10 @@ void Object::update(GLfloat dt, Environment *environment) {
     }
 
     if (applyDrag) {
-        velocity -= velocity * 0.1f * dt;
+        if (environment->dragFunction != nullptr) {
+            glm::vec3 drag = environment->dragFunction(this->velocity);
+            velocity -= drag * dt;
+        }
     }
 
     if (canMove) {
@@ -65,6 +73,14 @@ glm::mat4 Object::getModelMatrix() {
 void Object::checkCollision(Object *otherObject) {
 
     detectAndHandleCollisionSAT(this, otherObject);
+
+
+    if (glm::length2(this->velocity)<0.0001f) {
+        this->velocity = glm::vec3(0.0f);
+    }
+    if (glm::length2(otherObject->velocity)<0.0001f) {
+        otherObject->velocity = glm::vec3(0.0f);
+    }
 
 }
 

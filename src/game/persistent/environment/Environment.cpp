@@ -6,7 +6,3 @@
 #include <glm/geometric.hpp>
 #include "Environment.h"
 
-
-
-
-

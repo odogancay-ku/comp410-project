@@ -34,7 +34,7 @@ public:
     glm::vec3 stretch = glm::vec3(1.0f, 1.0f, 1.0f);
 
     GLfloat mass = 1.0f;
-    GLfloat restitution = 0.8f;
+    GLfloat restitution = 1.0f;
     GLfloat friction = 0.2f;
 
     glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -59,6 +59,7 @@ public:
     glm::mat4 getModelMatrix();
 
     void checkCollision(Object *pObject);
+
 };
 
 

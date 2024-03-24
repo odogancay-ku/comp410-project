@@ -138,12 +138,6 @@ bool calculateCollision(const std::vector<glm::vec3> &hitboxVertices1, const std
             float overlap =
                     std::min(projection1.second, projection2.second) - std::max(projection1.first, projection2.first);
 
-
-
-
-
-
-
             // Update minimum overlap and corresponding MTV
             if (overlap < minOverlap) {
                 minOverlap = overlap;
@@ -176,60 +170,77 @@ void detectAndHandleCollisionSAT(Object *object1, Object *object2) {
     glm::vec3 MTV;
     if (calculateCollision(hitboxVertices1, hitboxVertices2, MTV)) {
 
+        glm::vec3 normalMTV = glm::normalize(MTV);
+
+        // Check which object is on the left side of the MTV
+
+        if (glm::dot(object1->position - object2->position, normalMTV) < 0) {
+            normalMTV = -normalMTV;
+            MTV = -MTV;
+        }
+
         // Calculate the relative velocity of the two objects
         glm::vec3 relativeVelocity = object1->velocity - object2->velocity;
 
-        // Calculate the relative velocity along the minimum translation vector
-        float velocityAlongMTV = glm::dot(relativeVelocity, glm::normalize(MTV));
-        float velocityAlongMTV1 = glm::dot(object1->velocity, glm::normalize(MTV));
-        float velocityAlongMTV2 = glm::dot(object2->velocity, glm::normalize(MTV));
-
-
-        if (velocityAlongMTV >= 0) {
-            return; // Objects are moving away from each other
+        if (!object1->canMove) {
+            relativeVelocity = -object2->velocity;
+        } else if (!object2->canMove) {
+            relativeVelocity = object1->velocity;
         }
+
+        // Calculate the relative velocity along the minimum translation vector
+        float velocityAlongMTV = glm::dot(relativeVelocity, normalMTV);
+
+        // Calculate the coefficient of restitution
+        float e = (object1->restitution+ object2->restitution)/2;
 
         if (!object1->canMove) {
             object2->position -= MTV;
             // Reflect
-            object2->velocity = glm::reflect(object2->velocity, glm::normalize(MTV));
+            if (velocityAlongMTV >= 0) {
+                return; // Objects are moving away from each other
+            }
+            object2->velocity = glm::reflect(object2->velocity, normalMTV)*e;
             return;
         }
 
         if (!object2->canMove) {
             object1->position += MTV;
             // Reflect
-            object1->velocity = glm::reflect(object1->velocity, glm::normalize(MTV));
+            if (velocityAlongMTV >= 0) {
+                return; // Objects are moving away from each other
+            }
+            object1->velocity = glm::reflect(object1->velocity, normalMTV)*e;
             return;
         }
+
 
         // Calculate the total mass of the two objects
         float totalMass = object1->mass + object2->mass;
 
         // Calculate the ratio of the masses
-        float ratio1 = object1->mass / totalMass;
-        float ratio2 = object2->mass / totalMass;
+        float ratio1 = object2->mass / totalMass;
+        float ratio2 = object1->mass / totalMass;
+
 
         // Move the objects apart by the minimum translation vector
-        object1->position -= MTV * ratio1;
-        object2->position += MTV * ratio2;
+        object1->position += MTV * ratio1;
+        object2->position -= MTV * ratio2;
 
-        // Calculate the coefficient of restitution
-        float e = std::min(object1->restitution, object2->restitution);
+        if (velocityAlongMTV >= 0) {
+            return; // Objects are moving away from each other
+        }
 
         // Calculate the impulse
         float j = -(1 + e) * velocityAlongMTV;
-        j /= 1 / object1->mass + 1 / object2->mass;
+        j /= (1 / object1->mass) + (1 / object2->mass);
 
         // Apply the impulse to the objects
-        glm::vec3 impulse = glm::normalize(MTV) * j;
-        object1->velocity += impulse * ratio1* 2.0f;
-        object2->velocity -= impulse * ratio2* 2.0f;
+        glm::vec3 impulse = normalMTV * j;
+        object1->velocity += impulse * (1/object1->mass);
+        object2->velocity -= impulse * (1/object2->mass);
 
-        glm::vec3 relativeVelocityAfter = object1->velocity - object2->velocity;
-        float velocityAlongMTVAfter = glm::dot(relativeVelocityAfter, glm::normalize(MTV));
-        float velocityAlongMTVAfter1 = glm::dot(object1->velocity, glm::normalize(MTV));
-        float velocityAlongMTVAfter2 = glm::dot(object2->velocity, glm::normalize(MTV));
+
 
 
     }

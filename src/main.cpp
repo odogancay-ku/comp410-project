@@ -72,7 +72,7 @@ int main() {
     std::cout << "Use the mouse wheel to change the fov" << std::endl;
     std::cout << "Have fun!" << std::endl;
 
-    double dt_step = 0.008f;
+    double dt_step = 0.0008f;
 
     while (!glfwWindowShouldClose(window)) {
         // Clear the screen
