@@ -33,6 +33,8 @@ class Earth : public Environment {
             return g * direction;
         }
 
+        return glm::vec3(0.0f);
+
         return g *  (float)pow(30,2) * direction/ (float)pow(r,2);
 
     }

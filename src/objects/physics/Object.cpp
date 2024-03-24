@@ -6,6 +6,7 @@
 #include "Object.h"
 #include "../../game/persistent/level/Level.h"
 #include "../../renderer/Renderer.h"
+#include "sat.h"
 
 int Object::nextId = 0;
 
@@ -18,8 +19,6 @@ void Object::update(GLfloat dt, Environment *environment) {
 
     // Dynamic updates
 
-
-
     if (applyGravity) {
         if (environment->gravityFunction != nullptr) {
 
@@ -29,25 +28,6 @@ void Object::update(GLfloat dt, Environment *environment) {
     }
 
     if (canMove) {
-
-
-        float roomSize = 15.0f;
-
-
-        if (position.x > 3.0f/2.0f*roomSize-2 && velocity.x > 0) {
-            velocity.x *= -1;
-        } else if (position.x < roomSize/2 && velocity.x < 0) {
-            velocity.x *= -1;
-        } else if (position.y > roomSize/2-2 && velocity.y > 0) {
-            velocity.y *= -1;
-        } else if (position.y < -roomSize/2+2 && velocity.y < 0) {
-            velocity.y *= -1;
-        } else if (position.z > roomSize/2-2 && velocity.z > 0) {
-            velocity.z *= -1;
-        } else if (position.z < -roomSize/2+2 && velocity.z < 0) {
-            velocity.z *= -1;
-        }
-
         velocity += acceleration * dt;
     }
 
@@ -84,8 +64,7 @@ glm::mat4 Object::getModelMatrix() {
 
 void Object::checkCollision(Object *otherObject) {
 
-    // FOR NOW
-
+    detectAndHandleCollisionSAT(this, otherObject);
 
 }
 
