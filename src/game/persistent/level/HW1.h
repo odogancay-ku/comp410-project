@@ -35,14 +35,11 @@ public:
         glm::vec3 lightPos = glm::vec3(roomSize, roomSize/4   , 0.0f);
 //        glm::vec3 lightPos = glm::vec3(0.0f, roomSize/4   , 0.0f);
 
-        GLint lightLoc = glGetUniformLocation(Renderer::getActiveInstance()->shaderProgram, "lightPos");
-        glUniform3fv(lightLoc, 1,  glm::value_ptr(lightPos));
+        glm::vec3 lightAmbient = {0.2f, 0.2f, 0.2f};
+        glm::vec3 lightDiffuse = {0.5f, 0.5f, 0.5f};
+        glm::vec3 lightSpecular = {1.0f, 1.0f, 1.0f};
 
-
-        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-
-        GLint lightColorLoc = glGetUniformLocation(Renderer::getActiveInstance()->shaderProgram, "lightColor");
-        glUniform3fv(lightColorLoc, 1,  glm::value_ptr(lightColor));
+        Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
 
         std::cout << "Creating persistent HW1" << std::endl;
 
@@ -126,7 +123,15 @@ public:
         cube7->paint(0.0f,1.0f,0.0f);
         addObject(cube7);
 
-
+        auto * maid = new Object();
+        maid->modelType = ModelTypes::MAID;
+        maid->paint(1.0f, 1.0f, 1.0f);
+        maid->position = glm::vec3(roomSize, 0.0f, 0.0f);
+        maid->angularVelocity = glm::vec3(0.0f, 50.0f, 0.0f);
+        maid->canMove = false;
+        maid->canCollide = false;
+        maid->scale = 3.0f;
+        addObject(maid);
     }
 
 };

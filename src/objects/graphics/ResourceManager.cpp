@@ -10,6 +10,7 @@
 void ResourceManager::generateBuiltinModels() {
     ModelData* cubeModelData = new ModelData();
     cubeModelData->type = ModelTypes::CUBE;
+    cubeModelData->material = ResourceManager::whitePlastic;
 
     cubeModelData->vertices = {
             glm::vec3(-0.5f, -0.5f, -0.5f),
@@ -57,6 +58,7 @@ void ResourceManager::generateBuiltinModels() {
 
     ModelData* sphereModelData = new ModelData();
     sphereModelData->type = ModelTypes::SPHERE;
+    sphereModelData->material = ResourceManager::chrome;
 
     ModelData* cylinderModelData = new ModelData();
     cylinderModelData->type = ModelTypes::CYLINDER;
@@ -120,12 +122,14 @@ void ResourceManager::generateExternalModels() {
 
     ModelData* bunnyModelData = new ModelData();
     bunnyModelData->type = ModelTypes::BUNNY;
+    bunnyModelData->material = ResourceManager::gold;
 
     ResourceManager::loadModel("assets/models/bunny.off", bunnyModelData);
 
 
     ModelData* maidModelData = new ModelData();
     maidModelData->type = ModelTypes::MAID;
+    maidModelData->material = ResourceManager::silver;
 
     ResourceManager::loadModel("assets/models/maid.off", maidModelData);
 
@@ -407,3 +411,6 @@ void ResourceManager::normalizeObjectSize(ModelData* modelData) {
         vertex = (vertex - center) / normalizingLength;
     }
 }
+
+
+

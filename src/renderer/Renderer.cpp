@@ -74,6 +74,9 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVec
     // Set up VBOs for vertex data and instance-specific data
     ModelData modelData = *ResourceManager::getModel(type);
 
+    Material material = modelData.material;
+
+    setMaterial(material);
 
     GLuint instanceCount = pVector->size();
 
@@ -283,4 +286,43 @@ void Renderer::createAndSetViewMatrix() {
     viewLoc = glGetUniformLocation(shaderProgram, "ViewMatrix");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 }
+
+void Renderer::setLight(glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 lightDiffuse, glm::vec3 lightSpecular) {
+
+    GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "light.position");
+    glUniform3fv(lightPositionLoc, 1, glm::value_ptr(lightPos));
+
+    GLint lightAmbientLoc = glGetUniformLocation(shaderProgram, "light.ambient");
+    glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(lightAmbient));
+
+    GLint lightDiffuseLoc = glGetUniformLocation(shaderProgram, "light.diffuse");
+    glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(lightDiffuse));
+
+    GLint lightSpecularLoc = glGetUniformLocation(shaderProgram, "light.specular");
+    glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(lightSpecular));
+
+}
+
+void Renderer::setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular,
+                           float shininess) {
+
+    GLint materialAmbientLoc = glGetUniformLocation(shaderProgram, "material.ambient");
+    glUniform3fv(materialAmbientLoc, 1, glm::value_ptr(materialAmbient));
+
+    GLint materialDiffuseLoc = glGetUniformLocation(shaderProgram, "material.diffuse");
+    glUniform3fv(materialDiffuseLoc, 1, glm::value_ptr(materialDiffuse));
+
+    GLint materialSpecularLoc = glGetUniformLocation(shaderProgram, "material.specular");
+    glUniform3fv(materialSpecularLoc, 1, glm::value_ptr(materialSpecular));
+
+    GLint shininessLoc = glGetUniformLocation(shaderProgram, "material.shininess");
+    glUniform1f(shininessLoc, shininess);
+
+}
+
+void Renderer::setMaterial(Material material) {
+    setMaterial(material.ambient, material.diffuse, material.specular, material.shininess);
+}
+
+
 
