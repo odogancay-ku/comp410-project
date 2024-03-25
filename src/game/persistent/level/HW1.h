@@ -32,7 +32,8 @@ public:
 
         float roomSize = 15;
 
-        glm::vec3 lightPos = glm::vec3(roomSize, roomSize   , 0.0f);
+        glm::vec3 lightPos = glm::vec3(roomSize, roomSize/4   , 0.0f);
+//        glm::vec3 lightPos = glm::vec3(0.0f, roomSize/4   , 0.0f);
 
         GLint lightLoc = glGetUniformLocation(Renderer::getActiveInstance()->shaderProgram, "lightPos");
         glUniform3fv(lightLoc, 1,  glm::value_ptr(lightPos));
@@ -63,6 +64,7 @@ public:
         cube->position = glm::vec3(roomSize, -roomSize / 2, 0.0f);
         cube->canMove = false;
         cube->stretch = glm::vec3(roomSize, 1.0f, roomSize);
+        cube->paint(0.2f,0.2f,0.4f);
         addObject(cube);
 
         auto *cube2 = new Object();
@@ -107,16 +109,18 @@ public:
         dumbObject->mass = 1.0;
         dumbObject->restitution = 1.0;
 //        dumbObject->angularVelocity = glm::vec3 (0.0f, 0.0f, 50.0f);
+        dumbObject->paint(1.0f,0.0f,0.0f);
         addObject(dumbObject);
 
         auto *cube7 = new Object();
         cube7->modelType = ModelTypes::CUBE;
-        cube7->position = glm::vec3(roomSize, -roomSize/2+1.0f, 4.0f);
+        cube7->position = glm::vec3(roomSize, -roomSize/2+2.0f, 4.0f);
         cube7->canMove = true;
-        cube7->scale = 2.0;
-        cube7->mass = 8.0;
+        cube7->scale = 4.0;
+        cube7->mass = 64.0;
         cube7->restitution = 1.0;
         cube7->velocity = glm::vec3(0.0f, 0.0f, -4.0f);
+        cube7->paint(0.0f,1.0f,0.0f);
         addObject(cube7);
 
 

@@ -43,14 +43,14 @@ void ResourceManager::generateBuiltinModels() {
     };
 
     cubeModelData->colorVertices = {
-            glm::vec3(1.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f),
-            glm::vec3(1.0f, 1.0f, 0.0f),
-            glm::vec3(1.0f, 0.0f, 1.0f),
-            glm::vec3(0.0f, 1.0f, 1.0f),
-            glm::vec3(1.0f, 1.0f, 0.5f),
-            glm::vec3(0.5f, 0.5f, 1.0f)
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)
     };
 
     ResourceManager::addModel(ModelTypes::CUBE, cubeModelData);
@@ -137,9 +137,7 @@ void ResourceManager::bufferModelData(ModelTypes modelType, ModelData* modelData
 
     std::cout << "Buffering model data for " << modelType << std::endl;
 
-
     GLuint VBO, EBO, VAO;
-
 
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);

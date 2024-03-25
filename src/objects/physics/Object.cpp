@@ -18,6 +18,7 @@ Object::Object() {
     angularVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
     angularAcceleration = glm::vec3(0.0f, 0.0f, 0.0f);
     stretch = glm::vec3(1.0f, 1.0f, 1.0f);
+    color = glm::vec3(1.0f);
 }
 
 void Object::update(GLfloat dt, Environment *environment) {
@@ -82,6 +83,12 @@ void Object::checkCollision(Object *otherObject) {
         otherObject->velocity = glm::vec3(0.0f);
     }
 
+}
+
+void Object::paint(float x, float y, float z) {
+    this->color.x =x;
+    this->color.y =y;
+    this->color.z =z;
 }
 
 

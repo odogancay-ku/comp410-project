@@ -1,6 +1,12 @@
 //
 // Created by ofaru on 16.03.2024.
 //
+#define DEBUG 1
+#ifdef DEBUG
+#define DEBUGPRINT(x, y) do{std::cout << __LINE__ << "\t" <<  x << "\t" << y << std::endl;}while(0);
+#else
+#define DEBUGPRINT(x,y) {};
+#endif
 
 #include <sstream>
 #include <fstream>
@@ -96,14 +102,13 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVec
 
         // Try to pick the closest color for each vertex
         for (int i = 0; i < vertices.size(); i++) {
-            colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+            colors.emplace_back(1.0f, 1.0f, 1.0f);
         }
 
 
     } else {
         vertices = modelData.vertices;
         normals = modelData.normals;
-        colors = modelData.colorVertices;
         indices = modelData.indices;
     }
 
@@ -115,6 +120,8 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVec
         if (object->isHidden) {
             continue;
         }
+
+        colors.push_back(object->color);
 
         glm::mat4 modelMatrix = object->getModelMatrix();
         modelMatrixColumns.push_back(modelMatrix[0]);
@@ -198,14 +205,14 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVec
     glBindBuffer(GL_ARRAY_BUFFER, colorVertexVBO);
     glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), &colors[0], GL_STATIC_DRAW);
 
+
     // Set the vertex attribute pointer for the color data
-    glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
+    glVertexAttribDivisor(6, 1);
     glEnableVertexAttribArray(6);
 
 
     glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
-
     glBindVertexArray(0);
 
     checkOpenGLError("drawInstancesOfModel");

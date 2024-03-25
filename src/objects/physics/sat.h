@@ -241,8 +241,6 @@ void detectAndHandleCollisionSAT(Object *object1, Object *object2) {
         object2->velocity -= impulse * (1/object2->mass);
 
 
-
-
     }
 }
 

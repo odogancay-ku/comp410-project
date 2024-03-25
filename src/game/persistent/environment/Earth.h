@@ -23,7 +23,7 @@ class Earth : public Environment {
         // center of the earth at 0,0,0
         // 10 m/s^2 at 100m
 
-        return {0.0f, 0.0f, 0.0f};
+//        return {0.0f, 0.0f, 0.0f};
         return {0.0f, -9.8f, 0.0f};
 
 

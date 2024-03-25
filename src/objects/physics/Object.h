@@ -44,21 +44,20 @@ public:
     glm::vec3 angularVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 angularAcceleration = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> normals;
-
     Object();
-
 
     void update(GLfloat dt,  Environment *environment);
 
     ModelTypes modelType = ModelTypes::CUBE;
+    glm::vec3 color;
     bool isHidden = false;
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 
     glm::mat4 getModelMatrix();
 
     void checkCollision(Object *pObject);
+
+    void paint(float x, float y, float z);
 
 };
 
