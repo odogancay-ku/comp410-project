@@ -77,18 +77,21 @@ public:
         cube3->position = glm::vec3(roomSize, 0.0f, -roomSize / 2 - 0.5);
         cube3->canMove = false;
         cube3->stretch = glm::vec3(roomSize, roomSize + 1, 1.0f);
+        cube3->paint(0.4f, 0.2f, 0.2f);
         addObject(cube3);
 
         auto *cube4 = new Object();
         cube4->position = glm::vec3(roomSize, 0.0f, +roomSize / 2 + 0.5);
         cube4->canMove = false;
         cube4->stretch = glm::vec3(roomSize, roomSize + 1, 1.0f);
+        cube4->paint(0.4f, 0.2f, 0.2f);
         addObject(cube4);
 
         auto *cube5 = new Object();
         cube5->position = glm::vec3(roomSize * 3 / 2 + 0.5, 0.0f, 0.0f);
         cube5->canMove = false;
         cube5->stretch = glm::vec3(1.0f, roomSize + 1, roomSize + 2);
+        cube5->paint(0.4f, 0.2f, 0.2f);
         addObject(cube5);
 
         auto *cube6 = new Object();
