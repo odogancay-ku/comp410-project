@@ -26,8 +26,8 @@ int main() {
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    GLuint shaderProgram = renderer->loadShaderProgram("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
-    renderer->useShaderProgram(shaderProgram);
+    renderer->loadObjectShaderProgram();
+    renderer->useObjectShaderProgram();
 
     std::cout << "Shader program loaded " << renderer->objectShaderProgram << std::endl;
 

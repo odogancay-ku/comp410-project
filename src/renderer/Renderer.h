@@ -126,13 +126,13 @@ public:
     }
 
     void loadObjectShaderProgram() {
-        objectShaderProgram = loadShaderProgram("../shaders/vertexShader.glsl",
-                                                "../shaders/fragmentShader.glsl");
+        objectShaderProgram = loadShaderProgram("shaders/vertexShader.glsl",
+                                                "shaders/fragmentShader.glsl");
     }
 
     void loadSkyboxShaderProgram() {
-        skyboxShaderProgram = loadShaderProgram("../shaders/skyboxVertexShader.glsl",
-                                                "../shaders/skyboxFragmentShader.glsl");
+        skyboxShaderProgram = loadShaderProgram("shaders/skyboxVertexShader.glsl",
+                                                "shaders/skyboxFragmentShader.glsl");
     }
 
     void loadShaderPrograms() {
