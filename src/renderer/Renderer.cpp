@@ -240,7 +240,7 @@ void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _wi
     projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
 
     // Pass the projection matrix to the shader program
-    GLint projectionLoc = glGetUniformLocation(shaderProgram, "ProjectionMatrix");
+    GLint projectionLoc = glGetUniformLocation(objectShaderProgram, "ProjectionMatrix");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 }
 
@@ -279,26 +279,26 @@ void Renderer::createAndSetViewMatrix() {
         viewMatrix = glm::lookAt(camera->position, camera->position + direction, up);
     }
 
-    GLint viewLoc = glGetUniformLocation(shaderProgram, "viewPos");
+    GLint viewLoc = glGetUniformLocation(objectShaderProgram, "viewPos");
     glUniform3fv(viewLoc, 1, glm::value_ptr(Camera::getActiveInstance()->position));
 
     // Pass the view matrix to the shader program
-    viewLoc = glGetUniformLocation(shaderProgram, "ViewMatrix");
+    viewLoc = glGetUniformLocation(objectShaderProgram, "ViewMatrix");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 }
 
 void Renderer::setLight(glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 lightDiffuse, glm::vec3 lightSpecular) {
 
-    GLint lightPositionLoc = glGetUniformLocation(shaderProgram, "light.position");
+    GLint lightPositionLoc = glGetUniformLocation(objectShaderProgram, "light.position");
     glUniform3fv(lightPositionLoc, 1, glm::value_ptr(lightPos));
 
-    GLint lightAmbientLoc = glGetUniformLocation(shaderProgram, "light.ambient");
+    GLint lightAmbientLoc = glGetUniformLocation(objectShaderProgram, "light.ambient");
     glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(lightAmbient));
 
-    GLint lightDiffuseLoc = glGetUniformLocation(shaderProgram, "light.diffuse");
+    GLint lightDiffuseLoc = glGetUniformLocation(objectShaderProgram, "light.diffuse");
     glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(lightDiffuse));
 
-    GLint lightSpecularLoc = glGetUniformLocation(shaderProgram, "light.specular");
+    GLint lightSpecularLoc = glGetUniformLocation(objectShaderProgram, "light.specular");
     glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(lightSpecular));
 
 }
@@ -306,16 +306,16 @@ void Renderer::setLight(glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 li
 void Renderer::setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular,
                            float shininess) {
 
-    GLint materialAmbientLoc = glGetUniformLocation(shaderProgram, "material.ambient");
+    GLint materialAmbientLoc = glGetUniformLocation(objectShaderProgram, "material.ambient");
     glUniform3fv(materialAmbientLoc, 1, glm::value_ptr(materialAmbient));
 
-    GLint materialDiffuseLoc = glGetUniformLocation(shaderProgram, "material.diffuse");
+    GLint materialDiffuseLoc = glGetUniformLocation(objectShaderProgram, "material.diffuse");
     glUniform3fv(materialDiffuseLoc, 1, glm::value_ptr(materialDiffuse));
 
-    GLint materialSpecularLoc = glGetUniformLocation(shaderProgram, "material.specular");
+    GLint materialSpecularLoc = glGetUniformLocation(objectShaderProgram, "material.specular");
     glUniform3fv(materialSpecularLoc, 1, glm::value_ptr(materialSpecular));
 
-    GLint shininessLoc = glGetUniformLocation(shaderProgram, "material.shininess");
+    GLint shininessLoc = glGetUniformLocation(objectShaderProgram, "material.shininess");
     glUniform1f(shininessLoc, shininess);
 
 }

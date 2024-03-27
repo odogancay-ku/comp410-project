@@ -29,7 +29,7 @@ int main() {
     GLuint shaderProgram = renderer->loadShaderProgram("shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
     renderer->useShaderProgram(shaderProgram);
 
-    std::cout << "Shader program loaded " << renderer->shaderProgram << std::endl;
+    std::cout << "Shader program loaded " << renderer->objectShaderProgram << std::endl;
 
     auto *camera = new Camera();
     Camera::setActiveInstance(camera);

@@ -31,7 +31,8 @@ public:
 
     glm::mat4 projectionMatrix;
     glm::mat4 viewMatrix;
-    GLuint shaderProgram;
+    GLuint objectShaderProgram;
+    GLuint skyboxShaderProgram;
 
 
     static Renderer *getActiveInstance() {
@@ -120,10 +121,31 @@ public:
 
     // Change shader program
     void useShaderProgram(GLuint _shaderProgram) {
-        shaderProgram = _shaderProgram;
-        glUseProgram(shaderProgram);
-
+        glUseProgram(_shaderProgram);
         checkOpenGLError("useShaderProgram");
+    }
+
+    void loadObjectShaderProgram() {
+        objectShaderProgram = loadShaderProgram("../shaders/vertexShader.glsl",
+                                                "../shaders/fragmentShader.glsl");
+    }
+
+    void loadSkyboxShaderProgram() {
+        skyboxShaderProgram = loadShaderProgram("../shaders/skyboxVertexShader.glsl",
+                                                "../shaders/skyboxFragmentShader.glsl");
+    }
+
+    void loadShaderPrograms() {
+        loadObjectShaderProgram();
+        loadSkyboxShaderProgram();
+    }
+
+    void useObjectShaderProgram() {
+        useShaderProgram(objectShaderProgram);
+    }
+
+    void useSkyboxShaderProgram() {
+        useShaderProgram(skyboxShaderProgram);
     }
 
     void initializeGL() {
