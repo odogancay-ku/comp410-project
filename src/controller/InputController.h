@@ -2,17 +2,17 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_INPUTCONTROLLER_H
-#define HOMEWORK1_INPUTCONTROLLER_H
+#ifndef INPUTCONTROLLER_H
+#define INPUTCONTROLLER_H
 
 
-#include "../camera/Camera.h"
+#include "camera/Camera.h"
 #include <map>
 #include <GLFW/glfw3.h>
 #include "WindowController.h"
-#include "../camera/Camera.h"
-#include "../objects/physics/Object.h"
-#include "../game/Game.h"
+#include "camera/Camera.h"
+#include "objects/physics/Object.h"
+#include "game/Game.h"
 
 class InputController {
 public:
@@ -47,4 +47,4 @@ public:
 
 };
 
-#endif //HOMEWORK1_INPUTCONTROLLER_H
+#endif //INPUTCONTROLLER_H

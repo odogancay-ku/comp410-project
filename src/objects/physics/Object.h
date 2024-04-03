@@ -2,8 +2,8 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_OBJECT_H
-#define HOMEWORK1_OBJECT_H
+#ifndef OBJECT_H
+#define OBJECT_H
 
 
 #include <vector>
@@ -11,8 +11,8 @@
 #include <glm/vec3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <memory>
-#include "../graphics/ResourceManager.h"
-#include "../../game/persistent/environment/Environment.h"
+#include "objects/graphics/ResourceManager.h"
+#include "game/persistent/environment/Environment.h"
 
 class Object {
 
@@ -62,4 +62,4 @@ public:
 };
 
 
-#endif //HOMEWORK1_OBJECT_H
+#endif //OBJECT_H

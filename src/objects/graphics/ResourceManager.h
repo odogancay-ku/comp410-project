@@ -2,8 +2,8 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_RESOURCEMANAGER_H
-#define HOMEWORK1_RESOURCEMANAGER_H
+#ifndef RESOURCEMANAGER_H
+#define RESOURCEMANAGER_H
 
 #include <vector>
 #include <glm/vec3.hpp>
@@ -232,4 +232,4 @@ yellow rubber 	0.05 	0.05 	0.0 	0.5 	0.5 	0.4 	0.7 	0.7 	0.04 	.078125
 void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> &indices,
                     int subdivisions);
 
-#endif //HOMEWORK1_RESOURCEMANAGER_H
+#endif //RESOURCEMANAGER_H

@@ -4,8 +4,8 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include "Object.h"
-#include "../../game/persistent/level/Level.h"
-#include "../../renderer/Renderer.h"
+#include "game/persistent/level/Level.h"
+#include "renderer/Renderer.h"
 #include "sat.h"
 
 int Object::nextId = 0;

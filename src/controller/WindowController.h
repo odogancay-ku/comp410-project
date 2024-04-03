@@ -2,8 +2,8 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_WINDOWCONTROLLER_H
-#define HOMEWORK1_WINDOWCONTROLLER_H
+#ifndef WINDOWCONTROLLER_H
+#define WINDOWCONTROLLER_H
 
 
 #include <vector>
@@ -50,4 +50,4 @@ public:
 };
 
 
-#endif //HOMEWORK1_WINDOWCONTROLLER_H
+#endif //WINDOWCONTROLLER_H

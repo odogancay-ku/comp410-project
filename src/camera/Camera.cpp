@@ -9,8 +9,8 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 #include "Camera.h"
-#include "../objects/physics/Object.h"
-#include "../renderer/Renderer.h"
+#include "objects/physics/Object.h"
+#include "renderer/Renderer.h"
 
 glm::vec3 Camera::originalPosition = glm::vec3(0,0,0);
 

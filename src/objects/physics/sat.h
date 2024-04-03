@@ -2,8 +2,8 @@
 // Created by ofaru on 24.03.2024.
 //
 
-#ifndef HOMEWORK1_SAT_H
-#define HOMEWORK1_SAT_H
+#ifndef SAT_H
+#define SAT_H
 
 #include <vector>
 #include <glew.h>
@@ -245,4 +245,4 @@ void detectAndHandleCollisionSAT(Object *object1, Object *object2) {
 }
 
 
-#endif //HOMEWORK1_SAT_H
+#endif //SAT_H

@@ -11,7 +11,7 @@
 #include <sstream>
 #include <fstream>
 #include "Renderer.h"
-#include "../camera/Camera.h"
+#include "camera/Camera.h"
 
 int Renderer::drawMode = 0;
 

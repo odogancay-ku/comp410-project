@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include "Game.h"
-#include "../camera/Camera.h"
+#include "camera/Camera.h"
 #include "persistent/level/HW1.h"
 
 Game* Game::instance = nullptr;

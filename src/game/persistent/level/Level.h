@@ -2,15 +2,15 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_LEVEL_H
-#define HOMEWORK1_LEVEL_H
+#ifndef LEVEL_H
+#define LEVEL_H
 
 
 #include <vector>
 #include <map>
-#include "../environment/Environment.h"
-#include "../../../objects/graphics/ResourceManager.h"
-#include "../../../objects/physics/Object.h"
+#include "game/persistent/environment/Environment.h"
+#include "objects/graphics/ResourceManager.h"
+#include "objects/physics/Object.h"
 
 class Level {
 
@@ -36,4 +36,4 @@ public:
 };
 
 
-#endif //HOMEWORK1_LEVEL_H
+#endif //LEVEL_H

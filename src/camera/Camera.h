@@ -2,15 +2,14 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_CAMERA_H
-#define HOMEWORK1_CAMERA_H
-
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include <glew.h>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/vec3.hpp>
 #include <vector>
-#include "../objects/physics/Object.h"
+#include "objects/physics/Object.h"
 
 class Camera {
 private:
@@ -87,4 +86,4 @@ public:
 };
 
 
-#endif //HOMEWORK1_CAMERA_H
+#endif //CAMERA_H

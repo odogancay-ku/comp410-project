@@ -2,8 +2,8 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_ENVIRONMENT_H
-#define HOMEWORK1_ENVIRONMENT_H
+#ifndef ENVIRONMENT_H
+#define ENVIRONMENT_H
 
 
 #include <glew.h>
@@ -26,4 +26,4 @@ public:
 };
 
 
-#endif //HOMEWORK1_ENVIRONMENT_H
+#endif //ENVIRONMENT_H

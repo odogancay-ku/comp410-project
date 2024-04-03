@@ -2,8 +2,8 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_RENDERER_H
-#define HOMEWORK1_RENDERER_H
+#ifndef RENDERER_H
+#define RENDERER_H
 
 
 #include <glew.h>
@@ -11,8 +11,8 @@
 #include <glm/ext/matrix_float4x4.hpp>
 #include <iostream>
 #include <glm/ext/matrix_clip_space.hpp>
-#include "../controller/WindowController.h"
-#include "../objects/physics/Object.h"
+#include "controller/WindowController.h"
+#include "objects/physics/Object.h"
 
 class Renderer {
 
@@ -195,4 +195,4 @@ public:
 };
 
 
-#endif //HOMEWORK1_RENDERER_H
+#endif //RENDERER_H

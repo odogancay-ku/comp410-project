@@ -2,8 +2,8 @@
 // Created by ofaru on 17.03.2024.
 //
 
-#ifndef HOMEWORK1_EARTH_H
-#define HOMEWORK1_EARTH_H
+#ifndef EARTH_H
+#define EARTH_H
 
 #include <iostream>
 #include <glm/geometric.hpp>
@@ -55,4 +55,4 @@ class Earth : public Environment {
     }
 };
 
-#endif //HOMEWORK1_EARTH_H
+#endif //EARTH_H

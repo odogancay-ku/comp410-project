@@ -6,7 +6,7 @@
 #include <iostream>
 #include <glm/ext/matrix_clip_space.hpp>
 #include "InputController.h"
-#include "../game/persistent/level/HW1.h"
+#include "game/persistent/level/HW1.h"
 
 double InputController::lastX = 0;
 double InputController::lastY = 0;

@@ -1,12 +1,11 @@
 
 # Compiler
 CPP = g++
-
 # Compiler flags
-CPP_FLAGS = -g -w  -std=c++11
+CPP_FLAGS = -g -w  -std=c++11 -DGLM_ENABLE_EXPERIMENTAL
 
 # Include directories
-INCLUDES = -I./include -I./src/visuals -I/usr/include/GL
+INCLUDES = -I./src -I./include -I./src/visuals -I/usr/include/GL 
 
 
 # Libraries

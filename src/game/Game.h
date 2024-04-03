@@ -2,14 +2,14 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#ifndef HOMEWORK1_GAME_H
-#define HOMEWORK1_GAME_H
+#ifndef GAME_H
+#define GAME_H
 
 
 #include <vector>
 #include <memory>
-#include "../objects/physics/Object.h"
-#include "../renderer/Renderer.h"
+#include "objects/physics/Object.h"
+#include "renderer/Renderer.h"
 #include "persistent/level/Level.h"
 
 class Game {
@@ -65,4 +65,4 @@ public:
 };
 
 
-#endif //HOMEWORK1_GAME_H
+#endif //GAME_H

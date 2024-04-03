@@ -2,13 +2,13 @@
 // Created by ofaru on 17.03.2024.
 //
 
-#ifndef HOMEWORK1_HW1_H
-#define HOMEWORK1_HW1_H
+#ifndef HW1_H
+#define HW1_H
 
 #include <iostream>
-#include "../../../objects/physics/Object.h"
-#include "../../../objects/physics/Object.h"
-#include "../environment/Earth.h"
+#include "objects/physics/Object.h"
+#include "objects/physics/Object.h"
+#include "game/persistent/environment/Earth.h"
 #include "Level.h"
 
 class HW1 : public Level {
@@ -136,4 +136,4 @@ public:
 
 };
 
-#endif //HOMEWORK1_HW1_H
+#endif //HW1_H
