@@ -20,7 +20,7 @@ void HW2::setup() {
 
     std::cout << "HW2 setup" << std::endl;
 
-    rubiksCube = new RubiksCube(glm::vec3(0.0f, 0.0f, 0.0f));
+    rubiksCube = new RubiksCube(glm::vec3(10.0f, 0.0f, 0.0f));
 
     std::cout << "RubiksCube created" << std::endl;
 
@@ -35,7 +35,7 @@ void HW2::setup() {
     collisionStick = new Object();
 
     collisionStick->position = glm::vec3(0.0f, 0.0f, 0.0f);
-    collisionStick->stretch = glm::vec3(5.0f, 0.01f, 0.01f);
+    collisionStick->stretch = glm::vec3(10.0f, 0.01f, 0.01f);
     collisionStick->canMove = true;
     collisionStick->applyPhysics = false;
     collisionStick->applyGravity = false;
@@ -45,17 +45,9 @@ void HW2::setup() {
 
         // Calculate direction of the ray from collisionStick rotation angles
 
-        float yaw = collisionStick->orientation.y;
-        float pitch = collisionStick->orientation.x;
 
-        float yawRad = glm::radians(yaw + 90.0f);
-        float pitchRad = glm::radians(pitch);
+        glm::vec3 rayDirection = collisionStick->orientation * glm::vec3(1.0f, 0.0f, 0.0f);
 
-        float x = std::cos(pitchRad) * std::sin(yawRad);
-        float y = std::sin(pitchRad);
-        float z = std::cos(pitchRad) * std::cos(yawRad);
-
-        glm::vec3 rayDirection = glm::normalize(glm::vec3(x, y, -1 * z));
 
         glm::mat4 inverseModel = glm::inverse(pObject->getModelMatrix());
 
@@ -75,6 +67,7 @@ void HW2::setup() {
         float tFar = glm::min(glm::min(t2.x, t2.y), t2.z);
 
 
+
         if (tNear > tFar || tFar < 0.0f) {
             return;
         }
@@ -88,6 +81,7 @@ void HW2::setup() {
 
 
         candidateCollisions.push_back(candidate);
+
 
     });
 
@@ -122,11 +116,9 @@ void HW2::setup() {
     addObject(pullMark);
 
 
-
 }
 
 void HW2::onUpdate(float dt) {
-
 
 
     collisionStick->position = Camera::getActiveInstance()->position;
@@ -136,7 +128,7 @@ void HW2::onUpdate(float dt) {
     float yaw = Camera::getActiveInstance()->yaw;
     float pitch = Camera::getActiveInstance()->pitch;
 
-    collisionStick->orientation = glm::quat(glm::radians(glm::vec3(pitch, yaw, 0.0f)));
+    collisionStick->orientation = Object::pitchYawRollToQuat(glm::vec3(0.0f, -1 * yaw, pitch));
 
 
     if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS) {
@@ -183,17 +175,8 @@ void HW2::onUpdate(float dt) {
         // Calculate the direction the camera is looking at, place the pull mark at the distance of the tracked cube
         // from the camera
 
-        float yaw = collisionStick->orientation.y;
-        float pitch = collisionStick->orientation.x;
 
-        float yawRad = glm::radians(yaw + 90.0f);
-        float pitchRad = glm::radians(pitch);
-
-        float x = std::cos(pitchRad) * std::sin(yawRad);
-        float y = std::sin(pitchRad);
-        float z = std::cos(pitchRad) * std::cos(yawRad);
-
-        glm::vec3 rayDirection = glm::normalize(glm::vec3(x, y, -1 * z));
+        glm::vec3 rayDirection = collisionStick->orientation * glm::vec3(1.0f, 0.0f, 0.0f);
 
         pullMark->position = Camera::getActiveInstance()->position + rayDirection * trackedCubePullMarkDistance;
 

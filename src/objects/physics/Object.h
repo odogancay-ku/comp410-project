@@ -69,6 +69,14 @@ public:
 
     void rotateAroundPointAndAxis(glm::vec3 point, glm::vec3 axis, float angle);
 
+    float getPitch();
+
+    float getYaw();
+
+    glm::quat static pitchYawRollToQuat(glm::vec3 pitchYawRoll);
+
+    glm::vec3 static quatToPitchYawRoll(glm::quat quat);
+
 };
 
 

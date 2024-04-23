@@ -272,12 +272,12 @@ void RubiksCube::updateRotation(float dt, glm::vec3 hitPos, glm::vec3 pullPos) {
 
     rotationAngle += angleDiff;
 
-//    std::cout << "Rotation angle: " << rotationAngle << std::endl;
-//    std::cout << "Rotation axis: " << glm::to_string(rotationAxis) << std::endl;
-//    std::cout << "Center of rotation: " << glm::to_string(centerOfRotation) << std::endl;
-//    std::cout << "Hit position: " << glm::to_string(hitPos) << std::endl;
-//    std::cout << "Pull position: " << glm::to_string(pullPos) << std::endl;
-//    std::cout << "Angle diff " << angleDiff << std::endl;
+    std::cout << "Rotation angle: " << rotationAngle << std::endl;
+    std::cout << "Rotation axis: " << glm::to_string(rotationAxis) << std::endl;
+    std::cout << "Center of rotation: " << glm::to_string(centerOfRotation) << std::endl;
+    std::cout << "Hit position: " << glm::to_string(hitPos) << std::endl;
+    std::cout << "Pull position: " << glm::to_string(pullPos) << std::endl;
+    std::cout << "Angle diff " << angleDiff << std::endl;
 
     rotateCurrentColumnForAngle(rotationAngle);
 

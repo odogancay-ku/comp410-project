@@ -116,6 +116,30 @@ void Object::rotateAroundPointAndAxis(glm::vec3 point, glm::vec3 axis, float ang
 
 }
 
+glm::quat  Object::pitchYawRollToQuat(glm::vec3 pitchYawRoll) {
+
+    glm::quat q = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
+    q = glm::rotate(q, glm::radians(pitchYawRoll.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    q = glm::rotate(q, glm::radians(pitchYawRoll.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    q = glm::rotate(q, glm::radians(pitchYawRoll.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    return q;
+}
+
+glm::vec3  Object::quatToPitchYawRoll(glm::quat quat) {
+    glm::vec3 angles = glm::eulerAngles(quat);
+    return glm::degrees(angles);
+}
+
+float Object::getPitch() {
+
+    return quatToPitchYawRoll(orientation).z;
+
+}
+
+float Object::getYaw() {
+    return quatToPitchYawRoll(orientation).y;
+}
+
 
 
 
