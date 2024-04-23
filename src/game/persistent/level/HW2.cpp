@@ -99,7 +99,7 @@ void HW2::setup() {
 
     hitMark->modelType = ModelTypes::SPHERE;
     hitMark->scale = 0.1f;
-    hitMark->color = glm::vec3(1.0f, 0.3f, 1.0f);
+    hitMark->color = glm::vec3(1.0f, 0.0f, 1.0f);
     hitMark->isHidden = true;
     hitMark->applyPhysics = false;
     hitMark->applyGravity = false;
@@ -112,7 +112,7 @@ void HW2::setup() {
 
     pullMark->modelType = ModelTypes::SPHERE;
     pullMark->scale = 0.1f;
-    pullMark->color = glm::vec3(0.3f, 1.0f, 1.0f);
+    pullMark->color = glm::vec3(0.0f, 1.0f, 1.0f);
     pullMark->isHidden = true;
     pullMark->applyPhysics = false;
     pullMark->applyGravity = false;
@@ -122,13 +122,11 @@ void HW2::setup() {
     addObject(pullMark);
 
 
-
 }
 
 void HW2::onUpdate(float dt) {
 
-    rubiksCube->rotateRow(0, 0.1f);
-
+//    rubiksCube->rotateColumn(0, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
     collisionStick->position = Camera::getActiveInstance()->position;
 
@@ -167,6 +165,7 @@ void HW2::onUpdate(float dt) {
 
             trackedCube = closestObject;
             trackedCubeHoldPosition = closestLocalPoint;
+            trackedCubeHoldStartPosition = closestLocalPoint;
             trackedCubePullMarkDistance = glm::distance(Camera::getActiveInstance()->position, closestPoint);
 
 
@@ -198,14 +197,19 @@ void HW2::onUpdate(float dt) {
 
         pullMark->isHidden = false;
 
+        rubiksCube->determineAndStartRotation(trackedCube, hitMark->position, pullMark->position);
+
+        rubiksCube->updateRotation(dt, trackedCube, hitMark->position, pullMark->position);
+
+
     }
 
     if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_RELEASE) {
 
+        rubiksCube->finishRotation();
         hitMark->isHidden = true;
         pullMark->isHidden = true;
         trackedCube = nullptr;
-
 
     }
 

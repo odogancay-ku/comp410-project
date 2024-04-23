@@ -125,7 +125,9 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
         if (drawUnique) {
             colors = object->modelData->colorVertices;
         } else {
-            colors.push_back(object->color);
+            for (int i = 0; i < vertices.size(); i++) {
+                colors.push_back(object->color);
+            }
         }
 
 
@@ -202,14 +204,8 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), &colors[0], GL_STATIC_DRAW);
 
     // Set the vertex attribute pointer for the color data
-    if (drawUnique) {
-        glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
-        glEnableVertexAttribArray(6);
-    } else {
-        glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
-        glVertexAttribDivisor(6, 1);
-        glEnableVertexAttribArray(6);
-    }
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
+    glEnableVertexAttribArray(6);
 
 
 

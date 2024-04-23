@@ -16,6 +16,7 @@ private:
     Object *hitMark;
     Object *pullMark;
     Object *trackedCube;
+    glm::vec3 trackedCubeHoldStartPosition;
     glm::vec3 trackedCubeHoldPosition;
     float trackedCubePullMarkDistance;
     std::vector<std::tuple<glm::vec3, glm::vec3, Object *>> candidateCollisions;

@@ -19,27 +19,32 @@ public:
     Object* cubes[27];
 
     glm::vec3 position;
-    float row1Y;
-    float row2Y;
-    float row3Y;
 
-    float col1X;
-    float col2X;
-    float col3X;
-
-    float col1Z;
-    float col2Z;
-    float col3Z;
+    float columnWidth = 1.0f;
 
     void addCubes();
 
-    void rotateColumnX(int column, float angle);
-
-    void rotateColumnZ(int column, float angle);
-
-    void rotateRow(int row, float angle);
+    void rotateCurrentColumn(float angle);
 
 
+
+    int rotationColumn = -1;
+    float rotationAngle = 0.0f;
+    float hitPointStartRotationAngle = 0.0f;
+    glm::vec3 rotationAxis = glm::vec3(0,0,0);
+
+    std::vector<Object*> rotatingCubes;
+    std::vector<std::pair<glm::vec3,glm::vec3>> originalPositionsAndRotations;
+
+    std::pair<int,glm::vec3> determineRotationAxisAndColumn(Object* hitObject, glm::vec3 pos1, glm::vec3 pos2);
+
+    void determineAndStartRotation(Object* hitObject, glm::vec3 hitPoint, glm::vec3 pullPoint);
+
+    void startRotationOnColumn(int column, glm::vec3 axis);
+
+    void updateRotation(float dt, Object* hitObject, glm::vec3 hitPoint, glm::vec3 pullPoint);
+
+    void finishRotation();
 
 };
 
