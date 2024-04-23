@@ -29,6 +29,7 @@ public:
     bool applyGravity = true;
     bool applyDrag = false;
     bool applyFriction = true;
+    bool applyPhysics = true;
 
     GLfloat scale = 1.0f;
     glm::vec3 stretch = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -46,9 +47,10 @@ public:
 
     Object();
 
-    void update(GLfloat dt,  Environment *environment);
+    void update(GLfloat dt, Environment *environment);
 
     ModelTypes modelType = ModelTypes::CUBE;
+    ModelData *modelData = ResourceManager::getModel(ModelTypes::CUBE);
     glm::vec3 color;
     bool isHidden = false;
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -58,6 +60,11 @@ public:
     void checkCollision(Object *pObject);
 
     void paint(float x, float y, float z);
+
+    std::function<void(glm::vec3, Object *)> onCollision = [](glm::vec3 normal, Object *pObject) {
+    };
+
+    void setOnCollision(std::function<void(glm::vec3, Object *)> callback);
 
 };
 

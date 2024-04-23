@@ -31,7 +31,9 @@ public:
     void addObject(Object* object);
 
 
-    void setup();
+    virtual void setup() = 0;
+
+    virtual void onUpdate(float dt) = 0;
 
 };
 

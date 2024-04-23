@@ -29,6 +29,7 @@ enum ModelTypes {
     SPHERE,
     BUNNY,
     MAID,
+    UNIQUE_MODEL,
     END_OF_TYPES_MARKER,
     CONE,
     CYLINDER,
@@ -61,7 +62,7 @@ struct ModelData {
 class ResourceManager {
 private:
     static inline ModelData *models[ModelTypes::END_OF_TYPES_MARKER] = {};
-
+    static inline std::vector<ModelData> uniqueModels;
 
 public:
 
@@ -74,6 +75,20 @@ public:
 
     static void addModel(const int modelIndex, ModelData *modelData) {
 
+        setModelHitbox(modelData);
+
+        models[modelIndex] = modelData;
+
+        std::cout << "Model added: " << modelIndex << std::endl;
+        std::cout << "Model added: " << models[modelIndex]->type << std::endl;
+        std::cout << "Model added: " << models[modelIndex]->indices.size() << std::endl;
+
+//        bufferModelData((ModelTypes) modelIndex, modelData);
+
+
+    }
+
+    static void setModelHitbox(ModelData* modelData) {
         // Calculate hitbox
 
         glm::vec3 min = modelData->vertices[0];
@@ -145,18 +160,7 @@ public:
         for (auto &normal: modelData->hitboxNormals) {
             normal = glm::normalize(normal);
         }
-
-        models[modelIndex] = modelData;
-
-        std::cout << "Model added: " << modelIndex << std::endl;
-        std::cout << "Model added: " << models[modelIndex]->type << std::endl;
-        std::cout << "Model added: " << models[modelIndex]->indices.size() << std::endl;
-
-//        bufferModelData((ModelTypes) modelIndex, modelData);
-
-
     }
-
 
     static ModelData *getModel(const ModelTypes modelType) {
         return models[modelType];

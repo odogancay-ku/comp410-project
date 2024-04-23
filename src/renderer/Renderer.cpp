@@ -70,11 +70,13 @@ struct Vertex {
 };
 
 
-void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVector, bool hitboxes) {
+void Renderer::drawInstancesOfModel(ModelData modelData, std::vector<Object *> *pVector, bool hitboxes) {
     // Set up VBOs for vertex data and instance-specific data
-    ModelData modelData = *ResourceManager::getModel(type);
+
 
     Material material = modelData.material;
+
+    bool drawUnique = modelData.type == ModelTypes::UNIQUE_MODEL;
 
     setMaterial(material);
 
@@ -124,7 +126,12 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVec
             continue;
         }
 
-        colors.push_back(object->color);
+        if (drawUnique) {
+            colors = object->modelData->colorVertices;
+        } else {
+            colors.push_back(object->color);
+        }
+
 
         glm::mat4 modelMatrix = object->getModelMatrix();
         modelMatrixColumns.push_back(modelMatrix[0]);
@@ -134,6 +141,9 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVec
 
     }
 
+    if (modelMatrixColumns.empty()) {
+        return;
+    }
 
     /**
     layout (location = 0) in vec4 ModelMatrix_Column0; // Same for all indices in same instance
@@ -208,11 +218,16 @@ void Renderer::drawInstancesOfModel(ModelTypes type, std::vector<Object *> *pVec
     glBindBuffer(GL_ARRAY_BUFFER, colorVertexVBO);
     glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), &colors[0], GL_STATIC_DRAW);
 
-
     // Set the vertex attribute pointer for the color data
-    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
-    glVertexAttribDivisor(6, 1);
-    glEnableVertexAttribArray(6);
+    if (drawUnique) {
+        glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
+        glEnableVertexAttribArray(6);
+    } else {
+        glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
+        glVertexAttribDivisor(6, 1);
+        glEnableVertexAttribArray(6);
+    }
+
 
 
     glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);

@@ -151,13 +151,13 @@ bool calculateCollision(const std::vector<glm::vec3> &hitboxVertices1, const std
 }
 
 void detectAndHandleCollisionSAT(Object *object1, Object *object2) {
+
     if (!object1->canMove && !object2->canMove) {
         return; // Both objects are static
     }
 
-
-    std::vector<glm::vec3> hitboxVertices1 = ResourceManager::getModel(object1->modelType)->hitboxVertices;
-    std::vector<glm::vec3> hitboxVertices2 = ResourceManager::getModel(object2->modelType)->hitboxVertices;
+    std::vector<glm::vec3> hitboxVertices1 = object1->modelData->hitboxVertices;
+    std::vector<glm::vec3> hitboxVertices2 = object2->modelData->hitboxVertices;
 
     for (auto &i: hitboxVertices1) {
         i = glm::vec3(object1->getModelMatrix() * glm::vec4(i, 1.0f));
@@ -169,6 +169,13 @@ void detectAndHandleCollisionSAT(Object *object1, Object *object2) {
 
     glm::vec3 MTV;
     if (calculateCollision(hitboxVertices1, hitboxVertices2, MTV)) {
+
+        object1->onCollision(MTV, object2);
+        object2->onCollision(-MTV, object1);
+
+        if (!object1->applyPhysics || !object2->applyPhysics) {
+            return; // At least one object cannot collide
+        }
 
         glm::vec3 normalMTV = glm::normalize(MTV);
 

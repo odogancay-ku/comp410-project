@@ -155,7 +155,7 @@ Material ResourceManager::redPlastic = {
 };
 
 Material ResourceManager::whitePlastic = {
-        glm::vec3(0.0f, 0.0f, 0.0f), // Ambient
+        glm::vec3(1.0f, 1.0f, 1.0f), // Ambient
         glm::vec3(0.55f, 0.55f, 0.55f), // Diffuse
         glm::vec3(0.70f, 0.70f, 0.70f), // Specular
         0.25f // Shininess

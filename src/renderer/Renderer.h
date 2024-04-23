@@ -174,7 +174,7 @@ public:
 
     static void checkOpenGLError(const std::string &at);
 
-    void drawInstancesOfModel(ModelTypes type, std::vector<Object*> *pVector, bool hitboxes = false);
+    void drawInstancesOfModel(ModelData modelData, std::vector<Object*> *pVector, bool hitboxes = false);
 
 
     void createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight);

@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include "objects/physics/Object.h"
-#include "objects/physics/Object.h"
 #include "game/persistent/environment/Earth.h"
 #include "Level.h"
 
@@ -28,7 +27,7 @@ public:
 
     }
 
-    void setup() {
+    void setup() override {
 
         float roomSize = 15;
 
@@ -132,6 +131,31 @@ public:
         maid->canCollide = false;
         maid->scale = 3.0f;
         addObject(maid);
+
+        std::cout << "WELCOME! Press P to give a little velocity to non static objects" << std::endl;
+        std::cout << "Press L to change the object model" << std::endl;
+        std::cout << "Press H to show hitboxes, you might need to switch to point or line draw mode to see them"
+                  << std::endl;
+        std::cout << "Press T to change the draw mode" << std::endl;
+        std::cout << "Press ESC to exit" << std::endl;
+        std::cout << "Press W, A, S, D, left shift, space to move the camera relative to the orientation" << std::endl;
+        std::cout << "Press R to reset the camera" << std::endl;
+        std::cout << "You can change the way you face using your mouse! Just drag it, no roll only yaw and pitch"
+                  << std::endl;
+        std::cout
+                << "For this to work we had to hide the mouse and fix it. "
+                   "Press alt to toggle this. "
+                   "You will need to test out the reshape callback functionality. "
+                   "Press alt, go out of full screen, "
+                   "resize with the mouse "
+                   "This will be enough to showcase window resize callback"
+                << std::endl;
+        std::cout << "Use the mouse wheel to change the fov" << std::endl;
+        std::cout << "Have fun!" << std::endl;
+    }
+
+    void onUpdate(float dt) override {
+
     }
 
 };
