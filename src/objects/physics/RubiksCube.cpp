@@ -185,25 +185,25 @@ RubiksCube::determineRotationAxisAndColumn(Object *hitObject, glm::vec3 hitPos, 
 
     int closestColX = 1;
 
-    if (positionOnAxisX < 0) {
+    if (positionOnAxisX < -1*columnWidth / 2) {
         closestColX = 0;
-    } else if (positionOnAxisX > 0) {
+    } else if (positionOnAxisX > columnWidth / 2) {
         closestColX = 2;
     }
 
     int closestColY = 1;
 
-    if (positionOnAxisY < 0) {
+    if (positionOnAxisY < -1*columnWidth / 2) {
         closestColY = 0;
-    } else if (positionOnAxisY > 0) {
+    } else if (positionOnAxisY > columnWidth / 2) {
         closestColY = 2;
     }
 
     int closestColZ = 1;
 
-    if (positionOnAxisZ < 0) {
+    if (positionOnAxisZ < -1*columnWidth / 2) {
         closestColZ = 0;
-    } else if (positionOnAxisZ > 0) {
+    } else if (positionOnAxisZ > columnWidth / 2) {
         closestColZ = 2;
     }
 
@@ -270,7 +270,6 @@ void RubiksCube::updateRotation(float dt, glm::vec3 hitPos, glm::vec3 pullPos) {
         angleDiff = -angleDiff;
     }
 
-    rotationAngle += angleDiff;
 
     std::cout << "Rotation angle: " << rotationAngle << std::endl;
     std::cout << "Rotation axis: " << glm::to_string(rotationAxis) << std::endl;
@@ -279,7 +278,7 @@ void RubiksCube::updateRotation(float dt, glm::vec3 hitPos, glm::vec3 pullPos) {
     std::cout << "Pull position: " << glm::to_string(pullPos) << std::endl;
     std::cout << "Angle diff " << angleDiff << std::endl;
 
-    rotateCurrentColumnForAngle(rotationAngle);
+    rotateCurrentColumnForAngle(angleDiff);
 
 
 }
@@ -351,9 +350,6 @@ void RubiksCube::setCubesOfRotation() {
 
         float positionOnAxis = glm::dot((cubes[i]->position - position), rotationAxis);
 
-        std::cout << "Cube " << i << " position: " << glm::to_string(cubes[i]->position) << std::endl;
-        std::cout << "Position on axis: " << positionOnAxis << std::endl;
-
         int column = 1;
 
         if (positionOnAxis < -1.0f / 2 * columnWidth) {
@@ -363,7 +359,6 @@ void RubiksCube::setCubesOfRotation() {
         }
 
         if (column == rotatingColumn) {
-            std::cout << "Adding cube to rotating cubes" << std::endl;
             rotatingCubes.push_back(cubes[i]);
             originalPositions.push_back(cubes[i]->position);
             originalOrientations.push_back(cubes[i]->orientation);

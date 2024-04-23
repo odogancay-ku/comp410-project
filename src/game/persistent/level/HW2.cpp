@@ -3,7 +3,7 @@
 #include "renderer/Renderer.h"
 #include "camera/Camera.h"
 #include "controller/InputController.h"
-
+#include <random>
 
 void HW2::setup() {
 
@@ -115,11 +115,134 @@ void HW2::setup() {
 
     addObject(pullMark);
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_int_distribution<int> col_dist(0,2);
+    std::uniform_int_distribution<int> axis_dist(0, 2);
+
+    for (int i = 0 ; i < 5; i++) {
+        int col = col_dist(gen);
+        int axis = axis_dist(gen);
+
+        rotationQueue.emplace_back(col, axis);
+    }
 
 }
 
 void HW2::onUpdate(float dt) {
 
+    int dt_floor = (int) rotationQueueAnimationTime;
+
+    if (playForward) {
+        for (int i = 0; i < rotationQueue.size(); i++) {
+
+            if (rotationState < i) {
+                break;
+            }
+
+            auto tuple = rotationQueue[i];
+
+            if (dt_floor > i) {
+                continue;
+            }
+
+            auto [col, axis] = tuple;
+
+            glm::vec3 rotationAxis = glm::vec3(0.0f, 0.0f, 0.0f);
+
+            if (axis == 0) {
+                rotationAxis = glm::vec3(1.0f, 0.0f, 0.0f);
+            } else if (axis == 1) {
+                rotationAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+            } else if (axis == 2) {
+                rotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
+            }
+
+            rubiksCube->rotateColumn(col, 90.0f*dt, rotationAxis);
+
+            rotationQueueAnimationTime += dt;
+
+            if ((int) rotationQueueAnimationTime > rotationState) {
+                std::cout << "Played forward " << col << " " << axis << std::endl;
+                rotationState ++;
+                rubiksCube->finishRotation();
+            }
+
+            if ( rotationState == rotationQueue.size()) {
+                playForward = false;
+                for (auto & cube : rubiksCube->cubes) {
+                    originalFinalPositions.emplace_back(cube->position, cube->orientation);
+                }
+
+            }
+
+            break;
+
+        }
+    }
+
+    if (playBack) {
+
+        for (int i = rotationQueue.size()-1; i >= 0; i--) {
+
+            if (rotationState > i) {
+                break;
+            }
+
+            auto tuple = rotationQueue[i];
+
+            if (dt_floor > (rotationQueue.size()-i)) {
+                continue;
+            }
+
+            auto [col, axis] = tuple;
+
+            glm::vec3 rotationAxis = glm::vec3(0.0f, 0.0f, 0.0f);
+
+            if (axis == 0) {
+                rotationAxis = glm::vec3(1.0f, 0.0f, 0.0f);
+            } else if (axis == 1) {
+                rotationAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+            } else if (axis == 2) {
+                rotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
+            }
+
+            rubiksCube->rotateColumn(col, -90.0f*dt, rotationAxis);
+
+            rotationQueueAnimationTime += dt;
+
+            if ((int) rotationQueueAnimationTime > rotationQueue.size()-rotationState-1) {
+                std::cout << "Played backward " << col << " " << axis << std::endl;
+                rotationState --;
+                rubiksCube->finishRotation();
+            }
+
+            if ( rotationState < 0) {
+                playBack = false;
+
+            }
+
+            break;
+
+        }
+    }
+
+    if (!playForward && !playBack && InputController::keys[GLFW_KEY_S]) {
+        playBack = true;
+        rubiksCube->finishRotation();
+        trackedCube = nullptr;
+
+        rotationQueueAnimationTime = 0.0f;
+
+        for (auto & cube : rubiksCube->cubes) {
+            cube->position = originalFinalPositions[cube->id].first;
+            cube->orientation = originalFinalPositions[cube->id].second;
+        }
+
+        rotationState--;
+
+    }
 
     collisionStick->position = Camera::getActiveInstance()->position;
 
@@ -131,7 +254,7 @@ void HW2::onUpdate(float dt) {
     collisionStick->orientation = Object::pitchYawRollToQuat(glm::vec3(0.0f, -1 * yaw, pitch));
 
 
-    if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS) {
+    if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !playForward && ! playBack) {
 
         float closestDistance = 1000000.0f;
         glm::vec3 closestPoint = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -187,7 +310,6 @@ void HW2::onUpdate(float dt) {
         rubiksCube->updateRotation(dt, hitMark->position, pullMark->position);
 
         if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_RELEASE) {
-
             rubiksCube->finishRotation();
             hitMark->isHidden = true;
             pullMark->isHidden = true;
@@ -201,4 +323,5 @@ void HW2::onUpdate(float dt) {
 
 
 }
+
 

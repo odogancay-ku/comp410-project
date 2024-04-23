@@ -21,12 +21,21 @@ private:
     float trackedCubePullMarkDistance;
     std::vector<std::tuple<glm::vec3, glm::vec3, Object *>> candidateCollisions;
 
-    float rotationState = 0;
+    std::vector<std::pair<glm::vec3, glm::quat>> originalFinalPositions;
+
+    int rotationState = 0;
+    float rotationQueueAnimationTime = 0.0f;
+
+    bool playForward = true;
+    bool playBack = false;
+
+    std::vector<std::tuple<int,int>> rotationQueue;
 
 public:
     void setup() override;
 
     void onUpdate(float dt) override;
+
 
 };
 
