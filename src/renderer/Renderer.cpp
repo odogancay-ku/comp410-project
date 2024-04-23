@@ -64,13 +64,9 @@ void Renderer::checkOpenGLError(const std::string &at) {
     }
 }
 
-struct Vertex {
-    glm::vec3 position;
-    glm::vec3 normal;
-};
 
 
-void Renderer::drawInstancesOfModel(ModelData modelData, std::vector<Object *> *pVector, bool hitboxes) {
+void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Object *> *pVector, bool hitboxes) {
     // Set up VBOs for vertex data and instance-specific data
 
 
@@ -144,19 +140,6 @@ void Renderer::drawInstancesOfModel(ModelData modelData, std::vector<Object *> *
     if (modelMatrixColumns.empty()) {
         return;
     }
-
-    /**
-    layout (location = 0) in vec4 ModelMatrix_Column0; // Same for all indices in same instance
-    layout (location = 1) in vec4 ModelMatrix_Column1; // Same for all indices in same instances
-    layout (location = 2) in vec4 ModelMatrix_Column2; // Same for all indices in same instances
-    layout (location = 3) in vec4 ModelMatrix_Column3; // Same for all indices in same instances
-    layout (location = 4) in vec4 localPosition; // Same for same indices in different instances // Buffer already existing
-    layout (location = 5) in vec4 vertexNormal; // Same for same indices in different instances // Buffer already existing
-    layout (location = 6) in vec4 vertexColor; // Different for all vertices
-
-    uniform mat4 ProjectionMatrix; // Same for all instances and vertices
-    uniform mat4 ViewMatrix; // Same for all instances and vertices
-     */
 
     // TODO USE LOADED DATA
     //std::cout << "Binding VAO: " << modelData.VAO << " " << modelData.VBO << " "<< modelData.EBO << std::endl;

@@ -58,7 +58,7 @@ void ResourceManager::generateBuiltinModels() {
 
     ModelData* sphereModelData = new ModelData();
     sphereModelData->type = ModelTypes::SPHERE;
-    sphereModelData->material = ResourceManager::chrome;
+    sphereModelData->material = ResourceManager::whitePlastic;
 
     ModelData* cylinderModelData = new ModelData();
     cylinderModelData->type = ModelTypes::CYLINDER;

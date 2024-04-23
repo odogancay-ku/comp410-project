@@ -120,6 +120,7 @@ void Game::draw() {
             continue;
         }
 
+
         renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second);
 
         if (this->drawHitboxes) {

@@ -11,8 +11,14 @@
 class HW2 : public Level {
 
 private:
-    RubiksCube* rubiksCube;
-    Object* collisionStick;
+    RubiksCube *rubiksCube;
+    Object *collisionStick;
+    Object *hitMark;
+    Object *pullMark;
+    Object *trackedCube;
+    glm::vec3 trackedCubeHoldPosition;
+    float trackedCubePullMarkDistance;
+    std::vector<std::tuple<glm::vec3, glm::vec3, Object *>> candidateCollisions;
 
 public:
     void setup() override;
