@@ -25,7 +25,7 @@ public:
     float rotationAngle = 0.0f;
     std::vector<Object*> rotatingCubes;
     std::vector<glm::vec3> originalPositions;
-    std::vector<glm::vec3> originalRotations;
+    std::vector<glm::quat> originalOrientations;
 
     void addCubes();
 
@@ -35,7 +35,7 @@ public:
 
     void updateRotation(float dt, glm::vec3 hitPos, glm::vec3 pullPos);
 
-    void rotateCurrentColumnToTargetAngle(float angle);
+    void rotateCurrentColumnForAngle(float angle);
 
     void finishRotation();
 

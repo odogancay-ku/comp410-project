@@ -101,7 +101,6 @@ public:
         dumbObject->modelType = ModelTypes::CUBE;
         dumbObject->position = glm::vec3(roomSize, -roomSize/2+0.5f, -4.0f);
         dumbObject->velocity = glm::vec3(0.0f, 0.0f, 4.0f);
-        dumbObject->rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
 //        dumbObject->angularVelocity = glm::vec3(50.0f, 0.0f, 0.0f);
         dumbObject->canMove = true;
         dumbObject->scale = 1.0;

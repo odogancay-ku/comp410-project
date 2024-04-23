@@ -41,7 +41,7 @@ public:
     glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     glm::vec3 angularVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 angularAcceleration = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -56,6 +56,7 @@ public:
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 
     glm::mat4 getModelMatrix();
+    glm::mat4 getRotationMatrix();
 
     void checkCollision(Object *pObject);
 
@@ -65,6 +66,8 @@ public:
     };
 
     void setOnCollision(std::function<void(glm::vec3, Object *)> callback);
+
+    void rotateAroundPointAndAxis(glm::vec3 point, glm::vec3 axis, float angle);
 
 };
 

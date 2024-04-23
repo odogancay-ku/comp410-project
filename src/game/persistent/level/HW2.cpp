@@ -45,8 +45,8 @@ void HW2::setup() {
 
         // Calculate direction of the ray from collisionStick rotation angles
 
-        float yaw = collisionStick->rotation.y * -1;
-        float pitch = collisionStick->rotation.z;
+        float yaw = collisionStick->orientation.y;
+        float pitch = collisionStick->orientation.x;
 
         float yawRad = glm::radians(yaw + 90.0f);
         float pitchRad = glm::radians(pitch);
@@ -121,8 +121,6 @@ void HW2::setup() {
 
     addObject(pullMark);
 
-    rubiksCube->rotateColumn(0, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-
 
 
 }
@@ -130,14 +128,6 @@ void HW2::setup() {
 void HW2::onUpdate(float dt) {
 
 
-//    rubiksCube->rotateColumn(0, 90.0f*dt, glm::vec3(0.0f, 1.0f, 0.0f));
-//    rubiksCube->rotateColumn(1, 90.0f*dt, glm::vec3(0.0f, 1.0f, 0.0f));
-//    rubiksCube->rotateColumn(2, 90.0f*dt, glm::vec3(0.0f, 1.0f, 0.0f));
-//    rubiksCube->rotateColumn(1, 90.0f*dt, glm::vec3(1.0f, 0.0f, 0.0f));
-//    rubiksCube->rotateColumn(2, 90.0f*dt, glm::vec3(1.0f, 0.0f, 0.0f));
-//    rubiksCube->rotateColumn(0, 90.0f*dt, glm::vec3(0.0f, 0.0f, 1.0f));
-//    rubiksCube->rotateColumn(1, 90.0f*dt, glm::vec3(0.0f, 0.0f, 1.0f));
-    rubiksCube->rotateColumn(2, 10.0f*dt, glm::vec3(0.0f, 0.0f, 1.0f));
 
     collisionStick->position = Camera::getActiveInstance()->position;
 
@@ -146,7 +136,8 @@ void HW2::onUpdate(float dt) {
     float yaw = Camera::getActiveInstance()->yaw;
     float pitch = Camera::getActiveInstance()->pitch;
 
-    collisionStick->rotation = glm::vec3(0.0f, -yaw, pitch);
+    collisionStick->orientation = glm::quat(glm::radians(glm::vec3(pitch, yaw, 0.0f)));
+
 
     if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS) {
 
@@ -192,8 +183,8 @@ void HW2::onUpdate(float dt) {
         // Calculate the direction the camera is looking at, place the pull mark at the distance of the tracked cube
         // from the camera
 
-        float yaw = collisionStick->rotation.y * -1;
-        float pitch = collisionStick->rotation.z;
+        float yaw = collisionStick->orientation.y;
+        float pitch = collisionStick->orientation.x;
 
         float yawRad = glm::radians(yaw + 90.0f);
         float pitchRad = glm::radians(pitch);
@@ -210,7 +201,7 @@ void HW2::onUpdate(float dt) {
 
         rubiksCube->determineAndStartRotation(trackedCube, hitMark->position, pullMark->position);
 
-        rubiksCube->updateRotation(dt,hitMark->position, pullMark->position);
+        rubiksCube->updateRotation(dt, hitMark->position, pullMark->position);
 
         if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_RELEASE) {
 
@@ -221,7 +212,6 @@ void HW2::onUpdate(float dt) {
         }
 
     }
-
 
 
     candidateCollisions.clear();

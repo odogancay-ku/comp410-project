@@ -39,9 +39,6 @@ void Object::update(GLfloat dt, Environment *environment) {
         velocity += acceleration * dt;
     }
 
-    if (canRotate) {
-        rotation += angularVelocity * dt;
-    }
 
     if (canRotate) {
         angularVelocity += angularAcceleration * dt;
@@ -63,9 +60,7 @@ void Object::update(GLfloat dt, Environment *environment) {
 glm::mat4 Object::getModelMatrix() {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
-    model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    model *= glm::mat4_cast(orientation);
     model = glm::scale(model, glm::vec3(scale, scale, scale));
     model = glm::scale(model, stretch);
     return model;
@@ -96,6 +91,31 @@ void Object::paint(float x, float y, float z) {
 void Object::setOnCollision(std::function<void(glm::vec3,Object *)> callback) {
     this->onCollision = std::move(callback);
 }
+
+void Object::rotateAroundPointAndAxis(glm::vec3 point, glm::vec3 axis, float angle) {
+
+    // Translate to origin
+
+    glm::mat4 translation = glm::translate(glm::mat4(1.0f), -point);
+
+    // Rotate
+
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, axis);
+
+    // Translate back
+
+    glm::mat4 translationBack = glm::translate(glm::mat4(1.0f), point);
+
+    glm::mat4 transformation = translationBack * rotation * translation;
+
+    glm::vec4 newPosition = transformation * glm::vec4(position, 1.0f);
+
+    position = glm::vec3(newPosition);
+
+    orientation = glm::normalize(glm::quat_cast(transformation * glm::mat4_cast(orientation)));
+
+}
+
 
 
 
