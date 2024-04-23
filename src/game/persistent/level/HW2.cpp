@@ -121,7 +121,7 @@ void HW2::setup() {
     std::uniform_int_distribution<int> col_dist(0,2);
     std::uniform_int_distribution<int> axis_dist(0, 2);
 
-    for (int i = 0 ; i < 5; i++) {
+    for (int i = 0 ; i < 25; i++) {
         int col = col_dist(gen);
         int axis = axis_dist(gen);
 
@@ -159,9 +159,9 @@ void HW2::onUpdate(float dt) {
                 rotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
             }
 
-            rubiksCube->rotateColumn(col, 90.0f*dt, rotationAxis);
+            rubiksCube->rotateColumn(col, 90.0f*dt*playSpeed, rotationAxis);
 
-            rotationQueueAnimationTime += dt;
+            rotationQueueAnimationTime += dt*playSpeed;
 
             if ((int) rotationQueueAnimationTime > rotationState) {
                 std::cout << "Played forward " << col << " " << axis << std::endl;
@@ -184,15 +184,15 @@ void HW2::onUpdate(float dt) {
 
     if (playBack) {
 
-        for (int i = rotationQueue.size()-1; i >= 0; i--) {
+        for (int i = 0; i <rotationQueue.size(); i++) {
 
-            if (rotationState > i) {
+            if (rotationState < i) {
                 break;
             }
 
-            auto tuple = rotationQueue[i];
+            auto tuple = rotationQueue[rotationQueue.size() - i - 1];
 
-            if (dt_floor > (rotationQueue.size()-i)) {
+            if (dt_floor > i) {
                 continue;
             }
 
@@ -208,17 +208,17 @@ void HW2::onUpdate(float dt) {
                 rotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
             }
 
-            rubiksCube->rotateColumn(col, -90.0f*dt, rotationAxis);
+            rubiksCube->rotateColumn(col, -90.0f*dt*playSpeed, rotationAxis);
 
-            rotationQueueAnimationTime += dt;
+            rotationQueueAnimationTime += dt*playSpeed;
 
-            if ((int) rotationQueueAnimationTime > rotationQueue.size()-rotationState-1) {
+            if ((int) rotationQueueAnimationTime > rotationState) {
                 std::cout << "Played backward " << col << " " << axis << std::endl;
-                rotationState --;
+                rotationState ++;
                 rubiksCube->finishRotation();
             }
 
-            if ( rotationState < 0) {
+            if ( rotationState == rotationQueue.size()) {
                 playBack = false;
 
             }
@@ -240,7 +240,7 @@ void HW2::onUpdate(float dt) {
             cube->orientation = originalFinalPositions[cube->id].second;
         }
 
-        rotationState--;
+        rotationState = 0;
 
     }
 

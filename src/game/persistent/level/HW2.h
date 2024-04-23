@@ -31,6 +31,8 @@ private:
 
     std::vector<std::tuple<int,int>> rotationQueue;
 
+    float playSpeed = 3.0f;
+
 public:
     void setup() override;
 
