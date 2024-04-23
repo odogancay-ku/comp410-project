@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 void RubiksCube::addCubes() {
 
@@ -224,127 +225,162 @@ RubiksCube::determineRotationAxisAndColumn(Object *hitObject, glm::vec3 hitPos, 
 
 }
 
+void RubiksCube::determineAndStartRotation(Object *hitObject, glm::vec3 hitPos, glm::vec3 pullPos) {
 
-void RubiksCube::startRotationOnColumn(int column, glm::vec3 axis) {
-
-    rotationAxis = axis;
-
-    rotationColumn = column;
-
-    std::cout << "Starting rotation on column " << column << std::endl;
-
-    for (auto &cube: cubes) {
-
-        float positionOnAxis = glm::dot((cube->position - position), axis);
-
-        int closestCol = 1;
-
-        if (positionOnAxis < -1.0f / 2 * columnWidth) {
-            closestCol = 0;
-        } else if (positionOnAxis > 1.0f / 2 * columnWidth) {
-            closestCol = 2;
-        }
-
-        if (closestCol == column) {
-            rotatingCubes.push_back(cube);
-            originalPositionsAndRotations.emplace_back(cube->position, cube->rotation);
-        }
-    }
-
-    if (rotatingCubes.size() != 9) {
-        std::cout << "Error: Not all cubes in the column were selected for rotation" << std::endl;
-        std::cout << "Selected: " << rotatingCubes.size() << std::endl;
-        std::cout << "Axis: " << axis.x << " " << axis.y << " " << axis.z << std::endl;
-        std::cout << "Column: " << column << std::endl;
-        exit(1);
-    }
-
-}
-
-void RubiksCube::updateRotation(float dt, Object *hitObject, glm::vec3 hitPoint, glm::vec3 pullPoint) {
-
-    if (rotationColumn == -1) {
+    if (rotatingColumn != -1) {
         return;
     }
 
-    glm::vec3 targetOnRotationCircle = glm::normalize((pullPoint - position) * (glm::vec3(1.0f)-rotationAxis));
-
-    glm::vec3 hitPointOnRotationCircle = glm::normalize((hitPoint - position) * (glm::vec3(1.0f)-rotationAxis));
-
-    float angleDiff = glm::degrees(glm::dot(targetOnRotationCircle, hitPointOnRotationCircle)) + hitPointStartRotationAngle;
-
-
-    if (angleDiff > 1.0f) {
-        rotateCurrentColumn(rotationAngle+angleDiff);
-    }
-
-}
-
-void RubiksCube::rotateCurrentColumn(float angle) {
-
-    for (int i = 0; i < 9; i++) {
-
-        Object *cube = rotatingCubes[i];
-
-
-        glm::vec3 rotationCenter = position + rotationAxis * glm::vec3(rotationColumn - 1);
-
-        cube->position = rotateVectorAroundAxisThroughPoint(originalPositionsAndRotations.at(i).first, rotationAxis, angle,
-                                                            rotationCenter);
-        cube->rotation = originalPositionsAndRotations.at(i).second + rotationAxis * glm::vec3(angle);
-    }
-
-    rotationAngle = angle;
-
-}
-
-void RubiksCube::determineAndStartRotation(Object *hitObject, glm::vec3 hitPoint, glm::vec3 pullPoint) {
-
-    if (glm::distance(hitPoint, pullPoint) < 0.1f) {
+    if (glm::length(pullPos - hitPos) < 0.1f) {
         return;
     }
 
-    if (rotationColumn != -1) {
+    std::pair<int, glm::vec3> rotationAxisAndColumn = determineRotationAxisAndColumn(hitObject, hitPos, pullPos);
+
+    rotatingColumn = rotationAxisAndColumn.first;
+    rotationAxis = rotationAxisAndColumn.second;
+
+    std::cout << "Rotation axis: " << glm::to_string(rotationAxis) << std::endl;
+    std::cout << "Rotating column: " << rotatingColumn << std::endl;
+
+    setCubesOfRotation();
+
+}
+
+void RubiksCube::updateRotation(float dt, glm::vec3 hitPos, glm::vec3 pullPos) {
+
+    if (rotatingColumn == -1) {
         return;
     }
 
-
-    std::pair<int, glm::vec3> rotationAxisAndColumn = determineRotationAxisAndColumn(hitObject, hitPoint, pullPoint);
-
-    startRotationOnColumn(rotationAxisAndColumn.first, rotationAxisAndColumn.second);
+    glm::vec3 centerOfRotation =
+            glm::vec3(rotatingColumn - 1, rotatingColumn - 1, rotatingColumn - 1) * rotationAxis + position;
 
 
-    glm::vec3 hitMarkOnRotationAxis =
-            (hitPoint - position) * (glm::vec3(1.0f) - rotationAxis);
+    glm::vec3 pullOnAxis = (pullPos - centerOfRotation) * (glm::vec3(1.0f) - rotationAxis);
+    glm::vec3 hitOnAxis = (hitPos - centerOfRotation) * (glm::vec3(1.0f) - rotationAxis);
 
-    hitPointStartRotationAngle = glm::degrees(
-            glm::dot(glm::normalize(hitMarkOnRotationAxis),
-                     glm::normalize(glm::vec3(1.0f) - glm::vec3(rotationAxis)))) - 45;
+//    std::cout << "Pull on axis: " << glm::to_string(pullOnAxis) << std::endl;
+//    std::cout << "Hit on axis: " << glm::to_string(hitOnAxis) << std::endl;
+
+    float angleDiff = glm::degrees(glm::angle(glm::normalize(pullOnAxis), glm::normalize(hitOnAxis)));
+
+    glm::vec3 crossProduct = glm::cross(pullOnAxis, hitOnAxis);
+    if (glm::dot(crossProduct, rotationAxis) > 0) {
+        angleDiff = -angleDiff;
+    }
+
+    rotationAngle += angleDiff;
+
+//    std::cout << "Rotation angle: " << rotationAngle << std::endl;
+//    std::cout << "Rotation axis: " << glm::to_string(rotationAxis) << std::endl;
+//    std::cout << "Center of rotation: " << glm::to_string(centerOfRotation) << std::endl;
+//    std::cout << "Hit position: " << glm::to_string(hitPos) << std::endl;
+//    std::cout << "Pull position: " << glm::to_string(pullPos) << std::endl;
+//    std::cout << "Angle diff " << angleDiff << std::endl;
+
+    rotateCurrentColumnToTargetAngle(rotationAngle);
+
 
 }
 
 void RubiksCube::finishRotation() {
 
-    if (rotationColumn == -1) {
+    if (rotatingColumn == -1) {
         return;
     }
 
-    std::cout << "Finishing rotation" << std::endl;
+    float roundedAngle = round(rotationAngle / 90.0f) * 90.0f;
 
-    float roundedRotationAngle = std::round(rotationAngle / 90.0f) * 90.0f;
+    rotateCurrentColumnToTargetAngle(roundedAngle);
 
-    for (int i = 0; i < 9; i++) {
-        rotatingCubes.at(i)->position = originalPositionsAndRotations.at(i).first;
-        rotatingCubes.at(i)->rotation = originalPositionsAndRotations.at(i).second;
+    rotatingColumn = -1;
+    rotatingCubes.clear();
+
+}
+
+void RubiksCube::rotateCurrentColumnToTargetAngle(float angle) {
+
+    if (rotatingColumn == -1) {
+        return;
     }
 
-    rotateCurrentColumn(roundedRotationAngle);
+    glm::vec3 centerOfRotation =
+            glm::vec3(rotatingColumn - 1, rotatingColumn - 1, rotatingColumn - 1) * rotationAxis + position;
 
+    for (int i = 0; i < 9; i++) {
+
+        std::cout << "Rotating cube " << i << " with angle " << angle << std::endl;
+
+        glm::vec3 changeInRotation = angle * rotationAxis;
+
+        std::cout << "Change in rotation: " << glm::to_string(changeInRotation) << std::endl;
+
+        rotatingCubes.at(i)->rotation = originalRotations.at(i) + changeInRotation;
+        rotatingCubes.at(i)->position = rotateVectorAroundAxisThroughPoint(originalPositions.at(i), rotationAxis,
+                                                                           angle, centerOfRotation);
+    }
+
+}
+
+void RubiksCube::rotateColumn(int column, float angle, glm::vec3 axis) {
+
+
+    if (rotatingColumn != column) {
+        rotatingColumn = column;
+        rotationAxis = axis;
+        rotationAngle = 0.0f;
+
+        setCubesOfRotation();
+
+    }
+
+    rotationAngle += angle;
+
+    rotateCurrentColumnToTargetAngle(rotationAngle);
+
+}
+
+void RubiksCube::setCubesOfRotation() {
 
     rotatingCubes.clear();
-    rotationColumn = -1;
-    rotationAxis = glm::vec3(0, 0, 0);
-    rotationAngle = 0.0f;
+    originalPositions.clear();
+    originalRotations.clear();
+
+    for (int i = 0; i < 27; i++) {
+
+        float positionOnAxis = glm::dot((cubes[i]->position - position), rotationAxis);
+
+        std::cout << "Cube " << i << " position: " << glm::to_string(cubes[i]->position) << std::endl;
+        std::cout << "Position on axis: " << positionOnAxis << std::endl;
+
+        int column = 1;
+
+        if (positionOnAxis < -1.0f / 2 * columnWidth) {
+            column = 0;
+        } else if (positionOnAxis > 1.0f / 2 * columnWidth) {
+            column = 2;
+        }
+
+        if (column == rotatingColumn) {
+            std::cout << "Adding cube to rotating cubes" << std::endl;
+            rotatingCubes.push_back(cubes[i]);
+            originalRotations.push_back(cubes[i]->rotation);
+            originalPositions.push_back(cubes[i]->position);
+        }
+
+    }
+
+    if (rotatingCubes.size() != 9) {
+        std::cout << "Error: rotatingCubes size is not 9" << std::endl;
+        exit(1);
+    }
+
 }
+
+
+
+
+
 
 

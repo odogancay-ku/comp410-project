@@ -20,7 +20,7 @@ void HW2::setup() {
 
     std::cout << "HW2 setup" << std::endl;
 
-    rubiksCube = new RubiksCube(glm::vec3(10.0f, 0.0f, 0.0f));
+    rubiksCube = new RubiksCube(glm::vec3(0.0f, 0.0f, 0.0f));
 
     std::cout << "RubiksCube created" << std::endl;
 
@@ -121,12 +121,23 @@ void HW2::setup() {
 
     addObject(pullMark);
 
+    rubiksCube->rotateColumn(0, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+
 
 }
 
 void HW2::onUpdate(float dt) {
 
-//    rubiksCube->rotateColumn(0, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+//    rubiksCube->rotateColumn(0, 90.0f*dt, glm::vec3(0.0f, 1.0f, 0.0f));
+//    rubiksCube->rotateColumn(1, 90.0f*dt, glm::vec3(0.0f, 1.0f, 0.0f));
+//    rubiksCube->rotateColumn(2, 90.0f*dt, glm::vec3(0.0f, 1.0f, 0.0f));
+//    rubiksCube->rotateColumn(1, 90.0f*dt, glm::vec3(1.0f, 0.0f, 0.0f));
+//    rubiksCube->rotateColumn(2, 90.0f*dt, glm::vec3(1.0f, 0.0f, 0.0f));
+//    rubiksCube->rotateColumn(0, 90.0f*dt, glm::vec3(0.0f, 0.0f, 1.0f));
+//    rubiksCube->rotateColumn(1, 90.0f*dt, glm::vec3(0.0f, 0.0f, 1.0f));
+    rubiksCube->rotateColumn(2, 10.0f*dt, glm::vec3(0.0f, 0.0f, 1.0f));
 
     collisionStick->position = Camera::getActiveInstance()->position;
 
@@ -199,19 +210,19 @@ void HW2::onUpdate(float dt) {
 
         rubiksCube->determineAndStartRotation(trackedCube, hitMark->position, pullMark->position);
 
-        rubiksCube->updateRotation(dt, trackedCube, hitMark->position, pullMark->position);
+        rubiksCube->updateRotation(dt,hitMark->position, pullMark->position);
 
+        if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_RELEASE) {
 
-    }
-
-    if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_RELEASE) {
-
-        rubiksCube->finishRotation();
-        hitMark->isHidden = true;
-        pullMark->isHidden = true;
-        trackedCube = nullptr;
+            rubiksCube->finishRotation();
+            hitMark->isHidden = true;
+            pullMark->isHidden = true;
+            trackedCube = nullptr;
+        }
 
     }
+
+
 
     candidateCollisions.clear();
 

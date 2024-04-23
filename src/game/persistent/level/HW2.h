@@ -21,6 +21,8 @@ private:
     float trackedCubePullMarkDistance;
     std::vector<std::tuple<glm::vec3, glm::vec3, Object *>> candidateCollisions;
 
+    float rotationState = 0;
+
 public:
     void setup() override;
 

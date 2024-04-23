@@ -17,34 +17,31 @@ public:
     explicit RubiksCube(const glm::vec3 &position);
 
     Object* cubes[27];
-
     glm::vec3 position;
-
     float columnWidth = 1.0f;
+
+    float rotatingColumn = -1;
+    glm::vec3 rotationAxis = glm::vec3(0.0f, 0.0f, 0.0f);
+    float rotationAngle = 0.0f;
+    std::vector<Object*> rotatingCubes;
+    std::vector<glm::vec3> originalPositions;
+    std::vector<glm::vec3> originalRotations;
 
     void addCubes();
 
-    void rotateCurrentColumn(float angle);
+    std::pair<int,glm::vec3> determineRotationAxisAndColumn(Object* hitObject, glm::vec3 hitPos, glm::vec3 pullPos);
 
+    void determineAndStartRotation(Object* hitObject, glm::vec3 hitPos, glm::vec3 pullPos);
 
+    void updateRotation(float dt, glm::vec3 hitPos, glm::vec3 pullPos);
 
-    int rotationColumn = -1;
-    float rotationAngle = 0.0f;
-    float hitPointStartRotationAngle = 0.0f;
-    glm::vec3 rotationAxis = glm::vec3(0,0,0);
-
-    std::vector<Object*> rotatingCubes;
-    std::vector<std::pair<glm::vec3,glm::vec3>> originalPositionsAndRotations;
-
-    std::pair<int,glm::vec3> determineRotationAxisAndColumn(Object* hitObject, glm::vec3 pos1, glm::vec3 pos2);
-
-    void determineAndStartRotation(Object* hitObject, glm::vec3 hitPoint, glm::vec3 pullPoint);
-
-    void startRotationOnColumn(int column, glm::vec3 axis);
-
-    void updateRotation(float dt, Object* hitObject, glm::vec3 hitPoint, glm::vec3 pullPoint);
+    void rotateCurrentColumnToTargetAngle(float angle);
 
     void finishRotation();
+
+    void setCubesOfRotation();
+
+    void rotateColumn(int column, float angle, glm::vec3 axis);
 
 };
 
