@@ -17,7 +17,8 @@ void HW2::setup() {
     Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
 
 
-    Camera::getActiveInstance()->position = glm::vec3(0.0f, 10.0f, 0.0f);
+    Camera::getActiveInstance()->position = glm::vec3(0.0f, 7.5f, 0.0f);
+    Camera::getActiveInstance()->pitch = -20.0f;
 
     environment = new Earth();
 
@@ -139,7 +140,7 @@ void HW2::setup() {
     addObject(tightRope);
 
 
-    generateSegmentDisplays(glm::vec3(120.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 6.0f, 14.0f);
+    generateSegmentDisplays(glm::vec3(120.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 6.0f, 16.0f);
 
     updateSegmentDisplays();
 

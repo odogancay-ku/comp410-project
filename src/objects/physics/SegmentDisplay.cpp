@@ -130,7 +130,7 @@ SegmentDisplay::SegmentDisplay(glm::vec3 position, glm::quat orientation, float 
     this->position = position;
     this->orientation = orientation;
     this->scale = scale;
-    this->segmentWidth = 0.3f * scale;
+    this->segmentWidth = 0.2f * scale;
 
     segments["a1"] = new Object();
     segments["a1"]->canMove = false;
