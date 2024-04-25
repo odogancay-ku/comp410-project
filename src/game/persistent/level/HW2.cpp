@@ -17,6 +17,8 @@ void HW2::setup() {
     Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
 
 
+    Camera::getActiveInstance()->position = glm::vec3(0.0f, 10.0f, 0.0f);
+
     environment = new Earth();
 
     std::cout << "HW2 setup" << std::endl;
@@ -131,13 +133,45 @@ void HW2::setup() {
     }
 
 
-    tightRope = new TightRope(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.0f, 0.0f), 0.03f, 100, glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.3f, 0.3f, 0.3f));
+    tightRope = new TightRope(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.0f, 0.0f), 0.03f, 100,
+                              glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.3f, 0.3f, 0.3f));
     tightRope->isHidden = true;
     addObject(tightRope);
+
+
+    generateSegmentDisplays(glm::vec3(120.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 6.0f, 14.0f);
+
+    updateSegmentDisplays();
+
+    crossHair = new Object();
+    crossHair->modelType = ModelTypes::SPHERE;
+    crossHair->scale = 0.001f;
+    crossHair->color = glm::vec3(1.0f, 1.0f, 1.0f);
+    crossHair->isHidden = false;
+    crossHair->canMove = false;
+    crossHair->canCollide = false;
+
+    addObject(crossHair);
+
+    std::cout << message << std::endl;
 
 }
 
 void HW2::onUpdate(float dt) {
+
+
+    int message_dt_floor = (int) messageDisplayTime;
+
+    messageDisplayTime += dt*messageSpeed;
+
+    if (message_dt_floor < (int) messageDisplayTime) {
+        writeStringToSegmentDisplays(message.substr(currentMessagePosition, segmentDisplayCount));
+        currentMessagePosition++;
+        if (currentMessagePosition > message.size() - segmentDisplayCount) {
+            currentMessagePosition = 0;
+        }
+    }
+
 
     int dt_floor = (int) rotationQueueAnimationTime;
     int dt_floor2x2 = (int) rotationQueueAnimationTime2x2;
@@ -319,7 +353,8 @@ void HW2::onUpdate(float dt) {
             rotationQueueAnimationTime2x2 += dt * playSpeed2x2;
 
             if ((int) rotationQueueAnimationTime2x2 > rotationState2x2) {
-                std::cout << "Played forward " << col << " " << axis << " " << rotationState2x2 << " " << i << std::endl;
+                std::cout << "Played forward " << col << " " << axis << " " << rotationState2x2 << " " << i
+                          << std::endl;
                 rotationState2x2++;
                 rubiksCube2X2->finishRotation();
             }
@@ -449,6 +484,7 @@ void HW2::onUpdate(float dt) {
 
     collisionStick->orientation = Object::pitchYawRollToQuat(glm::vec3(0.0f, -1 * yaw, pitch));
 
+    crossHair->position = collisionStick->position + collisionStick->orientation * glm::vec3(0.2f, 0.0f, 0.0f);
 
     if (InputController::mouseButtons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !playForward && !playBack &&
         !playForward2x2 && !playBack2x2) {
@@ -553,6 +589,49 @@ void HW2::onUpdate(float dt) {
 
     candidateCollisions.clear();
 
+
+}
+
+void HW2::generateSegmentDisplays(glm::vec3 position, glm::quat orientation, float scale, float spacing) {
+
+    glm::vec3 center = position;
+
+
+
+    for (int i = 0; i < segmentDisplayCount; i++) {
+
+        glm::vec3 segmentPosition = center + glm::vec3(0.0f, 0.0f, (i-ceil(segmentDisplayCount/2.0f)) * spacing);
+
+        glm::vec3 rotatedPosition = orientation * segmentPosition;
+
+        auto *segmentDisplay = new SegmentDisplay(rotatedPosition, orientation, scale);
+
+        std::vector<Object *> segments = segmentDisplay->getAllSegmentsAsVector();
+
+
+        for (auto segment: segments) {
+            addObject(segment);
+        }
+
+        segmentDisplays[i] = segmentDisplay;
+    }
+
+
+}
+
+void HW2::updateSegmentDisplays() {
+
+    for (int i = 0; i < segmentDisplayCount; i++) {
+        segmentDisplays[i]->updateSegments();
+    }
+
+}
+
+void HW2::writeStringToSegmentDisplays(std::string str) {
+
+    for (int i = 0; i < segmentDisplayCount; i++) {
+        segmentDisplays[i]->displayCharacter(str[i]);
+    }
 
 }
 

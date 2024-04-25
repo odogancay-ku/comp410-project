@@ -207,8 +207,6 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
     glEnableVertexAttribArray(6);
 
-
-
     glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
     glBindVertexArray(0);
 

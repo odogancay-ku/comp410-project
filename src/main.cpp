@@ -5,7 +5,6 @@
 #include "controller/InputController.h"
 #include "game/Game.h"
 
-
 // Main function
 int main() {
 
@@ -45,6 +44,7 @@ int main() {
     Game *game = Game::getInstance();
 
     InputController inputController = InputController(window);
+
 
 
     double lastTime = glfwGetTime();
