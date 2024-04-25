@@ -173,9 +173,15 @@ RubiksCube::determineRotationAxisAndColumn(Object *hitObject, glm::vec3 hitPos, 
 
     glm::vec3 displacement = pullPos - hitPos;
 
-    float positionOnAxisX = glm::dot((hitObject->position - position), glm::vec3(1.0f, 0.0f, 0.0f));
-    float positionOnAxisY = glm::dot((hitObject->position - position), glm::vec3(0.0f, 1.0f, 0.0f));
-    float positionOnAxisZ = glm::dot((hitObject->position - position), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::vec3 hitObjectLocalPosition = hitObject->position - position;
+
+    float positionOnAxisX = glm::dot(hitObjectLocalPosition, glm::vec3(1.0f, 0.0f, 0.0f));
+    float positionOnAxisY = glm::dot(hitObjectLocalPosition, glm::vec3(0.0f, 1.0f, 0.0f));
+    float positionOnAxisZ = glm::dot(hitObjectLocalPosition, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    std::cout << "Position on axis X: " << positionOnAxisX << std::endl;
+    std::cout << "Position on axis Y: " << positionOnAxisY << std::endl;
+    std::cout << "Position on axis Z: " << positionOnAxisZ << std::endl;
 
     int closestColX = 1;
 
@@ -201,20 +207,66 @@ RubiksCube::determineRotationAxisAndColumn(Object *hitObject, glm::vec3 hitPos, 
         closestColZ = 2;
     }
 
+    std::cout << "Closest column X: " << closestColX << std::endl;
+    std::cout << "Closest column Y: " << closestColY << std::endl;
+    std::cout << "Closest column Z: " << closestColZ << std::endl;
+
     glm::vec3 centerOfRotationOnXAxisRotation = glm::vec3(closestColX - 1, 0.0f, 0.0f);
     glm::vec3 centerOfRotationOnYAxisRotation = glm::vec3(0.0f, closestColY - 1, 0.0f);
     glm::vec3 centerOfRotationOnZAxisRotation = glm::vec3(0.0f, 0.0f, closestColZ - 1);
 
-    float torqueX = glm::length(glm::cross(displacement, centerOfRotationOnXAxisRotation));
-    float torqueY = glm::length(glm::cross(displacement, centerOfRotationOnYAxisRotation));
-    float torqueZ = glm::length(glm::cross(displacement, centerOfRotationOnZAxisRotation));
+    glm::vec3 maskX = glm::vec3(0.0f, 1.0f, 1.0f);
+    glm::vec3 maskY = glm::vec3(1.0f, 0.0f, 1.0f);
+    glm::vec3 maskZ = glm::vec3(1.0f, 1.0f, 0.0f);
+
+
+    std::cout << "Hit object local position: " << glm::to_string(hitObjectLocalPosition) << std::endl;
+
+    glm::vec3 hitObjectLocalPositionOnXAxis = hitObjectLocalPosition*maskX;
+    glm::vec3 hitObjectLocalPositionOnYAxis = hitObjectLocalPosition*maskY;
+    glm::vec3 hitObjectLocalPositionOnZAxis = hitObjectLocalPosition*maskZ;
+
+    std::cout << "Hit object local position on X axis: " << glm::to_string(hitObjectLocalPositionOnXAxis) << std::endl;
+    std::cout << "Hit object local position on Y axis: " << glm::to_string(hitObjectLocalPositionOnYAxis) << std::endl;
+    std::cout << "Hit object local position on Z axis: " << glm::to_string(hitObjectLocalPositionOnZAxis) << std::endl;
+
+    std::cout << "Displacement: " << glm::to_string(displacement) << std::endl;
+
+    glm::vec3 displacementOnXAxis = displacement*maskX;
+    glm::vec3 displacementOnYAxis = displacement*maskY;
+    glm::vec3 displacementOnZAxis = displacement*maskZ;
+
+    std::cout << "Displacement on X axis: " << glm::to_string(displacementOnXAxis) << std::endl;
+    std::cout << "Displacement on Y axis: " << glm::to_string(displacementOnYAxis) << std::endl;
+    std::cout << "Displacement on Z axis: " << glm::to_string(displacementOnZAxis) << std::endl;
+
+    float torqueX = glm::length(glm::cross(displacementOnXAxis, hitObjectLocalPositionOnXAxis));
+    float torqueY = glm::length(glm::cross(displacementOnYAxis, hitObjectLocalPositionOnYAxis));
+    float torqueZ = glm::length(glm::cross(displacementOnZAxis, hitObjectLocalPositionOnZAxis));
+
+    std::cout << "Torque X: " << torqueX << std::endl;
+    std::cout << "Torque Y: " << torqueY << std::endl;
+    std::cout << "Torque Z: " << torqueZ << std::endl;
 
     if (torqueX > torqueY && torqueX > torqueZ) {
         return {closestColX, glm::vec3(1.0f, 0.0f, 0.0f)};
     } else if (torqueY > torqueX && torqueY > torqueZ) {
         return {closestColY, glm::vec3(0.0f, 1.0f, 0.0f)};
-    } else {
+    } else if (torqueZ > torqueX && torqueZ > torqueY) {
         return {closestColZ, glm::vec3(0.0f, 0.0f, 1.0f)};
+    } else {
+        // Determine precedence, column 2 > 0 > 1
+        int distanceColumnXToCenter = abs(1-closestColX);
+        int distanceColumnYToCenter = abs(1-closestColY);
+        int distanceColumnZToCenter = abs(1-closestColZ);
+
+        if (distanceColumnXToCenter > distanceColumnYToCenter && distanceColumnXToCenter > distanceColumnZToCenter) {
+            return {closestColX, glm::vec3(1.0f, 0.0f, 0.0f)};
+        } else if (distanceColumnYToCenter > distanceColumnXToCenter && distanceColumnYToCenter > distanceColumnZToCenter) {
+            return {closestColY, glm::vec3(0.0f, 1.0f, 0.0f)};
+        } else {
+            return {closestColZ, glm::vec3(0.0f, 0.0f, 1.0f)};
+        }
     }
 
 }
@@ -233,9 +285,6 @@ void RubiksCube::determineAndStartRotation(Object *hitObject, glm::vec3 hitPos, 
 
     rotatingColumn = rotationAxisAndColumn.first;
     rotationAxis = rotationAxisAndColumn.second;
-
-    std::cout << "Rotation axis: " << glm::to_string(rotationAxis) << std::endl;
-    std::cout << "Rotating column: " << rotatingColumn << std::endl;
 
     setCubesOfRotation();
 
@@ -263,14 +312,6 @@ void RubiksCube::updateRotation(float dt, glm::vec3 hitPos, glm::vec3 pullPos) {
     if (glm::dot(crossProduct, rotationAxis) > 0) {
         angleDiff = -angleDiff;
     }
-
-
-    std::cout << "Rotation angle: " << rotationAngle << std::endl;
-    std::cout << "Rotation axis: " << glm::to_string(rotationAxis) << std::endl;
-    std::cout << "Center of rotation: " << glm::to_string(centerOfRotation) << std::endl;
-    std::cout << "Hit position: " << glm::to_string(hitPos) << std::endl;
-    std::cout << "Pull position: " << glm::to_string(pullPos) << std::endl;
-    std::cout << "Angle diff " << angleDiff << std::endl;
 
     rotateCurrentColumnForAngle(angleDiff);
 
