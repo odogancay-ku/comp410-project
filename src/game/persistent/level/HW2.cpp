@@ -3,6 +3,7 @@
 #include "renderer/Renderer.h"
 #include "camera/Camera.h"
 #include "controller/InputController.h"
+#include "objects/physics/TightRope.h"
 #include <random>
 
 void HW2::setup() {
@@ -129,6 +130,10 @@ void HW2::setup() {
         originalStartPositions2x2.emplace_back(cube->position, cube->orientation);
     }
 
+
+    tightRope = new TightRope(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.0f, 0.0f), 0.03f, 100, glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.3f, 0.3f, 0.3f));
+    tightRope->isHidden = true;
+    addObject(tightRope);
 
 }
 
@@ -497,6 +502,9 @@ void HW2::onUpdate(float dt) {
 
         pullMark->isHidden = false;
 
+        tightRope->isHidden = false;
+        tightRope->updateEnds(hitMark->position, pullMark->position);
+
         // Determine if tracked cube belongs to 3x3 cube or 2x2 cube
 
         bool tracking2x2 = false;
@@ -520,6 +528,7 @@ void HW2::onUpdate(float dt) {
                 rubiksCube2X2->finishRotation();
                 hitMark->isHidden = true;
                 pullMark->isHidden = true;
+                tightRope->isHidden = true;
                 trackedCube = nullptr;
             }
 
@@ -533,6 +542,7 @@ void HW2::onUpdate(float dt) {
                 rubiksCube->finishRotation();
                 hitMark->isHidden = true;
                 pullMark->isHidden = true;
+                tightRope->isHidden = true;
                 trackedCube = nullptr;
             }
         }

@@ -8,7 +8,7 @@
 
 #include "Object.h"
 
-class TightRope : Object {
+class TightRope : public Object {
 
 public:
     TightRope(glm::vec3 point1, glm::vec3 point2, float radius, int segments, glm::vec3 colorStart, glm::vec3 colorEnd);

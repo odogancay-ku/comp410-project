@@ -40,11 +40,22 @@ ModelData* generateRope(glm::vec3 point1, glm::vec3 point2, float radius, int se
         v1 = point2 + radius * radial;
         n0 = n1 = glm::normalize(radial);
 
+
         // Add indices for triangles
         int next = (i + 1) % segments;
 
         glm::vec3 color0 = glm::mix(colorStart, colorEnd, static_cast<float>(i) / (segments - 1));
         glm::vec3 color1 = glm::mix(colorStart, colorEnd, static_cast<float>(i + 1) / (segments - 1));
+
+        vertices.push_back(v0);
+        vertices.push_back(v1);
+        normals.push_back(n0);
+        normals.push_back(n1);
+        colors.push_back(color0);
+        colors.push_back(color1);
+
+        indices.push_back(vertices.size() - 2);
+        indices.push_back(vertices.size() - 1);
 
         // First triangle
         vertices.push_back(v0);

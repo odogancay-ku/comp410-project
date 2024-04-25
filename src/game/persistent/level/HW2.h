@@ -8,6 +8,7 @@
 #include "Level.h"
 #include "objects/physics/RubiksCube.h"
 #include "objects/physics/RubiksCube2x2.h"
+#include "objects/physics/TightRope.h"
 
 class HW2 : public Level {
 
@@ -43,6 +44,8 @@ private:
     std::vector<std::tuple<int,int>> rotationQueue2x2;
     float playSpeed2x2 = 5.0f;
     int shuffleCount2x2 = 8;
+
+    TightRope *tightRope;
 
 public:
     void setup() override;
