@@ -63,11 +63,11 @@ void main()
 
     // Diffuse
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.diffuse * material.diffuse;
+    vec3 diffuse = light.diffuse * (diff * material.diffuse);
 
     // Specular
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = spec * light.specular * material.specular;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess*160.0f);
+    vec3 specular = light.specular * (spec * material.specular);
 
     // Combine results
     vec3 result = (ambient + diffuse + specular) * vertexColor;

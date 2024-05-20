@@ -43,12 +43,7 @@ enum ModelTypes {
 // Define a structure to hold vertices and indices
 struct ModelData {
     ModelTypes type;
-    GLuint VAO;
-    GLuint VBO;
-    GLuint EBO;
-
     Material material;
-
     std::vector<glm::vec3> hitboxVertices;
     std::vector<GLuint> hitboxIndices;
     std::vector<glm::vec3> hitboxNormals;

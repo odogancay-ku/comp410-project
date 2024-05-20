@@ -60,7 +60,7 @@ void Renderer::nextFocusedDrawMode() {
 void Renderer::checkOpenGLError(const std::string &at) {
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
-        std::cout << "OpenGL Error at " << at << ": " << error << std::endl;
+        std::cout << "OpenGL Error at " << at << ": " << error << " " << gluErrorString(error) << std::endl;
     }
 }
 
@@ -68,7 +68,6 @@ void Renderer::checkOpenGLError(const std::string &at) {
 
 void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Object *> *pVector, bool hitboxes) {
     // Set up VBOs for vertex data and instance-specific data
-
 
     Material material = modelData.material;
 
@@ -142,11 +141,6 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     if (modelMatrixColumns.empty()) {
         return;
     }
-
-    // TODO USE LOADED DATA
-    //std::cout << "Binding VAO: " << modelData.VAO << " " << modelData.VBO << " "<< modelData.EBO << std::endl;
-    // Bind the VAO that you want to draw
-    //glBindVertexArray(modelData.VAO);
 
     std::vector<glm::vec3> verticesAndNormals = {};
 

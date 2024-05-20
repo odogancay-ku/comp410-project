@@ -10,38 +10,75 @@
 #include "game/persistent/environment/Earth.h"
 #include "Level.h"
 #include "renderer/Renderer.h"
+#include "controller/InputController.h"
+
+struct Light {
+    glm::vec3 lightPos;
+    glm::vec3 lightAmbient;
+    glm::vec3 lightDiffuse;
+    glm::vec3 lightSpecular;
+
+} typedef;
 
 class HW3 : public Level {
 
 
 public:
 
+    Light* light;
+
     Object *dumbObject;
 
     void nextDumbObject() {
         // Use the next enum, if it's the last one, use the first one
         dumbObject->modelType = (ModelTypes) ((dumbObject->modelType + 1) %
-                                              ((int) ModelTypes::END_OF_TYPES_MARKER));
+                                              ((int) ModelTypes::UNIQUE_MODEL));
     }
 
     HW3() {
 
     }
 
+    static inline std::vector<GLuint> shaderPrograms = {};
+
+    static inline std::vector<char *> vertexShaderPaths = {
+            "shaders/blinnPhongVertex.glsl",
+            "shaders/gouraudVertex.glsl",
+            "shaders/phongVertex.glsl"
+    };
+
+    static inline std::vector<char *> fragmentShaderPaths = {
+            "shaders/blinnPhongFragment.glsl",
+            "shaders/gouraudFragment.glsl",
+            "shaders/phongFragment.glsl"
+    };
+
+    static inline int shaderIndex = 0;
+
     void setup() override {
 
+        std::cout << "Creating persistent HW3" << std::endl;
+
+
+        light = new Light;
+
         float roomSize = 15;
+
 
         glm::vec3 lightPos = glm::vec3(roomSize, roomSize / 4, 0.0f);
 //        glm::vec3 lightPos = glm::vec3(0.0f, roomSize/4   , 0.0f);
 
-        glm::vec3 lightAmbient = {0.2f, 0.2f, 0.2f};
-        glm::vec3 lightDiffuse = {0.5f, 0.5f, 0.5f};
-        glm::vec3 lightSpecular = {1.0f, 1.0f, 1.0f};
+        glm::vec3 lightAmbient = {0.1f, 0.1f, 0.1f};
+        glm::vec3 lightDiffuse = {1.0f, 1.0f, 1.0f};
+        glm::vec3 lightSpecular = {0.2f, 0.2f, 0.2f};
+
+        light->lightPos=lightPos;
+        light->lightAmbient=lightAmbient;
+        light->lightDiffuse=lightDiffuse;
+        light->lightSpecular=lightSpecular;
 
         Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
 
-        std::cout << "Creating persistent HW3" << std::endl;
 
 
         std::cout << "Level created" << std::endl;
@@ -109,38 +146,17 @@ public:
         addObject(cube6);
 
         dumbObject = new Object();
-        dumbObject->modelType = ModelTypes::CUBE;
+        dumbObject->modelType = ModelTypes::SPHERE;
         dumbObject->position = glm::vec3(roomSize, -roomSize / 2 + 0.5f, -4.0f);
-        dumbObject->velocity = glm::vec3(0.0f, 0.0f, 4.0f);
-//        dumbObject->angularVelocity = glm::vec3(50.0f, 0.0f, 0.0f);
+        dumbObject->velocity = glm::vec3(3.0f, 2.0f, 4.0f);
         dumbObject->canMove = true;
-        dumbObject->scale = 1.0;
+        dumbObject->scale = 3.0;
         dumbObject->mass = 1.0;
+        dumbObject->applyGravity = false;
         dumbObject->restitution = 1.0;
-//        dumbObject->angularVelocity = glm::vec3 (0.0f, 0.0f, 50.0f);
         dumbObject->paint(1.0f, 0.0f, 0.0f);
         addObject(dumbObject);
 
-        auto *cube7 = new Object();
-        cube7->modelType = ModelTypes::CUBE;
-        cube7->position = glm::vec3(roomSize, -roomSize / 2 + 2.0f, 4.0f);
-        cube7->canMove = true;
-        cube7->scale = 4.0;
-        cube7->mass = 64.0;
-        cube7->restitution = 1.0;
-        cube7->velocity = glm::vec3(0.0f, 0.0f, -4.0f);
-        cube7->paint(0.0f, 1.0f, 0.0f);
-        addObject(cube7);
-
-        auto *maid = new Object();
-        maid->modelType = ModelTypes::MAID;
-        maid->paint(1.0f, 1.0f, 1.0f);
-        maid->position = glm::vec3(roomSize, 0.0f, 0.0f);
-        maid->angularVelocity = glm::vec3(0.0f, 50.0f, 0.0f);
-        maid->canMove = false;
-        maid->canCollide = false;
-        maid->scale = 3.0f;
-        addObject(maid);
 
         std::cout << "WELCOME! Press P to give a little velocity to non static objects" << std::endl;
         std::cout << "Press L to change the object model" << std::endl;
@@ -162,6 +178,38 @@ public:
                 << std::endl;
         std::cout << "Use the mouse wheel to change the fov" << std::endl;
         std::cout << "Have fun!" << std::endl;
+
+        for (int i = 0; i < vertexShaderPaths.size(); i++) {
+            shaderPrograms.push_back(
+                    Renderer::getActiveInstance()->loadShaderProgram(vertexShaderPaths[i], fragmentShaderPaths[i]));
+        }
+
+
+        InputController::addKeyEventAdapter(new KeyEventAdapter(
+
+                [this](int key) {
+                    switch (key) {
+                        case GLFW_KEY_C:
+                            shaderIndex = (shaderIndex + 1) % vertexShaderPaths.size();
+                            std::cout << "Loading shader program: " << shaderPrograms[shaderIndex] <<  std::endl;
+                            Renderer::getActiveInstance()->useShaderProgram(shaderPrograms[shaderIndex]);
+                            Renderer::getActiveInstance()->setLight(light->lightPos,light->lightAmbient,light->lightDiffuse,light->lightDiffuse);
+
+                            break;
+                        case GLFW_KEY_O:
+                            nextDumbObject();
+                            break;
+                        default:
+                            break;
+                    }
+                },
+                [](int key) {
+                },
+                [](int key) {
+                }
+
+        ));
+
     }
 
     void onUpdate(float dt) override {

@@ -123,6 +123,9 @@ public:
     void useShaderProgram(GLuint _shaderProgram) {
         glUseProgram(_shaderProgram);
         checkOpenGLError("useShaderProgram");
+        createAndSetPerspectiveProjectionMatrix(WindowController::getInstance()->getWidth(),
+                                                WindowController::getInstance()->getHeight());
+        createAndSetViewMatrix();
     }
 
     void loadObjectShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath) {
@@ -130,9 +133,10 @@ public:
                                                 fragmentShaderPath);
     }
 
-    void loadSkyboxShaderProgram() {
-        skyboxShaderProgram = loadShaderProgram("shaders/skyboxVertexShader.glsl",
-                                                "shaders/skyboxFragmentShader.glsl");
+    void loadAndUseObjectShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath) {
+        initializeGL();
+        objectShaderProgram = loadShaderProgram(vertexShaderPath, fragmentShaderPath);
+        useShaderProgram(objectShaderProgram);
     }
 
     void useObjectShaderProgram() {
@@ -152,6 +156,8 @@ public:
 
         // Enable depth testing
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+//        glEnable(GL_FRAMEBUFFER_SRGB);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         glGenBuffers(1, &VBO);

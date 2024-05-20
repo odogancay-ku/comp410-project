@@ -25,21 +25,19 @@ int main() {
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    renderer->loadObjectShaderProgram(
-            "shaders/vertexShader-Gouraud.glsl",
-            "shaders/fragmentShader-Gouraud.glsl"
-            );
 //    renderer->loadObjectShaderProgram(
-//            "shaders/vertexShader.glsl",
-//            "shaders/fragmentShader-BlinnPhong.glsl"
+//            "shaders/gouraudVertex.glsl",
+//            "shaders/gouraudFragment.glsl"
 //            );
-    renderer->useObjectShaderProgram();
+    renderer->loadObjectShaderProgram(
+            "shaders/blinnPhongVertex.glsl",
+            "shaders/blinnPhongFragment.glsl"
+            );
 
-    std::cout << "Shader program loaded " << renderer->objectShaderProgram << std::endl;
 
     auto *camera = new Camera();
     Camera::setActiveInstance(camera);
-
+    renderer->useObjectShaderProgram();
     renderer->createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight);
 
 
