@@ -51,6 +51,8 @@ struct ModelData {
     std::vector<GLuint> indices;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec3> colorVertices;
+    std::vector<glm::vec2> textureCoordinates;
+    GLuint texture;
 };
 
 // Resource Manager class to manage loading and sharing of model data
@@ -61,6 +63,8 @@ private:
 
 public:
 
+    static inline GLuint baseTexture = 0;
+
     static ResourceManager &getInstance() {
         static ResourceManager instance;
         return instance;
@@ -68,20 +72,7 @@ public:
 
     static void generateBuiltinModels();
 
-    static void addModel(const int modelIndex, ModelData *modelData) {
-
-        setModelHitbox(modelData);
-
-        models[modelIndex] = modelData;
-
-        std::cout << "Model added: " << modelIndex << std::endl;
-        std::cout << "Model added: " << models[modelIndex]->type << std::endl;
-        std::cout << "Model added: " << models[modelIndex]->indices.size() << std::endl;
-
-//        bufferModelData((ModelTypes) modelIndex, modelData);
-
-
-    }
+    static void addModel(const int modelIndex, ModelData *modelData);
 
     static void setModelHitbox(ModelData* modelData) {
         // Calculate hitbox
@@ -228,7 +219,7 @@ yellow rubber 	0.05 	0.05 	0.0 	0.5 	0.5 	0.4 	0.7 	0.7 	0.04 	.078125
 
 };
 
-void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> &indices,
+void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> &indices, std::vector<glm::vec2> &textureCoordinates,
                     int subdivisions);
 
 ModelData* generateSphereModelData(int subdivisions);
@@ -236,5 +227,18 @@ ModelData* generateSphereModelData(int subdivisions);
 ModelData* generateCubeModelData();
 
 ModelData* generateCubeModelData(glm::vec3 color);
+
+void generateTextureCoordinatesBySphericalProjection(ModelData* modelData);
+
+glm::vec2 sphericalProjection(glm::vec3 vertex);
+
+
+// Function to load PPM file
+bool loadPPM(const char* filename, int& width, int& height, std::vector<unsigned char>& data);
+
+// Function to create an OpenGL texture from the PPM data
+GLuint createTextureFromPPM(const char* filename);
+
+GLuint createBaseTexture();
 
 #endif //RESOURCEMANAGER_H

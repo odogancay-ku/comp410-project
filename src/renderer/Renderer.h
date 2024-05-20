@@ -22,6 +22,7 @@ private:
     static std::vector<Renderer> instances;
 
     GLuint VBO, VAO, EBO;
+    GLuint textureCoordinateVBO;
     GLuint instanceModelMatrixVBO;
     GLuint colorVertexVBO;
     GLfloat nearPlane = 0.1f;
@@ -161,6 +162,7 @@ public:
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         glGenBuffers(1, &VBO);
+        glGenBuffers(1, &textureCoordinateVBO);
         glGenBuffers(1, &EBO);
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &instanceModelMatrixVBO);

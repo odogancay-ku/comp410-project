@@ -6,6 +6,7 @@ layout (location = 3) in vec4 ModelMatrix_Column1;
 layout (location = 4) in vec4 ModelMatrix_Column2;
 layout (location = 5) in vec4 ModelMatrix_Column3;
 layout (location = 6) in vec3 vertexColor;
+layout (location = 7) in vec2 vertexUV;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
@@ -13,6 +14,7 @@ uniform mat4 ViewMatrix;
 out vec3 Normal;
 out vec3 Color;
 out vec3 FragPos;
+out vec2 UV;
 
 struct Material {
     vec3 ambient;
@@ -72,4 +74,5 @@ void main()
     // Combine results
     vec3 result = (ambient + diffuse + specular) * vertexColor;
     Color = result;
+    UV = vertexUV;
 }

@@ -18,10 +18,12 @@ struct Light {
 in vec3 Normal;
 in vec3 Color;
 in vec3 FragPos;
+in vec2 UV;
 
 uniform vec3 viewPos;
 uniform Light light;
 uniform Material material;
+uniform sampler2D textureUnit0;
 
 void main()
 {
@@ -48,7 +50,8 @@ void main()
     vec3 diffuse  = light.diffuse * (diff * material.diffuse);
     vec3 specular = light.specular * (spec * material.specular);
 
-    vec3 result = (ambient + (diffuse + specular)/attenuationFactor) * Color;
+    vec3 texColor = texture(textureUnit0, UV).rgb;
+    vec3 result = (ambient + (diffuse + specular)/attenuationFactor) * Color*texColor;
 
     FragColor = vec4(result, 1.0);
 }

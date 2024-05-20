@@ -154,6 +154,7 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
         }
     }
 
+
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -175,7 +176,9 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
 
+    // After setting vertex attribute pointers for position and normal
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
 
     // Bind this VBO and upload the data to it
@@ -201,8 +204,20 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
     glEnableVertexAttribArray(6);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, modelData.texture);
+
+    glBindBuffer(GL_ARRAY_BUFFER, textureCoordinateVBO);
+    glBufferData(GL_ARRAY_BUFFER, modelData.textureCoordinates.size() * sizeof(glm::vec2),
+                 &modelData.textureCoordinates[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void *) 0);
+    glEnableVertexAttribArray(7);
+
     glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
     glBindVertexArray(0);
+
+
 
     checkOpenGLError("drawInstancesOfModel");
 

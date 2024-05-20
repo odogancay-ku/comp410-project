@@ -8,9 +8,13 @@
 
 
 void ResourceManager::generateBuiltinModels() {
+
+    baseTexture = createBaseTexture();
+
     ModelData *cubeModelData = new ModelData();
     cubeModelData->type = ModelTypes::CUBE;
     cubeModelData->material = ResourceManager::whitePlastic;
+    cubeModelData->texture = baseTexture;
 
     cubeModelData->vertices = {
             glm::vec3(-0.5f, -0.5f, -0.5f),
@@ -59,6 +63,7 @@ void ResourceManager::generateBuiltinModels() {
     ModelData *sphereModelData = new ModelData();
     sphereModelData->type = ModelTypes::SPHERE;
     sphereModelData->material = ResourceManager::whitePlastic;
+    sphereModelData->texture = createTextureFromPPM("assets/textures/earth.ppm");
 
     ModelData *cylinderModelData = new ModelData();
     cylinderModelData->type = ModelTypes::CYLINDER;
@@ -82,7 +87,8 @@ void ResourceManager::generateBuiltinModels() {
     quadModelData->type = ModelTypes::QUAD;
 
 
-    generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices, 5);
+    generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices,
+                   sphereModelData->textureCoordinates, 5);
 
 
     std::cout << "Sphere vertices: " << sphereModelData->vertices.size() << std::endl;
@@ -133,74 +139,25 @@ void ResourceManager::generateExternalModels() {
 
 }
 
-void ResourceManager::bufferModelData(ModelTypes modelType, ModelData *modelData) {
-    // Using modelData create the necessary VBO, VAO, and EBO
-    // positions, normals will be packed together, and color will be packed separately, indices will be in VAO
 
-    std::cout << "Buffering model data for " << modelType << std::endl;
-
-    GLuint VBO, EBO, VAO;
-
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    glGenVertexArrays(1, &VAO);
-
-    // Merge vertices and normals
-
-    std::vector<glm::vec3> verticesAndNormals = {};
-
-    for (int i = 0; i < modelData->vertices.size(); ++i) {
-        verticesAndNormals.push_back(modelData->vertices[i]);
-        // If normal is not available, use the vertex as normal
-        if (i < modelData->normals.size()) {
-            verticesAndNormals.push_back(modelData->normals[i]);
-        } else {
-            verticesAndNormals.push_back(modelData->vertices[i]);
-        }
-    }
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, verticesAndNormals.size() * sizeof(glm::vec3), &verticesAndNormals[0],
-                 GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelData->indices.size() * sizeof(GLuint), &modelData->indices[0],
-                 GL_STATIC_DRAW);
-
-
-    // Set the vertex attribute pointers
-
-    // Position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) 0);
-    glEnableVertexAttribArray(0);
-
-    // Normal
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    modelData->VAO = VAO;
-    modelData->VBO = VBO;
-    modelData->EBO = EBO;
-
-    std::cout << "Buffering model data complete for " << modelType << " " << VAO << " " << VBO << " " << EBO
-              << std::endl;
-
-
-}
-
-
-void divideTriangle(std::vector<glm::vec3> &vertices, const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c,
+void divideTriangle(std::vector<glm::vec3> &vertices, std::vector<glm::vec2> &textureCoordinates, const glm::vec3 &a,
+                    const glm::vec3 &b, const glm::vec3 &c,
                     int depth) {
     if (depth == 0) {
-        vertices.push_back(a / 2.f);
-        vertices.push_back(b / 2.f);
-        vertices.push_back(c / 2.f);
+
+        glm::vec3 vec1 = a / 2.f;
+        glm::vec3 vec2 = b / 2.f;
+        glm::vec3 vec3 = c / 2.f;
+
+        vertices.push_back(vec1);
+        vertices.push_back(vec2);
+        vertices.push_back(vec3);
+
+        // Push texture coordinates
+
+        textureCoordinates.push_back(sphericalProjection(vec1));
+        textureCoordinates.push_back(sphericalProjection(vec2));
+        textureCoordinates.push_back(sphericalProjection(vec3));
     } else {
         // Calculate midpoints
         glm::vec3 ab = glm::normalize(glm::vec3{(a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2});
@@ -208,15 +165,16 @@ void divideTriangle(std::vector<glm::vec3> &vertices, const glm::vec3 &a, const 
         glm::vec3 bc = glm::normalize(glm::vec3{(b.x + c.x) / 2, (b.y + c.y) / 2, (b.z + c.z) / 2});
 
         // Recursively subdivide
-        divideTriangle(vertices, a, ab, ac, depth - 1);
-        divideTriangle(vertices, ab, b, bc, depth - 1);
-        divideTriangle(vertices, ac, bc, c, depth - 1);
-        divideTriangle(vertices, ab, bc, ac, depth - 1);
+        divideTriangle(vertices, textureCoordinates, a, ab, ac, depth - 1);
+        divideTriangle(vertices, textureCoordinates, ab, b, bc, depth - 1);
+        divideTriangle(vertices, textureCoordinates, ac, bc, c, depth - 1);
+        divideTriangle(vertices, textureCoordinates, ab, bc, ac, depth - 1);
     }
 }
 
 // Function to generate normals and indices
 void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> &indices,
+                    std::vector<glm::vec2> &textureCoordinates,
                     int subdivisions) {
     // Initial vertices of a tetrahedron
     glm::vec3 v0 = glm::normalize(glm::vec3{1.0f, 0.0f, -1.0f / std::sqrt(2.0f)});
@@ -225,10 +183,10 @@ void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &no
     glm::vec3 v3 = glm::normalize(glm::vec3{0.0f, -1.0f, 1.0f / std::sqrt(2.0f)});
 
     // Subdivide each face of the tetrahedron
-    divideTriangle(vertices, v0, v2, v3, subdivisions);
-    divideTriangle(vertices, v1, v3, v2, subdivisions);
-    divideTriangle(vertices, v0, v3, v1, subdivisions);
-    divideTriangle(vertices, v0, v1, v2, subdivisions);
+    divideTriangle(vertices, textureCoordinates, v0, v2, v3, subdivisions);
+    divideTriangle(vertices, textureCoordinates, v1, v3, v2, subdivisions);
+    divideTriangle(vertices, textureCoordinates, v0, v3, v1, subdivisions);
+    divideTriangle(vertices, textureCoordinates, v0, v1, v2, subdivisions);
 
     // Calculate normals
     for (auto vertex: vertices) {
@@ -410,13 +368,27 @@ void ResourceManager::normalizeObjectSize(ModelData *modelData) {
     }
 }
 
+void ResourceManager::addModel(const int modelIndex, ModelData *modelData) {
+
+    setModelHitbox(modelData);
+    generateTextureCoordinatesBySphericalProjection(modelData);
+
+    models[modelIndex] = modelData;
+
+    std::cout << "Model added: " << modelIndex << std::endl;
+    std::cout << "Model added: " << models[modelIndex]->type << std::endl;
+    std::cout << "Model added: " << models[modelIndex]->indices.size() << std::endl;
+
+}
+
 
 ModelData *generateSphereModelData(int subdivisions) {
     auto *sphereModelData = new ModelData();
-    sphereModelData->type = ModelTypes::SPHERE;
+    sphereModelData->type = ModelTypes::UNIQUE_MODEL;
     sphereModelData->material = ResourceManager::whitePlastic;
 
-    generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices, subdivisions);
+    generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices,
+                   sphereModelData->textureCoordinates, subdivisions);
 
     glm::vec3 lastColor;
 
@@ -513,14 +485,118 @@ ModelData *generateCubeModelData() {
                                                           glm::vec3(0.0f, 0.0f, 0.0f));
 
 
+    generateTextureCoordinatesBySphericalProjection(cubeModelData);
+
     return cubeModelData;
 }
 
 
 ModelData *generateCubeModelData(glm::vec3 color) {
     ModelData *cubeModelData = generateCubeModelData();
-    for (auto & colorVertice : cubeModelData->colorVertices) {
+    for (auto &colorVertice: cubeModelData->colorVertices) {
         colorVertice = color;
     }
+    cubeModelData->textureCoordinates = {
+            {0.0f, 0.0f},
+            {1.0f, 0.0f},
+            {1.0f, 1.0f},
+            {0.0f, 1.0f},
+            {0.0f, 0.0f},
+            {1.0f, 0.0f},
+            {1.0f, 1.0f},
+            {0.0f, 1.0f}
+    };
+    cubeModelData->texture = ResourceManager::baseTexture;
     return cubeModelData;
+}
+
+void generateTextureCoordinatesBySphericalProjection(ModelData *modelData) {
+    for (auto vertex: modelData->vertices) {
+        modelData->textureCoordinates.emplace_back(sphericalProjection(vertex));
+    }
+}
+
+glm::vec2 sphericalProjection(glm::vec3 vertex) {
+    float theta = atan2(vertex.z, vertex.x);
+    float phi = acos(vertex.y);
+
+    float u = theta / (2 * M_PI);
+    float v = phi / M_PI;
+
+    return {u, v};
+}
+
+bool loadPPM(const char *filename, int &width, int &height, unsigned char *&data) {
+    FILE *fd;
+    int k, nm;
+    char c;
+    int i;
+    char b[100];
+    float s;
+    int red, green, blue;
+    fd = fopen(filename, "r");
+    fscanf(fd, "%[^\n]", b);
+    if (b[0] != 'P' || b[1] != '3') {
+        printf("%s is not a PPM file!\n", filename);
+        exit(0);
+    }
+    fscanf(fd, "%c", &c);
+    while (c == '#') {
+        fscanf(fd, "%[^\n]", b);
+        printf("%s\n", b);
+        fscanf(fd, "%c", &c);
+    }
+    ungetc(c, fd);
+
+    fscanf(fd, "%d %d %d", &width, &height, &k);
+    printf("%d rows  %d columns  max value= %d\n", width, height, k);
+
+    nm = height * width;
+    data = static_cast<unsigned char *>(malloc(3 * sizeof(GLuint) * nm));
+
+    for (i = nm; i > 0; i--) {
+        fscanf(fd, "%d %d %d", &red, &green, &blue);
+        (data)[3 * nm - 3 * i] = red;
+        (data)[3 * nm - 3 * i + 1] = green;
+        (data)[3 * nm - 3 * i + 2] = blue;
+    }
+
+    fclose(fd);
+
+    return true;
+}
+
+GLuint createBaseTexture() {
+    // Create a white texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    unsigned char data[3] = {255, 255, 255};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return texture;
+}
+
+GLuint createTextureFromPPM(const char *filename) {
+    int width, height;
+    unsigned char *data;
+    if (!loadPPM(filename, width, height, data)) {
+        return 0;
+    }
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return texture;
 }

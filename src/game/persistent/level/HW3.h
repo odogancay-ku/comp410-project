@@ -69,6 +69,7 @@ public:
 //        glm::vec3 lightPos = glm::vec3(0.0f, roomSize/4   , 0.0f);
 
         glm::vec3 lightAmbient = {0.1f, 0.1f, 0.1f};
+//        glm::vec3 lightAmbient = {1.0f, 1.0f, 1.0f};
         glm::vec3 lightDiffuse = {1.0f, 1.0f, 1.0f};
         glm::vec3 lightSpecular = {0.2f, 0.2f, 0.2f};
 
@@ -148,13 +149,13 @@ public:
         dumbObject = new Object();
         dumbObject->modelType = ModelTypes::SPHERE;
         dumbObject->position = glm::vec3(roomSize, -roomSize / 2 + 0.5f, -4.0f);
-        dumbObject->velocity = glm::vec3(3.0f, 2.0f, 4.0f);
+//        dumbObject->velocity = glm::vec3(3.0f, 2.0f, 4.0f);
         dumbObject->canMove = true;
         dumbObject->scale = 3.0;
         dumbObject->mass = 1.0;
         dumbObject->applyGravity = false;
         dumbObject->restitution = 1.0;
-        dumbObject->paint(1.0f, 0.0f, 0.0f);
+        dumbObject->paint(1.0f, 1.0f, 1.0f);
         addObject(dumbObject);
 
 
