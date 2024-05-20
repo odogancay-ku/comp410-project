@@ -2,17 +2,12 @@
 // Created by ofaru on 16.03.2024.
 //
 
-#include <complex>
 #include <glm/ext/matrix_float4x4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/trigonometric.hpp>
-#include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 #include "Camera.h"
-#include "objects/physics/Object.h"
-#include "renderer/Renderer.h"
 
-glm::vec3 Camera::originalPosition = glm::vec3(0,0,0);
+glm::vec3 Camera::originalPosition = glm::vec3(0, 0, 0);
 
 Camera::Camera() {
     // Get next id
@@ -31,6 +26,7 @@ Camera::Camera() {
 
     lastDirectionForward = false;
 
+
 }
 
 void Camera::updateOrientation(GLfloat yaw, GLfloat pitch) {
@@ -44,7 +40,7 @@ void Camera::update(GLfloat dt) {
 
 
     if (lastDirectionForward && movingForward) {
-            speed += speed*dt;
+        speed += speed * dt;
     } else {
         speed = originalSpeed;
     }
@@ -76,8 +72,7 @@ void Camera::update(GLfloat dt) {
         velocity -= glm::vec3(0, 1, 0);
     }
 
-    if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0){
-
+    if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0) {
 
 
         velocity = glm::normalize(velocity) * speed;
@@ -124,7 +119,6 @@ void Camera::reset() {
     pitch = originalPitch;
     speed = originalSpeed;
     fov = originalFov;
-
 
 
 }

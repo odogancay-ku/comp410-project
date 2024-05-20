@@ -18,13 +18,18 @@ void main()
 {
 
     mat4 ModelMatrix = mat4(1.0);
-    
+
     ModelMatrix[0] = ModelMatrix_Column0;
     ModelMatrix[1] = ModelMatrix_Column1;
     ModelMatrix[2] = ModelMatrix_Column2;
     ModelMatrix[3] = ModelMatrix_Column3;
-    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(localPosition,1.0);
-    FragPos = vec3(ModelMatrix * vec4(localPosition,1.0));
-    Normal = mat3(transpose(inverse(ModelMatrix))) * vertexNormal;
+
+    vec4 worldPosition = ModelMatrix * vec4(localPosition, 1.0);
+    mat3 normalMatrix = mat3(transpose(inverse(ModelMatrix)));
+
+
+    gl_Position = ProjectionMatrix * ViewMatrix * worldPosition;
+    FragPos = vec3(worldPosition);
+    Normal = normalize(normalMatrix * vertexNormal);
     Color = vertexColor;
 }

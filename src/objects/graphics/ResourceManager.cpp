@@ -8,7 +8,7 @@
 
 
 void ResourceManager::generateBuiltinModels() {
-    ModelData* cubeModelData = new ModelData();
+    ModelData *cubeModelData = new ModelData();
     cubeModelData->type = ModelTypes::CUBE;
     cubeModelData->material = ResourceManager::whitePlastic;
 
@@ -56,35 +56,33 @@ void ResourceManager::generateBuiltinModels() {
 
     ResourceManager::addModel(ModelTypes::CUBE, cubeModelData);
 
-    ModelData* sphereModelData = new ModelData();
+    ModelData *sphereModelData = new ModelData();
     sphereModelData->type = ModelTypes::SPHERE;
     sphereModelData->material = ResourceManager::whitePlastic;
 
-    ModelData* cylinderModelData = new ModelData();
+    ModelData *cylinderModelData = new ModelData();
     cylinderModelData->type = ModelTypes::CYLINDER;
 
-    ModelData* coneModelData = new ModelData();
+    ModelData *coneModelData = new ModelData();
     coneModelData->type = ModelTypes::CONE;
 
-    ModelData* torusModelData = new ModelData();
+    ModelData *torusModelData = new ModelData();
     torusModelData->type = ModelTypes::TORUS;
 
-    ModelData* teapotModelData = new ModelData();
+    ModelData *teapotModelData = new ModelData();
     teapotModelData->type = ModelTypes::TEAPOT;
 
-    ModelData* planeModelData = new ModelData();
+    ModelData *planeModelData = new ModelData();
     planeModelData->type = ModelTypes::PLANE;
 
-    ModelData* skyboxModelData = new ModelData();
+    ModelData *skyboxModelData = new ModelData();
     skyboxModelData->type = ModelTypes::SKYBOX;
 
-    ModelData* quadModelData = new ModelData();
+    ModelData *quadModelData = new ModelData();
     quadModelData->type = ModelTypes::QUAD;
 
 
-
     generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices, 5);
-
 
 
     std::cout << "Sphere vertices: " << sphereModelData->vertices.size() << std::endl;
@@ -100,9 +98,9 @@ void ResourceManager::generateBuiltinModels() {
         float b = (float) rand() / RAND_MAX;
 
         if (i > 0) {
-            r = (r + 9*lastColor.x) / 10;
-            g = (g + 9*lastColor.y) / 10;
-            b = (b + 9*lastColor.z) / 10;
+            r = (r + 9 * lastColor.x) / 10;
+            g = (g + 9 * lastColor.y) / 10;
+            b = (b + 9 * lastColor.z) / 10;
         }
 
         glm::vec3 color = glm::vec3(r, g, b);
@@ -120,14 +118,14 @@ void ResourceManager::generateBuiltinModels() {
 void ResourceManager::generateExternalModels() {
 
 
-    ModelData* bunnyModelData = new ModelData();
+    ModelData *bunnyModelData = new ModelData();
     bunnyModelData->type = ModelTypes::BUNNY;
     bunnyModelData->material = ResourceManager::gold;
 
     ResourceManager::loadModel("assets/models/bunny.off", bunnyModelData);
 
 
-    ModelData* maidModelData = new ModelData();
+    ModelData *maidModelData = new ModelData();
     maidModelData->type = ModelTypes::MAID;
     maidModelData->material = ResourceManager::silver;
 
@@ -135,7 +133,7 @@ void ResourceManager::generateExternalModels() {
 
 }
 
-void ResourceManager::bufferModelData(ModelTypes modelType, ModelData* modelData) {
+void ResourceManager::bufferModelData(ModelTypes modelType, ModelData *modelData) {
     // Using modelData create the necessary VBO, VAO, and EBO
     // positions, normals will be packed together, and color will be packed separately, indices will be in VAO
 
@@ -200,9 +198,9 @@ void ResourceManager::bufferModelData(ModelTypes modelType, ModelData* modelData
 void divideTriangle(std::vector<glm::vec3> &vertices, const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c,
                     int depth) {
     if (depth == 0) {
-        vertices.push_back(a/2.f);
-        vertices.push_back(b/2.f);
-        vertices.push_back(c/2.f);
+        vertices.push_back(a / 2.f);
+        vertices.push_back(b / 2.f);
+        vertices.push_back(c / 2.f);
     } else {
         // Calculate midpoints
         glm::vec3 ab = glm::normalize(glm::vec3{(a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2});
@@ -243,7 +241,7 @@ void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &no
     }
 }
 
-void ResourceManager::loadModel(const std::string &filePath, ModelData* modelData) {
+void ResourceManager::loadModel(const std::string &filePath, ModelData *modelData) {
 
     // Load model data from file
     std::ifstream file(filePath);
@@ -284,9 +282,9 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData* modelDat
         float b = (float) rand() / RAND_MAX;
 
         if (i > 0) {
-            r = (r + 3*lastColor.x) / 4;
-            g = (g + 3*lastColor.y) / 4;
-            b = (b + 3*lastColor.z) / 4;
+            r = (r + 3 * lastColor.x) / 4;
+            g = (g + 3 * lastColor.y) / 4;
+            b = (b + 3 * lastColor.z) / 4;
         }
 
         glm::vec3 color = glm::vec3(r, g, b);
@@ -376,7 +374,7 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData* modelDat
 
 // Helper Method To Normalize Object Sizes
 
-void ResourceManager::normalizeObjectSize(ModelData* modelData) {
+void ResourceManager::normalizeObjectSize(ModelData *modelData) {
     // Calculate the smallest bounding box
     glm::vec3 min = modelData->vertices[0];
     glm::vec3 max = modelData->vertices[0];
@@ -413,4 +411,116 @@ void ResourceManager::normalizeObjectSize(ModelData* modelData) {
 }
 
 
+ModelData *generateSphereModelData(int subdivisions) {
+    auto *sphereModelData = new ModelData();
+    sphereModelData->type = ModelTypes::SPHERE;
+    sphereModelData->material = ResourceManager::whitePlastic;
 
+    generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices, subdivisions);
+
+    glm::vec3 lastColor;
+
+    for (int i = 0; i < sphereModelData->vertices.size(); ++i) {
+        // Generate a random color that is close to the last one
+        float r = (float) rand() / RAND_MAX;
+        float g = (float) rand() / RAND_MAX;
+        float b = (float) rand() / RAND_MAX;
+
+        if (i > 0) {
+            r = (r + 9 * lastColor.x) / 10;
+            g = (g + 9 * lastColor.y) / 10;
+            b = (b + 9 * lastColor.z) / 10;
+        }
+
+        glm::vec3 color = glm::vec3(r, g, b);
+
+        sphereModelData->colorVertices.push_back(color);
+
+        lastColor = color;
+    }
+
+    return sphereModelData;
+}
+
+ModelData *generateCubeModelData() {
+    auto *cubeModelData = new ModelData();
+    cubeModelData->type = ModelTypes::UNIQUE_MODEL;
+    cubeModelData->material = ResourceManager::whitePlastic;
+
+    cubeModelData->vertices = {
+            glm::vec3(-0.5f, -0.5f, -0.5f),
+            glm::vec3(0.5f, -0.5f, -0.5f),
+            glm::vec3(0.5f, 0.5f, -0.5f),
+            glm::vec3(-0.5f, 0.5f, -0.5f),
+            glm::vec3(-0.5f, -0.5f, 0.5f),
+            glm::vec3(0.5f, -0.5f, 0.5f),
+            glm::vec3(0.5f, 0.5f, 0.5f),
+            glm::vec3(-0.5f, 0.5f, 0.5f)
+    };
+
+    cubeModelData->indices = {
+            0, 1, 2, 2, 3, 0,
+            1, 5, 6, 6, 2, 1,
+            7, 6, 5, 5, 4, 7,
+            4, 0, 3, 3, 7, 4,
+            3, 2, 6, 6, 7, 3,
+            4, 5, 1, 1, 0, 4
+    };
+
+    cubeModelData->normals = {
+            glm::vec3(-1.0f, -1.0f, -1.0f), // Front bottom left
+            glm::vec3(1.0f, -1.0f, -1.0f),  // Front bottom right
+            glm::vec3(1.0f, 1.0f, -1.0f),   // Front top right
+            glm::vec3(-1.0f, 1.0f, -1.0f),  // Front top left
+            glm::vec3(-1.0f, -1.0f, 1.0f),  // Back bottom left
+            glm::vec3(1.0f, -1.0f, 1.0f),   // Back bottom right
+            glm::vec3(1.0f, 1.0f, 1.0f),    // Back top right
+            glm::vec3(-1.0f, 1.0f, 1.0f)    // Back top left
+    };
+
+    cubeModelData->colorVertices = {
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)
+    };
+
+    cubeModelData->hitboxVertices = {
+            glm::vec3(-0.5f, -0.5f, -0.5f),
+            glm::vec3(0.5f, -0.5f, -0.5f),
+            glm::vec3(0.5f, 0.5f, -0.5f),
+            glm::vec3(-0.5f, 0.5f, -0.5f),
+            glm::vec3(-0.5f, -0.5f, 0.5f),
+            glm::vec3(0.5f, -0.5f, 0.5f),
+            glm::vec3(0.5f, 0.5f, 0.5f),
+            glm::vec3(-0.5f, 0.5f, 0.5f)
+    };
+
+    cubeModelData->hitboxIndices = {
+            0, 1, 2, 2, 3, 0,
+            1, 5, 6, 6, 2, 1,
+            7, 6, 5, 5, 4, 7,
+            4, 0, 3, 3, 7, 4,
+            3, 2, 6, 6, 7, 3,
+            4, 5, 1, 1, 0, 4
+    };
+
+    cubeModelData->hitboxNormals = std::vector<glm::vec3>(cubeModelData->hitboxVertices.size(),
+                                                          glm::vec3(0.0f, 0.0f, 0.0f));
+
+
+    return cubeModelData;
+}
+
+
+ModelData *generateCubeModelData(glm::vec3 color) {
+    ModelData *cubeModelData = generateCubeModelData();
+    for (auto & colorVertice : cubeModelData->colorVertices) {
+        colorVertice = color;
+    }
+    return cubeModelData;
+}

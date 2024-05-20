@@ -25,7 +25,14 @@ int main() {
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    renderer->loadObjectShaderProgram();
+    renderer->loadObjectShaderProgram(
+            "shaders/vertexShader-Gouraud.glsl",
+            "shaders/fragmentShader-Gouraud.glsl"
+            );
+//    renderer->loadObjectShaderProgram(
+//            "shaders/vertexShader.glsl",
+//            "shaders/fragmentShader-BlinnPhong.glsl"
+//            );
     renderer->useObjectShaderProgram();
 
     std::cout << "Shader program loaded " << renderer->objectShaderProgram << std::endl;
@@ -43,7 +50,7 @@ int main() {
 
     Game *game = Game::getInstance();
 
-    InputController inputController = InputController(window);
+    InputController::init(window);
 
 
 

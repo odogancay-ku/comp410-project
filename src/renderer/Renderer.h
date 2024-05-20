@@ -125,19 +125,14 @@ public:
         checkOpenGLError("useShaderProgram");
     }
 
-    void loadObjectShaderProgram() {
-        objectShaderProgram = loadShaderProgram("shaders/vertexShader.glsl",
-                                                "shaders/fragmentShader.glsl");
+    void loadObjectShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath) {
+        objectShaderProgram = loadShaderProgram(vertexShaderPath,
+                                                fragmentShaderPath);
     }
 
     void loadSkyboxShaderProgram() {
         skyboxShaderProgram = loadShaderProgram("shaders/skyboxVertexShader.glsl",
                                                 "shaders/skyboxFragmentShader.glsl");
-    }
-
-    void loadShaderPrograms() {
-        loadObjectShaderProgram();
-        loadSkyboxShaderProgram();
     }
 
     void useObjectShaderProgram() {

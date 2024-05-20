@@ -236,4 +236,10 @@ yellow rubber 	0.05 	0.05 	0.0 	0.5 	0.5 	0.4 	0.7 	0.7 	0.04 	.078125
 void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> &indices,
                     int subdivisions);
 
+ModelData* generateSphereModelData(int subdivisions);
+
+ModelData* generateCubeModelData();
+
+ModelData* generateCubeModelData(glm::vec3 color);
+
 #endif //RESOURCEMANAGER_H

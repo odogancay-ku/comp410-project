@@ -272,57 +272,57 @@ void HW2::onUpdate(float dt) {
 
         }
     }
-
-    if (!playForward && !playBack && InputController::keys[GLFW_KEY_N] && !originalFinalPositions.empty()) {
-        playBack = true;
-        rubiksCube->finishRotation();
-        trackedCube = nullptr;
-
-        rotationQueueAnimationTime = 0.0f;
-
-        for (int i = 0; i < 27; i++) {
-            auto &cube = rubiksCube->cubes[i];
-            cube->position = originalFinalPositions[i].first;
-            cube->orientation = originalFinalPositions[i].second;
-        }
-
-        rotationState = 0;
-
-    }
-
-    if (!playForward && !playBack && InputController::keys[GLFW_KEY_M]) {
-
-        rotationQueue.clear();
-        originalFinalPositions.clear();
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-
-        std::uniform_int_distribution<int> col_dist(0, 2);
-        std::uniform_int_distribution<int> axis_dist(0, 2);
-
-
-        for (int i = 0; i < shuffleCount; i++) {
-            int col = col_dist(gen);
-            int axis = axis_dist(gen);
-
-            rotationQueue.emplace_back(col, axis);
-        }
-
-        playForward = true;
-        rubiksCube->finishRotation();
-        trackedCube = nullptr;
-
-        rotationQueueAnimationTime = 0.0f;
-
-        for (int i = 0; i < 27; i++) {
-            auto &cube = rubiksCube->cubes[i];
-            cube->position = originalStartPositions[i].first;
-            cube->orientation = originalStartPositions[i].second;
-        }
-
-        rotationState = 0;
-    }
+//
+//    if (!playForward && !playBack && InputController::keys[GLFW_KEY_N] && !originalFinalPositions.empty()) {
+//        playBack = true;
+//        rubiksCube->finishRotation();
+//        trackedCube = nullptr;
+//
+//        rotationQueueAnimationTime = 0.0f;
+//
+//        for (int i = 0; i < 27; i++) {
+//            auto &cube = rubiksCube->cubes[i];
+//            cube->position = originalFinalPositions[i].first;
+//            cube->orientation = originalFinalPositions[i].second;
+//        }
+//
+//        rotationState = 0;
+//
+//    }
+//
+//    if (!playForward && !playBack && InputController::keys[GLFW_KEY_M]) {
+//
+//        rotationQueue.clear();
+//        originalFinalPositions.clear();
+//
+//        std::random_device rd;
+//        std::mt19937 gen(rd());
+//
+//        std::uniform_int_distribution<int> col_dist(0, 2);
+//        std::uniform_int_distribution<int> axis_dist(0, 2);
+//
+//
+//        for (int i = 0; i < shuffleCount; i++) {
+//            int col = col_dist(gen);
+//            int axis = axis_dist(gen);
+//
+//            rotationQueue.emplace_back(col, axis);
+//        }
+//
+//        playForward = true;
+//        rubiksCube->finishRotation();
+//        trackedCube = nullptr;
+//
+//        rotationQueueAnimationTime = 0.0f;
+//
+//        for (int i = 0; i < 27; i++) {
+//            auto &cube = rubiksCube->cubes[i];
+//            cube->position = originalStartPositions[i].first;
+//            cube->orientation = originalStartPositions[i].second;
+//        }
+//
+//        rotationState = 0;
+//    }
 
     if (playForward2x2) {
         for (int i = 0; i < rotationQueue2x2.size(); i++) {
@@ -421,60 +421,60 @@ void HW2::onUpdate(float dt) {
         }
     }
 
-    if (!playForward2x2 && !playBack2x2 && InputController::keys[GLFW_KEY_J] && !originalFinalPositions2x2.empty()) {
-        playBack2x2 = true;
-        rubiksCube2X2->finishRotation();
-        trackedCube = nullptr;
-
-        rotationQueueAnimationTime2x2 = 0.0f;
-
-        for (int i = 0; i < 8; i++) {
-            auto &cube = rubiksCube2X2->cubes[i];
-            cube->position = originalFinalPositions2x2.at(i).first;
-            cube->orientation = originalFinalPositions2x2.at(i).second;
-        }
-
-        rotationState2x2 = 0;
-
-    }
-
-    if (!playForward2x2 && !playBack2x2 && InputController::keys[GLFW_KEY_K]) {
-
-        rotationQueue2x2.clear();
-        originalFinalPositions2x2.clear();
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-
-        std::uniform_int_distribution<int> col_dist(0, 9);
-        std::uniform_int_distribution<int> axis_dist(0, 2);
-
-
-        for (int i = 0; i < shuffleCount2x2; i++) {
-            int col = col_dist(gen) > 5 ? 1 : 0;
-            int axis = axis_dist(gen);
-
-            std::cout << "col: " << col << " axis " << axis << std::endl;
-
-            rotationQueue2x2.emplace_back(col, axis);
-        }
-
-        playForward2x2 = true;
-        rubiksCube2X2->finishRotation();
-        trackedCube = nullptr;
-
-        rotationQueueAnimationTime2x2 = 0.0f;
-
-        for (int i = 0; i < 8; i++) {
-            std::cout << "Reset cube: " << i << std::endl;
-            auto &cube = rubiksCube2X2->cubes[i];
-            cube->position = originalStartPositions2x2.at(i).first;
-            cube->orientation = originalStartPositions2x2.at(i).second;
-        }
-
-        rotationState2x2 = 0;
-    }
-
+//    if (!playForward2x2 && !playBack2x2 && InputController::keys[GLFW_KEY_J] && !originalFinalPositions2x2.empty()) {
+//        playBack2x2 = true;
+//        rubiksCube2X2->finishRotation();
+//        trackedCube = nullptr;
+//
+//        rotationQueueAnimationTime2x2 = 0.0f;
+//
+//        for (int i = 0; i < 8; i++) {
+//            auto &cube = rubiksCube2X2->cubes[i];
+//            cube->position = originalFinalPositions2x2.at(i).first;
+//            cube->orientation = originalFinalPositions2x2.at(i).second;
+//        }
+//
+//        rotationState2x2 = 0;
+//
+//    }
+//
+//    if (!playForward2x2 && !playBack2x2 && InputController::keys[GLFW_KEY_K]) {
+//
+//        rotationQueue2x2.clear();
+//        originalFinalPositions2x2.clear();
+//
+//        std::random_device rd;
+//        std::mt19937 gen(rd());
+//
+//        std::uniform_int_distribution<int> col_dist(0, 9);
+//        std::uniform_int_distribution<int> axis_dist(0, 2);
+//
+//
+//        for (int i = 0; i < shuffleCount2x2; i++) {
+//            int col = col_dist(gen) > 5 ? 1 : 0;
+//            int axis = axis_dist(gen);
+//
+//            std::cout << "col: " << col << " axis " << axis << std::endl;
+//
+//            rotationQueue2x2.emplace_back(col, axis);
+//        }
+//
+//        playForward2x2 = true;
+//        rubiksCube2X2->finishRotation();
+//        trackedCube = nullptr;
+//
+//        rotationQueueAnimationTime2x2 = 0.0f;
+//
+//        for (int i = 0; i < 8; i++) {
+//            std::cout << "Reset cube: " << i << std::endl;
+//            auto &cube = rubiksCube2X2->cubes[i];
+//            cube->position = originalStartPositions2x2.at(i).first;
+//            cube->orientation = originalStartPositions2x2.at(i).second;
+//        }
+//
+//        rotationState2x2 = 0;
+//    }
+//
 
     collisionStick->position = Camera::getActiveInstance()->position;
 
