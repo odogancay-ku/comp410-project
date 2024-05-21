@@ -149,8 +149,10 @@ public:
         dumbObject = new Object();
         dumbObject->modelType = ModelTypes::SPHERE;
         dumbObject->position = glm::vec3(roomSize, -roomSize / 2 + 0.5f, -4.0f);
-//        dumbObject->velocity = glm::vec3(3.0f, 2.0f, 4.0f);
+        dumbObject->velocity = glm::vec3(3.0f, 2.0f, 4.0f);
+        dumbObject->angularVelocity = glm::vec3(0.0f, 1.0f, 1.0f);
         dumbObject->canMove = true;
+        dumbObject->canRotate = true;
         dumbObject->scale = 3.0;
         dumbObject->mass = 1.0;
         dumbObject->applyGravity = false;

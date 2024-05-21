@@ -55,6 +55,10 @@ void Object::update(GLfloat dt, Environment *environment) {
         position += velocity * dt;
     }
 
+    if (canRotate) {
+        orientation = glm::normalize(orientation + dt * glm::quat(0.0f, angularVelocity.x, angularVelocity.y, angularVelocity.z) * orientation);
+    }
+
 }
 
 glm::mat4 Object::getModelMatrix() {
