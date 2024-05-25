@@ -73,6 +73,7 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
 
     bool drawUnique = modelData.type == ModelTypes::UNIQUE_MODEL;
 
+
     setMaterial(material);
 
     GLuint instanceCount = pVector->size();
@@ -107,6 +108,7 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
 
 
     } else {
+
         vertices = modelData.vertices;
         normals = modelData.normals;
         indices = modelData.indices;

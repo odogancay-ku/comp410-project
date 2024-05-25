@@ -73,6 +73,7 @@ int main() {
         lastTime = currentTime;
 
 
+
         while (deltaTime > dt_step) {
             game->checkCollisions();
             game->update(dt_step);
@@ -81,6 +82,7 @@ int main() {
 
         game->checkCollisions();
         game->update(deltaTime);
+
 
         game->draw();
 

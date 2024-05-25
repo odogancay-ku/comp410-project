@@ -118,9 +118,19 @@ void Game::draw() {
             for (auto object: pair.second) {
                 std::vector<Object*> v = {object};
                 renderer->drawInstancesOfModel(*object->modelData, &v);
+
+
+            }
+
+            for (auto object: pair.second) {
+                if (this->drawHitboxes) {
+                    std::vector<Object*> v = {object};
+                    renderer->drawInstancesOfModel(*object->modelData, &v, true);
+                }
             }
 
             continue;
+
         }
 
 

@@ -63,7 +63,7 @@ void ResourceManager::generateBuiltinModels() {
     ModelData *sphereModelData = new ModelData();
     sphereModelData->type = ModelTypes::SPHERE;
     sphereModelData->material = ResourceManager::whitePlastic;
-    sphereModelData->texture = createTextureFromPPM("assets/textures/earth.ppm");
+    sphereModelData->texture = createTextureFromPPM("assets/textures/basketball.ppm");
 
     ModelData *cylinderModelData = new ModelData();
     cylinderModelData->type = ModelTypes::CYLINDER;
@@ -88,7 +88,7 @@ void ResourceManager::generateBuiltinModels() {
 
 
     generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices,
-                   sphereModelData->textureCoordinates, 5);
+                   sphereModelData->textureCoordinates, sphereModelData->colorVertices, 6);
 
 
     std::cout << "Sphere vertices: " << sphereModelData->vertices.size() << std::endl;
@@ -126,14 +126,14 @@ void ResourceManager::generateExternalModels() {
 
     ModelData *bunnyModelData = new ModelData();
     bunnyModelData->type = ModelTypes::BUNNY;
-    bunnyModelData->material = ResourceManager::gold;
+    bunnyModelData->material = ResourceManager::whitePlastic;
 
     ResourceManager::loadModel("assets/models/bunny.off", bunnyModelData);
 
 
     ModelData *maidModelData = new ModelData();
     maidModelData->type = ModelTypes::MAID;
-    maidModelData->material = ResourceManager::silver;
+    maidModelData->material = ResourceManager::whitePlastic;
 
     ResourceManager::loadModel("assets/models/maid.off", maidModelData);
 
@@ -172,9 +172,34 @@ void divideTriangle(std::vector<glm::vec3> &vertices, std::vector<glm::vec2> &te
     }
 }
 
+void generateSphereModelData(ModelData* modelData, int subdivisions) {
+    // Initial vertices of a tetrahedron
+    glm::vec3 v0 = glm::normalize(glm::vec3{1.0f, 0.0f, -1.0f / std::sqrt(2.0f)});
+    glm::vec3 v1 = glm::normalize(glm::vec3{-1.0f, 0.0f, -1.0f / std::sqrt(2.0f)});
+    glm::vec3 v2 = glm::normalize(glm::vec3{0.0f, 1.0f, 1.0f / std::sqrt(2.0f)});
+    glm::vec3 v3 = glm::normalize(glm::vec3{0.0f, -1.0f, 1.0f / std::sqrt(2.0f)});
+
+    // Subdivide each face of the tetrahedron
+    divideTriangle(modelData->vertices, modelData->textureCoordinates, v0, v2, v3, subdivisions);
+    divideTriangle(modelData->vertices, modelData->textureCoordinates, v1, v3, v2, subdivisions);
+    divideTriangle(modelData->vertices, modelData->textureCoordinates, v0, v3, v1, subdivisions);
+    divideTriangle(modelData->vertices, modelData->textureCoordinates, v0, v1, v2, subdivisions);
+
+    // Calculate normals
+    for (auto vertex: modelData->vertices) {
+        modelData->normals.push_back(glm::normalize(vertex));
+        modelData->colorVertices.emplace_back(1.0f, 1.0f, 1.0f);
+    }
+
+    // Generate indices
+    for (size_t i = 0; i < modelData->vertices.size(); ++i) {
+        modelData->indices.push_back(static_cast<GLuint>(i));
+    }
+}
+
 // Function to generate normals and indices
 void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> &indices,
-                    std::vector<glm::vec2> &textureCoordinates,
+                    std::vector<glm::vec2> &textureCoordinates, std::vector<glm::vec3> &colorVertices,
                     int subdivisions) {
     // Initial vertices of a tetrahedron
     glm::vec3 v0 = glm::normalize(glm::vec3{1.0f, 0.0f, -1.0f / std::sqrt(2.0f)});
@@ -231,25 +256,13 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData *modelDat
         modelData->normals.emplace_back(0.0f, 0.0f, 0.0f);
     }
 
-    glm::vec3 lastColor;
 
     for (int i = 0; i < modelData->vertices.size(); ++i) {
-        // Generate a random color that is close to the last one
-        float r = (float) rand() / RAND_MAX;
-        float g = (float) rand() / RAND_MAX;
-        float b = (float) rand() / RAND_MAX;
 
-        if (i > 0) {
-            r = (r + 3 * lastColor.x) / 4;
-            g = (g + 3 * lastColor.y) / 4;
-            b = (b + 3 * lastColor.z) / 4;
-        }
-
-        glm::vec3 color = glm::vec3(r, g, b);
+        glm::vec3 color = glm::vec3(1.0f,1.0f,1.0f);
 
         modelData->colorVertices.push_back(color);
 
-        lastColor = color;
     }
 
 
@@ -382,38 +395,6 @@ void ResourceManager::addModel(const int modelIndex, ModelData *modelData) {
 }
 
 
-ModelData *generateSphereModelData(int subdivisions) {
-    auto *sphereModelData = new ModelData();
-    sphereModelData->type = ModelTypes::UNIQUE_MODEL;
-    sphereModelData->material = ResourceManager::whitePlastic;
-
-    generateSphere(sphereModelData->vertices, sphereModelData->normals, sphereModelData->indices,
-                   sphereModelData->textureCoordinates, subdivisions);
-
-    glm::vec3 lastColor;
-
-    for (int i = 0; i < sphereModelData->vertices.size(); ++i) {
-        // Generate a random color that is close to the last one
-        float r = (float) rand() / RAND_MAX;
-        float g = (float) rand() / RAND_MAX;
-        float b = (float) rand() / RAND_MAX;
-
-        if (i > 0) {
-            r = (r + 9 * lastColor.x) / 10;
-            g = (g + 9 * lastColor.y) / 10;
-            b = (b + 9 * lastColor.z) / 10;
-        }
-
-        glm::vec3 color = glm::vec3(r, g, b);
-
-        sphereModelData->colorVertices.push_back(color);
-
-        lastColor = color;
-    }
-
-    return sphereModelData;
-}
-
 ModelData *generateCubeModelData() {
     auto *cubeModelData = new ModelData();
     cubeModelData->type = ModelTypes::UNIQUE_MODEL;
@@ -451,14 +432,14 @@ ModelData *generateCubeModelData() {
     };
 
     cubeModelData->colorVertices = {
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f)
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f)
     };
 
     cubeModelData->hitboxVertices = {
@@ -493,6 +474,7 @@ ModelData *generateCubeModelData() {
 
 ModelData *generateCubeModelData(glm::vec3 color) {
     ModelData *cubeModelData = generateCubeModelData();
+    cubeModelData->material = ResourceManager::whitePlastic;
     for (auto &colorVertice: cubeModelData->colorVertices) {
         colorVertice = color;
     }
@@ -522,6 +504,19 @@ glm::vec2 sphericalProjection(glm::vec3 vertex) {
 
     float u = theta / (2 * M_PI);
     float v = phi / M_PI;
+
+    return {u, v};
+}
+
+void generateTextureCoordinatesByCubicProjection(ModelData* modelData) {
+    for (auto vertex: modelData->vertices) {
+        modelData->textureCoordinates.emplace_back(cubicProjection(vertex));
+    }
+}
+
+glm::vec2 cubicProjection(glm::vec3 vertex) {
+    float u = 0.5f + atan2(vertex.z, vertex.x) / (2 * M_PI);
+    float v = 0.5f - asin(vertex.y) / M_PI;
 
     return {u, v};
 }
@@ -594,8 +589,8 @@ GLuint createTextureFromPPM(const char *filename) {
     glBindTexture(GL_TEXTURE_2D, texture);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glBindTexture(GL_TEXTURE_2D, 0);
     return texture;
