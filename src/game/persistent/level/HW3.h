@@ -11,21 +11,14 @@
 #include "Level.h"
 #include "renderer/Renderer.h"
 #include "controller/InputController.h"
+#include "objects/graphics/Light.h"
 
-struct Light {
-    glm::vec3 lightPos;
-    glm::vec3 lightAmbient;
-    glm::vec3 lightDiffuse;
-    glm::vec3 lightSpecular;
-
-} typedef;
 
 class HW3 : public Level {
 
 
 public:
 
-    Light *light;
 
     Object *dumbObject;
 
@@ -144,7 +137,6 @@ public:
         light->lightDiffuse = lightDiffuse;
         light->lightSpecular = lightSpecular;
 
-        Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
 
 
         std::cout << "Level created" << std::endl;

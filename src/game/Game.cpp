@@ -105,43 +105,7 @@ void Game::checkCollisions() {
 
 void Game::draw() {
 
-    Renderer *renderer = Renderer::getActiveInstance();
-
-    renderer->createAndSetViewMatrix();
-
-    // Group objects with the same model and draw them
-
-
-    for (auto &pair: currentLevel->objects) {
-
-        if (pair.first == ModelTypes::UNIQUE_MODEL) {
-            for (auto object: pair.second) {
-                std::vector<Object*> v = {object};
-                renderer->drawInstancesOfModel(*object->modelData, &v);
-
-
-            }
-
-            for (auto object: pair.second) {
-                if (this->drawHitboxes) {
-                    std::vector<Object*> v = {object};
-                    renderer->drawInstancesOfModel(*object->modelData, &v, true);
-                }
-            }
-
-            continue;
-
-        }
-
-
-
-        renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second);
-
-        if (this->drawHitboxes) {
-            renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second, true);
-        }
-
-    }
+    Renderer::drawScene(currentLevel->light,currentLevel->objects, this->drawHitboxes);
 
 
 }

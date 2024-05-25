@@ -15,6 +15,7 @@ class Environment {
 
 public:
 
+
     // Function to calculate gravity for any given glm::vec3
     std::function<glm::vec3(glm::vec3)> gravityFunction;
 

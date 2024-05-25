@@ -12,6 +12,7 @@
 #include <fstream>
 #include "Renderer.h"
 #include "camera/Camera.h"
+#include "objects/graphics/Light.h"
 
 int Renderer::drawMode = 0;
 
@@ -306,6 +307,22 @@ void Renderer::setLight(glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 li
 
 }
 
+void Renderer::setLight(Light* light) {
+
+    GLint lightPositionLoc = glGetUniformLocation(objectShaderProgram, "light.position");
+    glUniform3fv(lightPositionLoc, 1, glm::value_ptr(light->lightPos));
+
+    GLint lightAmbientLoc = glGetUniformLocation(objectShaderProgram, "light.ambient");
+    glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(light->lightAmbient));
+
+    GLint lightDiffuseLoc = glGetUniformLocation(objectShaderProgram, "light.diffuse");
+    glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(light->lightDiffuse));
+
+    GLint lightSpecularLoc = glGetUniformLocation(objectShaderProgram, "light.specular");
+    glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(light->lightSpecular));
+
+}
+
 void Renderer::setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular,
                            float shininess) {
 
@@ -325,6 +342,94 @@ void Renderer::setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse,
 
 void Renderer::setMaterial(Material material) {
     setMaterial(material.ambient, material.diffuse, material.specular, material.shininess);
+}
+
+void  Renderer::drawScene(Light* light, std::map<ModelTypes, std::vector<Object *>> sceneObjects, bool drawHitboxes) {
+    Renderer *renderer = Renderer::getActiveInstance();
+
+
+    // Shadow mapping
+
+    float aspect = (float)renderer->SHADOW_HEIGHT/(float)renderer->SHADOW_HEIGHT;
+    float near = 1.0f;
+    float far = 25.0f;
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
+
+    std::vector<glm::mat4> shadowTransforms;
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 0.0,-1.0, 0.0), glm::vec3(0.0, 0.0,-1.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 0.0, 0.0, 1.0), glm::vec3(0.0,-1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 0.0, 0.0,-1.0), glm::vec3(0.0,-1.0, 0.0)));
+
+    glViewport(0, 0, renderer->SHADOW_WIDTH, renderer->SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, renderer->depthMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    renderer->createAndSetViewMatrix();
+
+    for (auto &pair: sceneObjects) {
+
+        if (pair.first == ModelTypes::UNIQUE_MODEL) {
+            for (auto object: pair.second) {
+                std::vector<Object*> v = {object};
+                renderer->drawInstancesOfModel(*object->modelData, &v);
+
+
+            }
+            continue;
+
+        }
+
+        renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+    glViewport(0, 0, WindowController::getInstance()->getWidth(), WindowController::getInstance()->getHeight());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    renderer->createAndSetViewMatrix();
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, renderer->depthCubeMap);
+
+    for (auto &pair: sceneObjects) {
+
+        if (pair.first == ModelTypes::UNIQUE_MODEL) {
+            for (auto object: pair.second) {
+                std::vector<Object*> v = {object};
+                renderer->drawInstancesOfModel(*object->modelData, &v);
+
+
+            }
+
+            for (auto object: pair.second) {
+                if (drawHitboxes) {
+                    std::vector<Object*> v = {object};
+                    renderer->drawInstancesOfModel(*object->modelData, &v, true);
+                }
+            }
+
+            continue;
+
+        }
+
+
+
+        renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second);
+
+        if (drawHitboxes) {
+            renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second, true);
+        }
+
+    }
+
 }
 
 

@@ -13,6 +13,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include "controller/WindowController.h"
 #include "objects/physics/Object.h"
+#include "objects/graphics/Light.h"
 
 class Renderer {
 
@@ -25,8 +26,12 @@ private:
     GLuint textureCoordinateVBO;
     GLuint instanceModelMatrixVBO;
     GLuint colorVertexVBO;
+    GLuint depthCubeMap;
+    GLuint depthMapFBO;
     GLfloat nearPlane = 0.1f;
     GLfloat farPlane = 500.0f;
+
+    const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 public:
 
@@ -167,6 +172,28 @@ public:
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &instanceModelMatrixVBO);
         glGenBuffers(1, &colorVertexVBO);
+
+        glGenFramebuffers(1, &depthMapFBO);
+
+        glGenTextures(1, &depthCubeMap);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+        for (unsigned int i = 0; i < 6; ++i) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0,
+                         GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMap, 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
         checkOpenGLError("initializeGL");
     }
 
@@ -195,6 +222,9 @@ public:
     void static switchDrawMode();
 
 
+    void static drawScene(Light* light, std::map<ModelTypes, std::vector<Object*>> sceneObjects, bool drawHitboxes = false);
+
+    void setLight(Light *light);
 };
 
 
