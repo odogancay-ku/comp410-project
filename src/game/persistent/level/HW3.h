@@ -50,7 +50,6 @@ public:
 
     HW3() {
 
-        std::cout << "Creating models" << std::endl;
 
         ModelData *cubeModel = generateCubeModelData();
         auto *sphereModel = new ModelData();
@@ -116,9 +115,6 @@ public:
     static inline int shaderIndex = 0;
 
     void setup() override {
-
-        std::cout << "Creating persistent HW3" << std::endl;
-
 
         light = new Light;
 

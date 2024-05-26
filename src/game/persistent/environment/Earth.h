@@ -14,7 +14,6 @@ class Earth : public Environment {
     public:
 
     Earth() {
-        std::cout << "Creating environment Earth" << std::endl;
         gravityFunction = earthGravity;
         dragFunction = earthDrag;
     }
