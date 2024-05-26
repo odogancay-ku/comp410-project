@@ -40,19 +40,8 @@ public:
 
         Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
 
-        std::cout << "Creating persistent HW1" << std::endl;
-
-
-        std::cout << "Level created" << std::endl;
-
-        std::cout << "Creating environment" << std::endl;
 
         environment = new Earth();
-
-        std::cout << "Environment created" << std::endl;
-
-        std::cout << "Adding objects" << std::endl;
-
 
 
 

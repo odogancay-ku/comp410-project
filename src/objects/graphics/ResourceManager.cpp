@@ -91,10 +91,6 @@ void ResourceManager::generateBuiltinModels() {
                    sphereModelData->textureCoordinates, sphereModelData->colorVertices, 6);
 
 
-    std::cout << "Sphere vertices: " << sphereModelData->vertices.size() << std::endl;
-    std::cout << "Sphere normals: " << sphereModelData->normals.size() << std::endl;
-    std::cout << "Sphere indices: " << sphereModelData->indices.size() << std::endl;
-
     glm::vec3 lastColor;
 
     for (int i = 0; i < sphereModelData->vertices.size(); ++i) {
@@ -306,10 +302,6 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData *modelDat
 
     float normalizingLength = glm::length(max - min) / sqrt(3);
 
-    std::cout << "Min: " << min.x << " " << min.y << " " << min.z << std::endl;
-    std::cout << "Max: " << max.x << " " << max.y << " " << max.z << std::endl;
-    std::cout << "Normalizing length: " << normalizingLength << std::endl;
-
     // Center and normalize the model
     glm::vec3 center = (min + max) / 2.0f;
 
@@ -387,10 +379,6 @@ void ResourceManager::addModel(const int modelIndex, ModelData *modelData) {
     generateTextureCoordinatesBySphericalProjection(modelData);
 
     models[modelIndex] = modelData;
-
-    std::cout << "Model added: " << modelIndex << std::endl;
-    std::cout << "Model added: " << models[modelIndex]->type << std::endl;
-    std::cout << "Model added: " << models[modelIndex]->indices.size() << std::endl;
 
 }
 
@@ -499,27 +487,17 @@ void generateTextureCoordinatesBySphericalProjection(ModelData *modelData) {
 }
 
 glm::vec2 sphericalProjection(glm::vec3 vertex) {
-    float theta = atan2(vertex.z, vertex.x);
-    float phi = acos(vertex.y);
+    glm::vec3 normalizedVertex = glm::normalize(vertex);
+    float theta = atan2(normalizedVertex.z, normalizedVertex.x);
+    float phi = asin(normalizedVertex.y);
 
-    float u = theta / (2 * M_PI);
-    float v = phi / M_PI;
-
-    return {u, v};
-}
-
-void generateTextureCoordinatesByCubicProjection(ModelData* modelData) {
-    for (auto vertex: modelData->vertices) {
-        modelData->textureCoordinates.emplace_back(cubicProjection(vertex));
-    }
-}
-
-glm::vec2 cubicProjection(glm::vec3 vertex) {
-    float u = 0.5f + atan2(vertex.z, vertex.x) / (2 * M_PI);
-    float v = 0.5f - asin(vertex.y) / M_PI;
+    float u = 0.5f + theta / (2 * M_PI);
+    float v = 0.5f - phi / M_PI;
 
     return {u, v};
 }
+
+
 
 bool loadPPM(const char *filename, int &width, int &height, unsigned char *&data) {
     FILE *fd;
@@ -538,13 +516,11 @@ bool loadPPM(const char *filename, int &width, int &height, unsigned char *&data
     fscanf(fd, "%c", &c);
     while (c == '#') {
         fscanf(fd, "%[^\n]", b);
-        printf("%s\n", b);
         fscanf(fd, "%c", &c);
     }
     ungetc(c, fd);
 
     fscanf(fd, "%d %d %d", &width, &height, &k);
-    printf("%d rows  %d columns  max value= %d\n", width, height, k);
 
     nm = height * width;
     data = static_cast<unsigned char *>(malloc(3 * sizeof(GLuint) * nm));

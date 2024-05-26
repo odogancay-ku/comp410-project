@@ -9,14 +9,13 @@
 int main() {
 
     WindowController *windowController = WindowController::getInstance();
-
+    glfwWindowHint(GLFW_SAMPLES, 4);
     windowController->createFullscreenWindow("Homework 1");
     GLfloat windowWidth = windowController->getWidth();
     GLfloat windowHeight = windowController->getHeight();
     GLFWwindow *window = windowController->getActiveWindow();
 
 
-    std::cout << "Window created with size: " << windowWidth << "x" << windowHeight << std::endl;
 
     auto *renderer = new Renderer();
     Renderer::setActiveInstance(renderer);
@@ -25,10 +24,6 @@ int main() {
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-//    renderer->loadObjectShaderProgram(
-//            "shaders/gouraudVertex.glsl",
-//            "shaders/gouraudFragment.glsl"
-//            );
     renderer->loadObjectShaderProgram(
             "shaders/blinnPhongVertex.glsl",
             "shaders/blinnPhongFragment.glsl"
@@ -62,11 +57,9 @@ int main() {
 
     double dt_step = 0.008f;
 
-    std::cout << "Starting game loop" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
         // Clear the screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         double currentTime = glfwGetTime();
         double deltaTime = currentTime - lastTime;
@@ -89,14 +82,6 @@ int main() {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-
-        GLenum error = glGetError();
-
-        if (error != GL_NO_ERROR) {
-            std::cout << "OpenGL Error: " << error << std::endl;
-        }
-
 
         frameCount++;
         double currentFPSTime = glfwGetTime();

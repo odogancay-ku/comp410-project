@@ -57,15 +57,12 @@ void Game::update(GLfloat dt) {
 }
 
 void Game::setupLevels() {
-    std::cout << "Setting up levels" << std::endl;
     std::shared_ptr<HW1> level = std::make_shared<HW1>();
     std::shared_ptr<HW2> level2 = std::make_shared<HW2>();
     std::shared_ptr<HW3> level3 = std::make_shared<HW3>();
-    std::cout << "Level HW1 created" << std::endl;
 
     currentLevel = std::dynamic_pointer_cast<Level>(level3);
 
-    std::cout << "Levels created" << std::endl;
 
     levels.push_back(std::dynamic_pointer_cast<Level>(level));
     levels.push_back(std::dynamic_pointer_cast<Level>(level2));
@@ -73,7 +70,6 @@ void Game::setupLevels() {
 
     level3->setup();
 
-    std::cout << "Levels setup finished" << std::endl;
 }
 
 void Game::checkCollisions() {

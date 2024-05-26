@@ -18,7 +18,6 @@ class Level {
 public:
 
     virtual ~Level() {
-        std::cout << "Level created" << std::endl;
 
         objects = std::map<ModelTypes, std::vector<Object*>>();
     }

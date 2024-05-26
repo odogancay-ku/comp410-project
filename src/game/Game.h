@@ -17,7 +17,6 @@ class Game {
 private:
 
     Game() {
-        std::cout << "Game created" << std::endl;
         currentLevel = nullptr;
         levels = std::vector<std::shared_ptr<Level>>();
         setupLevels();
