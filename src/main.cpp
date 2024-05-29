@@ -8,42 +8,31 @@
 // Main function
 int main() {
 
-    WindowController *windowController = WindowController::getInstance();
     glfwWindowHint(GLFW_SAMPLES, 4);
-    windowController->createFullscreenWindow("Homework 1");
-    GLfloat windowWidth = windowController->getWidth();
-    GLfloat windowHeight = windowController->getHeight();
-    GLFWwindow *window = windowController->getActiveWindow();
+    WindowController::createFullscreenWindow("Homework 1");
 
 
 
-    auto *renderer = new Renderer();
-    Renderer::setActiveInstance(renderer);
 
-    renderer->initializeGL();
+    Renderer::initializeGL();
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    renderer->loadObjectShaderProgram(
-            "shaders/blinnPhongVertex.glsl",
-            "shaders/blinnPhongFragment.glsl"
-            );
+    Renderer::objectShader = new Shader("shaders/blinnPhongVertex.glsl", "shaders/blinnPhongFragment.glsl");
+    Renderer::objectShader->use();
 
+    std::cout << "Object Shader ID: " << Renderer::objectShader->getID() << std::endl;
 
     auto *camera = new Camera();
     Camera::setActiveInstance(camera);
-    renderer->useObjectShaderProgram();
-    renderer->createAndSetPerspectiveProjectionMatrix(windowWidth, windowHeight);
-
-
-
+    Renderer::createAndSetPerspectiveProjectionMatrix(WindowController::width, WindowController::height);
 
     ResourceManager::generateBuiltinModels();
     ResourceManager::generateExternalModels();
 
     Game *game = Game::getInstance();
 
-    InputController::init(window);
+    InputController::init(WindowController::window);
 
 
 
@@ -58,7 +47,7 @@ int main() {
     double dt_step = 0.008f;
 
 
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(WindowController::window)) {
         // Clear the screen
 
         double currentTime = glfwGetTime();
@@ -80,7 +69,7 @@ int main() {
         game->draw();
 
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(WindowController::window);
         glfwPollEvents();
 
         frameCount++;

@@ -1,6 +1,3 @@
-//
-// Created by ofaru on 16.03.2024.
-//
 
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/trigonometric.hpp>
@@ -165,4 +162,11 @@ void Camera::setActiveInstance(Camera *pCamera) {
 
 void Camera::setFollowObject(Object *object) {
     followObject = object;
+}
+
+glm::mat4 Camera::getViewMatrix() {
+    return glm::lookAt(position, position + glm::vec3(cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
+                                                      sin(glm::radians(pitch)),
+                                                      sin(glm::radians(yaw)) * cos(glm::radians(pitch))), glm::vec3(0, 1, 0));
+
 }

@@ -1,15 +1,10 @@
-//
-// Created by ofaru on 16.03.2024.
-//
 
 #include <algorithm>
 #include "Game.h"
 #include "camera/Camera.h"
-#include "persistent/level/HW1.h"
-#include "game/persistent/level/HW2.h"
 #include "game/persistent/level/HW3.h"
 
-Game* Game::instance = nullptr;
+Game *Game::instance = nullptr;
 
 
 void Game::pokeObjects() {
@@ -38,7 +33,7 @@ void Game::update(GLfloat dt) {
                                 pair.second.begin(),
                                 pair.second.end(),
                                 //here comes the C++11 lambda:
-                                [&](Object* object1) {
+                                [&](Object *object1) {
                                     return object == object1;
                                 }
                         ),
@@ -57,15 +52,10 @@ void Game::update(GLfloat dt) {
 }
 
 void Game::setupLevels() {
-    std::shared_ptr<HW1> level = std::make_shared<HW1>();
-    std::shared_ptr<HW2> level2 = std::make_shared<HW2>();
     std::shared_ptr<HW3> level3 = std::make_shared<HW3>();
 
     currentLevel = std::dynamic_pointer_cast<Level>(level3);
 
-
-    levels.push_back(std::dynamic_pointer_cast<Level>(level));
-    levels.push_back(std::dynamic_pointer_cast<Level>(level2));
     levels.push_back(std::dynamic_pointer_cast<Level>(level3));
 
     level3->setup();
@@ -74,7 +64,7 @@ void Game::setupLevels() {
 
 void Game::checkCollisions() {
 
-    std::vector<Object*> allObjects;
+    std::vector<Object *> allObjects;
 
 
     for (auto &pair: currentLevel->objects) {
@@ -90,8 +80,9 @@ void Game::checkCollisions() {
             Object *object1 = allObjects[i];
             Object *object2 = allObjects[j];
 
-            if (object1 != object2 && object1->canCollide && object2->canCollide && (object1->canMove || object2->canMove)) {
-               object1->checkCollision(object2);
+            if (object1 != object2 && object1->canCollide && object2->canCollide &&
+                (object1->canMove || object2->canMove)) {
+                object1->checkCollision(object2);
 
             }
         }
@@ -101,20 +92,9 @@ void Game::checkCollisions() {
 
 void Game::draw() {
 
-    Renderer::drawScene(currentLevel->light,currentLevel->objects, this->drawHitboxes);
+    Renderer::drawScene(currentLevel->light, currentLevel->objects, this->drawHitboxes);
 
 
 }
 
-void Game::addRandomCube() {
-
-}
-
-void Game::addRandomBunny() {
-
-}
-
-void Game::addRandomSphere() {
-
-}
 

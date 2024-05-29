@@ -29,7 +29,7 @@ uniform PointLight light;
 uniform Material material;
 uniform sampler2D textureUnit0;
 
-uniform samplerCube depthMap;
+uniform samplerCube shadowMap;
 uniform float far_plane;
 
 vec3 gridSamplingDisk[20] = vec3[]
@@ -53,7 +53,7 @@ float calculateShadowFactor()
     float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
     for (int i = 0; i < samples; ++i)
     {
-        float closestDepth = texture(depthMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+        float closestDepth = texture(shadowMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
         closestDepth *= far_plane;
         if (currentDepth - bias > closestDepth)
         shadow += 1.0;
@@ -101,8 +101,10 @@ void main()
     vec3 textured = colored * texColor;
 
     vec3 result = textured;
+//    vec3 result = vec3(nonShadow);
 
-    //    FragColor = vec4(vec3(1-shadow), 1.0);
+//        FragColor = vec4(vec3(1-shadow), 1.0);
+//        FragColor = vec4(1.0);
     FragColor = vec4(result, 1.0);
 
     return;

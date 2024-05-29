@@ -1,6 +1,3 @@
-//
-// Created by ofaru on 16.03.2024.
-//
 
 #include "Level.h"
 #include "objects/graphics/ResourceManager.h"
