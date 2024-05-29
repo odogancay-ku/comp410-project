@@ -1,6 +1,3 @@
-//
-// Created by ofaru on 16.03.2024.
-//
 
 #include <complex>
 #include <glm/geometric.hpp>

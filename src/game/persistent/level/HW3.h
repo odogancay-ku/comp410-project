@@ -2,8 +2,8 @@
 // Created by ofarukdogancay on 5/20/24.
 //
 
-#ifndef COMP410_PROJECT_HW3_H
-#define COMP410_PROJECT_HW3_H
+#ifndef HW3_H
+#define HW3_H
 
 #include <iostream>
 #include "objects/physics/Object.h"
@@ -98,7 +98,7 @@ public:
 
     }
 
-    static inline std::vector<GLuint> shaderPrograms = {};
+    static inline std::vector<Shader*> shaders = {};
 
     static inline std::vector<char *> vertexShaderPaths = {
             "shaders/blinnPhongVertex.glsl",
@@ -218,8 +218,8 @@ public:
         std::cout << "Have fun!" << std::endl;
 
         for (int i = 0; i < vertexShaderPaths.size(); i++) {
-            shaderPrograms.push_back(
-                    Renderer::getActiveInstance()->loadShaderProgram(vertexShaderPaths[i], fragmentShaderPaths[i]));
+            shaders.push_back(
+                    new Shader(vertexShaderPaths[i], fragmentShaderPaths[i]));
         }
 
 
@@ -229,8 +229,8 @@ public:
                     switch (key) {
                         case GLFW_KEY_C:
                             shaderIndex = (shaderIndex + 1) % vertexShaderPaths.size();
-                            Renderer::getActiveInstance()->objectShaderProgram=shaderPrograms[shaderIndex];
-                            Renderer::getActiveInstance()->setLight(light);
+                            Renderer::objectShader=shaders[shaderIndex];
+                            Renderer::setLight(light);
 
                             break;
                         case GLFW_KEY_V:
@@ -292,4 +292,4 @@ public:
 };
 
 
-#endif //COMP410_PROJECT_HW3_H
+#endif //HW3_H

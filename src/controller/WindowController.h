@@ -1,6 +1,3 @@
-//
-// Created by ofaru on 16.03.2024.
-//
 
 #ifndef WINDOWCONTROLLER_H
 #define WINDOWCONTROLLER_H
@@ -11,41 +8,45 @@
 
 class WindowController {
 
-private:
-    GLFWwindow *activeWindow;
-    std::vector<GLFWwindow*> windows;
-
-    int width;
-    int height;
-
-    static WindowController* instance;
 
 public:
 
-    static WindowController* getInstance() {
-        if (instance == nullptr) {
-            instance = new WindowController();
+    static inline int width = 0;
+    static inline int height = 0;
+
+    static inline GLFWwindow *window = nullptr;
+
+    static void createFullscreenWindow(const char *title) {
+
+        // Initialize GLFW
+        if (!glfwInit()) {
+            // Initialization failed
+            std::cerr << "GLFW initialization failed" << std::endl;
+            exit(EXIT_FAILURE);
         }
-        return instance;
-    };
 
-    void createFullscreenWindow(const char *title);
+        // Create a fullscreen window
+        const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        int windowWidth = mode->width;
+        int windowHeight = mode->height;
 
-    void createWindow(const char *title, int width, int height);
+        width = windowWidth;
+        height = windowHeight;
 
-    GLFWwindow *getActiveWindow() const;
+        // Create a window
+        window = glfwCreateWindow(windowWidth, windowHeight, title, nullptr, nullptr);
+        if (!window) {
+            // Window or OpenGL context creation failed
+            glfwTerminate();
+            std::cerr << "Window or OpenGL context creation failed" << std::endl;
+            exit(EXIT_FAILURE);
+        }
 
-    const std::vector<GLFWwindow *> &getWindows() const;
+        // Make the window's context current
+        glfwMakeContextCurrent(window);
 
-    int getWidth() const;
 
-    int getHeight() const;
-
-    void setWidth(int width);
-
-    void setHeight(int height);
-
-    void setActiveWindow(GLFWwindow *activeWindow);
+    }
 
 };
 

@@ -1,6 +1,3 @@
-//
-// Created by ofaru on 16.03.2024.
-//
 
 #ifndef OBJECT_H
 #define OBJECT_H

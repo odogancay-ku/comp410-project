@@ -2,8 +2,8 @@
 // Created by ofarukdogancay on 5/25/24.
 //
 
-#ifndef COMP410_PROJECT_LIGHT_H
-#define COMP410_PROJECT_LIGHT_H
+#ifndef LIGHT_H
+#define LIGHT_H
 
 
 struct Light {
@@ -18,4 +18,4 @@ struct Light {
 
 } typedef;
 
-#endif //COMP410_PROJECT_LIGHT_H
+#endif //LIGHT_H

@@ -2,8 +2,8 @@
 // Created by ofarukdogancay on 5/20/24.
 //
 
-#ifndef COMP410_PROJECT_KEYEVENTADAPTER_H
-#define COMP410_PROJECT_KEYEVENTADAPTER_H
+#ifndef KEYEVENTADAPTER_H
+#define KEYEVENTADAPTER_H
 
 
 class KeyEventAdapter {
@@ -36,4 +36,4 @@ public:
     }
 };
 
-#endif //COMP410_PROJECT_KEYEVENTADAPTER_H
+#endif //KEYEVENTADAPTER_H

@@ -1,6 +1,3 @@
-//
-// Created by ofaru on 16.03.2024.
-//
 
 #ifndef CAMERA_H
 #define CAMERA_H
@@ -79,6 +76,7 @@ public:
 
     static void setActiveInstance(Camera *pCamera);
 
+    glm::mat4 getViewMatrix();
 
     void setFollowObject(Object *object);
 

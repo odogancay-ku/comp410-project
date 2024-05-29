@@ -1,6 +1,3 @@
-//
-// Created by ofaru on 16.03.2024.
-//
 
 #include <memory>
 #include "InputController.h"
@@ -160,14 +157,14 @@ void InputController::cursorPosCallback(GLFWwindow *window, double xpos, double 
 void InputController::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     // Adjust the fov based on the yoffset of the scroll wheel
     Camera::getActiveInstance()->offsetFOV(-yoffset);
-    Renderer::getActiveInstance()->createAndSetPerspectiveProjectionMatrix(WindowController::getInstance()->getWidth(),
-                                                                           WindowController::getInstance()->getHeight());
+    Renderer::createAndSetPerspectiveProjectionMatrix(WindowController::width,
+                                                                           WindowController::height);
 
 }
 
 void InputController::reshapeCallback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
-    Renderer::getActiveInstance()->createAndSetPerspectiveProjectionMatrix(width, height);
+    Renderer::createAndSetPerspectiveProjectionMatrix(width, height);
 }
 
 void InputController::addKeyEventAdapter(KeyEventAdapter *keyEventAdapter) {

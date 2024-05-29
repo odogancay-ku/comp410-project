@@ -1,6 +1,3 @@
-//
-// Created by ofaru on 24.03.2024.
-//
 
 #ifndef SAT_H
 #define SAT_H
