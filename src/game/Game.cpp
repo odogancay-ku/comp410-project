@@ -57,15 +57,12 @@ void Game::update(GLfloat dt) {
 }
 
 void Game::setupLevels() {
-    std::cout << "Setting up levels" << std::endl;
     std::shared_ptr<HW1> level = std::make_shared<HW1>();
     std::shared_ptr<HW2> level2 = std::make_shared<HW2>();
     std::shared_ptr<HW3> level3 = std::make_shared<HW3>();
-    std::cout << "Level HW1 created" << std::endl;
 
     currentLevel = std::dynamic_pointer_cast<Level>(level3);
 
-    std::cout << "Levels created" << std::endl;
 
     levels.push_back(std::dynamic_pointer_cast<Level>(level));
     levels.push_back(std::dynamic_pointer_cast<Level>(level2));
@@ -73,7 +70,6 @@ void Game::setupLevels() {
 
     level3->setup();
 
-    std::cout << "Levels setup finished" << std::endl;
 }
 
 void Game::checkCollisions() {
@@ -105,43 +101,7 @@ void Game::checkCollisions() {
 
 void Game::draw() {
 
-    Renderer *renderer = Renderer::getActiveInstance();
-
-    renderer->createAndSetViewMatrix();
-
-    // Group objects with the same model and draw them
-
-
-    for (auto &pair: currentLevel->objects) {
-
-        if (pair.first == ModelTypes::UNIQUE_MODEL) {
-            for (auto object: pair.second) {
-                std::vector<Object*> v = {object};
-                renderer->drawInstancesOfModel(*object->modelData, &v);
-
-
-            }
-
-            for (auto object: pair.second) {
-                if (this->drawHitboxes) {
-                    std::vector<Object*> v = {object};
-                    renderer->drawInstancesOfModel(*object->modelData, &v, true);
-                }
-            }
-
-            continue;
-
-        }
-
-
-
-        renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second);
-
-        if (this->drawHitboxes) {
-            renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second, true);
-        }
-
-    }
+    Renderer::drawScene(currentLevel->light,currentLevel->objects, this->drawHitboxes);
 
 
 }

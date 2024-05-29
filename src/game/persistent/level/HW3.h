@@ -11,27 +11,22 @@
 #include "Level.h"
 #include "renderer/Renderer.h"
 #include "controller/InputController.h"
+#include "objects/graphics/Light.h"
 
-struct Light {
-    glm::vec3 lightPos;
-    glm::vec3 lightAmbient;
-    glm::vec3 lightDiffuse;
-    glm::vec3 lightSpecular;
-
-} typedef;
 
 class HW3 : public Level {
 
 
 public:
 
-    Light *light;
 
     Object *dumbObject;
 
     int modelIndex = 0;
     int textureIndex = 0;
     int materialIndex = 0;
+
+    bool gamma_correction = false;
 
     std::vector<ModelData *> models;
     std::vector<GLuint> textures;
@@ -55,7 +50,6 @@ public:
 
     HW3() {
 
-        std::cout << "Creating models" << std::endl;
 
         ModelData *cubeModel = generateCubeModelData();
         auto *sphereModel = new ModelData();
@@ -68,9 +62,8 @@ public:
         bunnyModel->type = ModelTypes::UNIQUE_MODEL;
         maidModel->type = ModelTypes::UNIQUE_MODEL;
 
-        std::cout << "Generating texture coordinates" << std::endl;
 
-        generateTextureCoordinatesByCubicProjection(cubeModel);
+        generateTextureCoordinatesBySphericalProjection(cubeModel);
         generateTextureCoordinatesBySphericalProjection(sphereModel);
         generateTextureCoordinatesBySphericalProjection(bunnyModel);
         generateTextureCoordinatesBySphericalProjection(maidModel);
@@ -123,16 +116,13 @@ public:
 
     void setup() override {
 
-        std::cout << "Creating persistent HW3" << std::endl;
-
-
         light = new Light;
 
         float roomSize = 15;
 
 
-//        glm::vec3 lightPos = glm::vec3(roomSize, roomSize / 4, 0.0f);
-        glm::vec3 lightPos = glm::vec3(0.0f, roomSize/4   , 0.0f);
+        glm::vec3 lightPos = glm::vec3(roomSize/6, roomSize / 2-1.5f, 0.0f);
+//        glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 0.0f);
 
         glm::vec3 lightAmbient = {0.3f, 0.3f, 0.3f};
 //        glm::vec3 lightAmbient = {1.0f, 1.0f, 1.0f};
@@ -144,18 +134,10 @@ public:
         light->lightDiffuse = lightDiffuse;
         light->lightSpecular = lightSpecular;
 
-        Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
 
 
-        std::cout << "Level created" << std::endl;
-
-        std::cout << "Creating environment" << std::endl;
 
         environment = new Earth();
-
-        std::cout << "Environment created" << std::endl;
-
-        std::cout << "Adding objects" << std::endl;
 
 
         auto *cube = new Object();
@@ -197,7 +179,6 @@ public:
         cube5->position = glm::vec3(roomSize * 3 / 2 + 0.5, 0.0f, 0.0f);
         cube5->canMove = false;
         cube5->stretch = glm::vec3(1.0f, roomSize + 1, roomSize + 2);
-        cube5->paint(0.4f, 0.2f, 0.2f);
         addObject(cube5);
 
         auto *cube6 = new Object();
@@ -226,24 +207,22 @@ public:
         dumbObject->modelData = models[0];
 
 
-        std::cout << "WELCOME! Press P to give a little velocity to non static objects" << std::endl;
-        std::cout << "Press L to change the object model" << std::endl;
-        std::cout << "Press H to show hitboxes, you might need to switch to point or line draw mode to see them"
-                  << std::endl;
-        std::cout << "Press T to change the draw mode" << std::endl;
+        std::cout << "WELCOME!" << std::endl;
+        std::cout << "Press C to change the shader program" << std::endl;
+        std::cout << "The initial one is blinn-phong with point light shadows using Percentage Closer filtering" << std::endl;
+        std::cout << "Second one is gouraud shading" << std::endl;
+        std::cout << "Last one is simple phong" << std::endl;
+        std::cout << "Press V to change the object model" << std::endl;
+        std::cout << "Press B to change the object texture" << std::endl;
+        std::cout << "Press N to change the object material" << std::endl;
+        std::cout << "Press H to show hitboxes" << std::endl;
+        std::cout << "Press J to change the draw mode" << std::endl;
+        std::cout << "Press K to enable gamma correction" << std::endl;
         std::cout << "Press ESC to exit" << std::endl;
         std::cout << "Press W, A, S, D, left shift, space to move the camera relative to the orientation" << std::endl;
         std::cout << "Press R to reset the camera" << std::endl;
         std::cout << "You can change the way you face using your mouse! Just drag it, no roll only yaw and pitch"
                   << std::endl;
-        std::cout
-                << "For this to work we had to hide the mouse and fix it. "
-                   "Press alt to toggle this. "
-                   "You will need to test out the reshape callback functionality. "
-                   "Press alt, go out of full screen, "
-                   "resize with the mouse "
-                   "This will be enough to showcase window resize callback"
-                << std::endl;
         std::cout << "Use the mouse wheel to change the fov" << std::endl;
         std::cout << "Have fun!" << std::endl;
 
@@ -259,8 +238,7 @@ public:
                     switch (key) {
                         case GLFW_KEY_C:
                             shaderIndex = (shaderIndex + 1) % vertexShaderPaths.size();
-                            std::cout << "Loading shader program: " << shaderPrograms[shaderIndex] << std::endl;
-                            Renderer::getActiveInstance()->useShaderProgram(shaderPrograms[shaderIndex]);
+                            Renderer::getActiveInstance()->objectShaderProgram=shaderPrograms[shaderIndex];
                             Renderer::getActiveInstance()->setLight(light->lightPos, light->lightAmbient,
                                                                     light->lightDiffuse, light->lightDiffuse);
 
@@ -293,6 +271,16 @@ public:
                             break;
                         case GLFW_KEY_H:
                             Game::getInstance()->drawHitboxes = !Game::getInstance()->drawHitboxes;
+                            break;
+                        case GLFW_KEY_K:
+                            // Toggle gamma_correction
+                            if (gamma_correction) {
+                                glDisable(GL_FRAMEBUFFER_SRGB);
+                                gamma_correction = false;
+                            } else {
+                                glEnable(GL_FRAMEBUFFER_SRGB);
+                                gamma_correction = true;
+                            }
                             break;
                         default :
                             break;

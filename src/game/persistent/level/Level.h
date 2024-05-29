@@ -11,17 +11,18 @@
 #include "game/persistent/environment/Environment.h"
 #include "objects/graphics/ResourceManager.h"
 #include "objects/physics/Object.h"
+#include "objects/graphics/Light.h"
 
 class Level {
 
 public:
 
     virtual ~Level() {
-        std::cout << "Level created" << std::endl;
 
         objects = std::map<ModelTypes, std::vector<Object*>>();
     }
 
+    Light* light;
 
     Environment *environment;
 

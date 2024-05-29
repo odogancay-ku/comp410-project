@@ -232,11 +232,8 @@ ModelData* generateCubeModelData(glm::vec3 color);
 
 void generateTextureCoordinatesBySphericalProjection(ModelData* modelData);
 
-void generateTextureCoordinatesByCubicProjection(ModelData* modelData);
-
 glm::vec2 sphericalProjection(glm::vec3 vertex);
 
-glm::vec2 cubicProjection(glm::vec3 vertex);
 
 // Function to load PPM file
 bool loadPPM(const char* filename, int& width, int& height, std::vector<unsigned char>& data);

@@ -13,6 +13,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include "controller/WindowController.h"
 #include "objects/physics/Object.h"
+#include "objects/graphics/Light.h"
 
 class Renderer {
 
@@ -25,8 +26,13 @@ private:
     GLuint textureCoordinateVBO;
     GLuint instanceModelMatrixVBO;
     GLuint colorVertexVBO;
+    GLuint depthCubeMap;
+    GLuint depthMapFBO;
     GLfloat nearPlane = 0.1f;
     GLfloat farPlane = 500.0f;
+
+
+    const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 public:
 
@@ -34,6 +40,7 @@ public:
     glm::mat4 viewMatrix;
     GLuint objectShaderProgram;
     GLuint skyboxShaderProgram;
+    GLuint pointShadowShaderProgram;
 
 
     static Renderer *getActiveInstance() {
@@ -50,14 +57,18 @@ public:
     static std::string readShaderFile(const char *path);
 
     // Load shader program
-    GLuint loadShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath) {
+    GLuint loadShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath,
+                             const char *geometryShaderPath = nullptr) {
 
-        std::cout << "Loading shader program" << std::endl;
+//        std::cout << "Loading shader program" << std::endl;
         std::basic_string<char> vertexShaderSource = readShaderFile(vertexShaderPath);
         std::basic_string<char> fragmentShaderSource = readShaderFile(fragmentShaderPath);
+        std::basic_string<char> geometryShaderSource =
+                geometryShaderPath != nullptr ? readShaderFile(geometryShaderPath) : "";
 
-        std::cout << "Vertex shader source: " << vertexShaderSource << std::endl;
-        std::cout << "Fragment shader source: " << fragmentShaderSource << std::endl;
+//        std::cout << "Vertex shader source: " << vertexShaderSource << std::endl;
+//        std::cout << "Fragment shader source: " << fragmentShaderSource << std::endl;
+//        std::cout << "Geometry shader source: " << geometryShaderSource << std::endl;
 
         // Create a vertex shader object
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -92,12 +103,33 @@ public:
                       << infoLog << std::endl;
         }
 
+        GLuint geometryShader;
+
+        if (geometryShaderPath != nullptr) {
+            geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+
+            const GLchar *geometryShaderSourceCStr = geometryShaderSource.c_str();
+            glShaderSource(geometryShader, 1, &geometryShaderSourceCStr, nullptr);
+            glCompileShader(geometryShader);
+            glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
+            if (!success) {
+                char infoLog[512];
+                glGetShaderInfoLog(geometryShader, 512, nullptr, infoLog);
+                std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
+                          << infoLog << std::endl;
+            }
+        }
+
         // Create a shader program object
         GLuint _shaderProgram = glCreateProgram();
 
         // Attach the vertex and fragment shaders to the shader program
         glAttachShader(_shaderProgram, vertexShader);
         glAttachShader(_shaderProgram, fragmentShader);
+
+        if (geometryShaderPath != nullptr) {
+            glAttachShader(_shaderProgram, geometryShader);
+        }
 
         // Link the shaders together into the shader program
         glLinkProgram(_shaderProgram);
@@ -114,9 +146,12 @@ public:
 
         glDeleteShader(fragmentShader);
         glDeleteShader(vertexShader);
+        if (geometryShaderPath != nullptr) {
+            glDeleteShader(geometryShader);
+        }
 
         checkOpenGLError("loadShaderProgram");
-        std::cout << "Shader program loaded " << _shaderProgram << std::endl;
+//        std::cout << "Shader program loaded " << _shaderProgram << std::endl;
         return _shaderProgram;
     }
 
@@ -158,6 +193,7 @@ public:
         // Enable depth testing
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
+        glEnable(GL_MULTISAMPLE);
 //        glEnable(GL_FRAMEBUFFER_SRGB);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -167,6 +203,32 @@ public:
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &instanceModelMatrixVBO);
         glGenBuffers(1, &colorVertexVBO);
+
+        glGenFramebuffers(1, &depthMapFBO);
+
+        glGenTextures(1, &depthCubeMap);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+        for (unsigned int i = 0; i < 6; ++i) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0,
+                         GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMap, 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        pointShadowShaderProgram = loadShaderProgram("shaders/pointShadowVertex.glsl",
+                                                     "shaders/pointShadowFragment.glsl",
+                                                     "shaders/pointShadowGeometry.glsl");
+
         checkOpenGLError("initializeGL");
     }
 
@@ -177,7 +239,7 @@ public:
 
     static void checkOpenGLError(const std::string &at);
 
-    void drawInstancesOfModel(const ModelData& modelData, std::vector<Object*> *pVector, bool hitboxes = false);
+    void drawInstancesOfModel(const ModelData &modelData, std::vector<Object *> *pVector, GLuint shaderProgram, bool hitboxes = false, std::string passName = "main");
 
 
     void createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _windowHeight);
@@ -186,15 +248,19 @@ public:
 
     void setLight(glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 lightDiffuse, glm::vec3 lightSpecular);
 
-    void setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float shininess);
+    void setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float shininess, GLuint shaderProgram);
 
-    void setMaterial(Material material);
+    void setMaterial(Material material, GLuint shaderProgram);
 
     static int drawMode;
 
     void static switchDrawMode();
 
 
+    void static
+    drawScene(Light *light, std::map<ModelTypes, std::vector<Object *>> sceneObjects, bool drawHitboxes = false);
+
+    void setLight(Light *light);
 };
 
 

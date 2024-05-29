@@ -12,6 +12,7 @@
 #include <fstream>
 #include "Renderer.h"
 #include "camera/Camera.h"
+#include "objects/graphics/Light.h"
 
 int Renderer::drawMode = 0;
 
@@ -66,7 +67,7 @@ void Renderer::checkOpenGLError(const std::string &at) {
 
 
 
-void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Object *> *pVector, bool hitboxes) {
+void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Object *> *pVector, GLuint shaderProgram, bool hitboxes, std::string passName) {
     // Set up VBOs for vertex data and instance-specific data
 
     Material material = modelData.material;
@@ -74,7 +75,7 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     bool drawUnique = modelData.type == ModelTypes::UNIQUE_MODEL;
 
 
-    setMaterial(material);
+    setMaterial(material, shaderProgram);
 
     GLuint instanceCount = pVector->size();
 
@@ -82,6 +83,7 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     std::vector<glm::vec3> normals = {};
     std::vector<glm::vec3> colors = {};
     std::vector<GLuint> indices = {};
+
 
     if (hitboxes) {
         // Draw wireframe
@@ -174,9 +176,12 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) 0);
     glEnableVertexAttribArray(0);
 
+
     // Normal
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
+
+
 
     // After setting vertex attribute pointers for position and normal
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -187,7 +192,6 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     glBindBuffer(GL_ARRAY_BUFFER, instanceModelMatrixVBO);
     glBufferData(GL_ARRAY_BUFFER, modelMatrixColumns.size() * sizeof(glm::vec4), &modelMatrixColumns[0],
                  GL_STATIC_DRAW);
-
 
 
     // Set the vertex attribute pointers for the instance-specific data
@@ -206,27 +210,33 @@ void Renderer::drawInstancesOfModel(const ModelData& modelData, std::vector<Obje
     glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
     glEnableVertexAttribArray(6);
 
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, modelData.texture);
+    glUniform1i(glGetUniformLocation(shaderProgram, "textureUnit0"), 0);
+
 
     glBindBuffer(GL_ARRAY_BUFFER, textureCoordinateVBO);
     glBufferData(GL_ARRAY_BUFFER, modelData.textureCoordinates.size() * sizeof(glm::vec2),
                  &modelData.textureCoordinates[0], GL_STATIC_DRAW);
 
-    glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void *) 0);
+
+    glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void *) nullptr);
     glEnableVertexAttribArray(7);
+
 
     glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr, instanceCount);
     glBindVertexArray(0);
 
 
 
-    checkOpenGLError("drawInstancesOfModel");
 
     if (hitboxes) {
         // Revert to original
         Renderer::switchDrawMode();
     }
+
+    checkOpenGLError(passName);
 
 }
 
@@ -306,25 +316,162 @@ void Renderer::setLight(glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 li
 
 }
 
-void Renderer::setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular,
-                           float shininess) {
+void Renderer::setLight(Light* light) {
 
-    GLint materialAmbientLoc = glGetUniformLocation(objectShaderProgram, "material.ambient");
+    GLint lightPositionLoc = glGetUniformLocation(objectShaderProgram, "light.position");
+    glUniform3fv(lightPositionLoc, 1, glm::value_ptr(light->lightPos));
+
+    GLint lightAmbientLoc = glGetUniformLocation(objectShaderProgram, "light.ambient");
+    glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(light->lightAmbient));
+
+    GLint lightDiffuseLoc = glGetUniformLocation(objectShaderProgram, "light.diffuse");
+    glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(light->lightDiffuse));
+
+    GLint lightSpecularLoc = glGetUniformLocation(objectShaderProgram, "light.specular");
+    glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(light->lightSpecular));
+
+}
+
+void Renderer::setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular,
+                           float shininess, GLuint shaderProgram) {
+
+    GLint materialAmbientLoc = glGetUniformLocation(shaderProgram, "material.ambient");
     glUniform3fv(materialAmbientLoc, 1, glm::value_ptr(materialAmbient));
 
-    GLint materialDiffuseLoc = glGetUniformLocation(objectShaderProgram, "material.diffuse");
+    GLint materialDiffuseLoc = glGetUniformLocation(shaderProgram, "material.diffuse");
     glUniform3fv(materialDiffuseLoc, 1, glm::value_ptr(materialDiffuse));
 
-    GLint materialSpecularLoc = glGetUniformLocation(objectShaderProgram, "material.specular");
+    GLint materialSpecularLoc = glGetUniformLocation(shaderProgram, "material.specular");
     glUniform3fv(materialSpecularLoc, 1, glm::value_ptr(materialSpecular));
 
-    GLint shininessLoc = glGetUniformLocation(objectShaderProgram, "material.shininess");
+    GLint shininessLoc = glGetUniformLocation(shaderProgram, "material.shininess");
     glUniform1f(shininessLoc, shininess);
 
 }
 
-void Renderer::setMaterial(Material material) {
-    setMaterial(material.ambient, material.diffuse, material.specular, material.shininess);
+void Renderer::setMaterial(Material material, GLuint shaderProgram) {
+    setMaterial(material.ambient, material.diffuse, material.specular, material.shininess, shaderProgram);
+}
+
+void  Renderer::drawScene(Light* light, std::map<ModelTypes, std::vector<Object *>> sceneObjects, bool drawHitboxes) {
+    Renderer *renderer = Renderer::getActiveInstance();
+
+
+    // Shadow mapping
+
+    float aspect = (float)renderer->SHADOW_HEIGHT/(float)renderer->SHADOW_HEIGHT;
+    float near = 1.0f;
+    float far = 25.0f;
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
+
+    std::vector<glm::mat4> shadowTransforms;
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 0.0,-1.0, 0.0), glm::vec3(0.0, 0.0,-1.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 0.0, 0.0, 1.0), glm::vec3(0.0,-1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+                               glm::lookAt(light->lightPos, light->lightPos + glm::vec3( 0.0, 0.0,-1.0), glm::vec3(0.0,-1.0, 0.0)));
+
+    glViewport(0, 0, renderer->SHADOW_WIDTH, renderer->SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, renderer->depthMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glUseProgram(renderer->pointShadowShaderProgram);
+
+    for (unsigned int i = 0; i < 6; ++i) {
+        glUniformMatrix4fv(
+                glGetUniformLocation(
+                        renderer->pointShadowShaderProgram,
+                        (char*)("shadowMatrices[" + std::to_string(i) + "]").c_str()
+                        ),
+                1,
+                GL_FALSE,
+                &shadowTransforms[i][0][0]);
+    }
+
+    glUniform1f(glGetUniformLocation(renderer->pointShadowShaderProgram, "far_plane"), far);
+    glUniform3fv(glGetUniformLocation(renderer->pointShadowShaderProgram, "lightPos"), 1, glm::value_ptr(light->lightPos));
+
+
+
+    for (auto &pair: sceneObjects) {
+
+        if (pair.first == ModelTypes::UNIQUE_MODEL) {
+            for (auto object: pair.second) {
+                std::vector<Object*> v = {object};
+                renderer->drawInstancesOfModel(*object->modelData, &v, renderer->pointShadowShaderProgram, false, "shadows");
+
+
+            }
+            continue;
+
+        }
+
+        renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second, renderer->pointShadowShaderProgram, false, "shadows");
+    }
+
+
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glViewport(0, 0, WindowController::getInstance()->getWidth(), WindowController::getInstance()->getHeight());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+    renderer->useObjectShaderProgram();
+    renderer->setLight(light);
+
+
+
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, renderer->depthCubeMap);
+    glUniform1i(glGetUniformLocation(renderer->objectShaderProgram, "depthMap"), 1);
+
+
+
+
+    glUniform1f(glGetUniformLocation(renderer->objectShaderProgram, "far_plane"), far);
+
+
+    for (auto &pair: sceneObjects) {
+
+        if (pair.first == ModelTypes::UNIQUE_MODEL) {
+            for (auto object: pair.second) {
+                std::vector<Object*> v = {object};
+                renderer->drawInstancesOfModel(*object->modelData, &v, renderer->objectShaderProgram);
+
+
+            }
+
+            for (auto object: pair.second) {
+                if (drawHitboxes) {
+                    std::vector<Object*> v = {object};
+                    renderer->drawInstancesOfModel(*object->modelData, &v, renderer->objectShaderProgram, true);
+                }
+            }
+
+            continue;
+
+        }
+
+
+
+        renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second, renderer->objectShaderProgram);
+
+        if (drawHitboxes) {
+            renderer->drawInstancesOfModel(*ResourceManager::getModel(pair.first), &pair.second, renderer->objectShaderProgram, true);
+        }
+
+    }
+
+
+
 }
 
 
