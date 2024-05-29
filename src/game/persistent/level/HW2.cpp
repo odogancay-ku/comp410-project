@@ -8,13 +8,14 @@
 
 void HW2::setup() {
 
-    glm::vec3 lightPos = glm::vec3(0.0f, 10.0f, 10.0f);
+    auto *light = new Light();
 
-    glm::vec3 lightAmbient = {0.4f, 0.4f, 0.4f};
-    glm::vec3 lightDiffuse = {0.8f, 0.8f, 0.8f};
-    glm::vec3 lightSpecular = {0.3f, 0.3f, 0.3f};
+    light->lightPos = {0.0f, 10.0f, 10.0f};
+    light->lightAmbient = {0.4f, 0.4f, 0.4f};
+    light->lightDiffuse = {0.8f, 0.8f, 0.8f};
+    light->lightSpecular = {0.3f, 0.3f, 0.3f};
 
-    Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
+    Renderer::getActiveInstance()->setLight(light);
 
 
     Camera::getActiveInstance()->position = glm::vec3(0.0f, 7.5f, 0.0f);

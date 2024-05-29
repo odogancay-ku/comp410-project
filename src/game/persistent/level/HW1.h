@@ -31,15 +31,15 @@ public:
 
         float roomSize = 15;
 
-        glm::vec3 lightPos = glm::vec3(roomSize, roomSize/4   , 0.0f);
-//        glm::vec3 lightPos = glm::vec3(0.0f, roomSize/4   , 0.0f);
 
-        glm::vec3 lightAmbient = {0.2f, 0.2f, 0.2f};
-        glm::vec3 lightDiffuse = {0.5f, 0.5f, 0.5f};
-        glm::vec3 lightSpecular = {1.0f, 1.0f, 1.0f};
+        auto *light = new Light();
 
-        Renderer::getActiveInstance()->setLight(lightPos, lightAmbient, lightDiffuse, lightSpecular);
+        light->lightPos = {roomSize, roomSize/4   , 0.0f};
+        light->lightAmbient = {0.2f, 0.2f, 0.2f};
+        light->lightDiffuse = {0.5f, 0.5f, 0.5f};
+        light->lightSpecular = {1.0f, 1.0f, 1.0f};
 
+        Renderer::getActiveInstance()->setLight(light);
 
         environment = new Earth();
 

@@ -300,21 +300,6 @@ void Renderer::createAndSetViewMatrix() {
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 }
 
-void Renderer::setLight(glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 lightDiffuse, glm::vec3 lightSpecular) {
-
-    GLint lightPositionLoc = glGetUniformLocation(objectShaderProgram, "light.position");
-    glUniform3fv(lightPositionLoc, 1, glm::value_ptr(lightPos));
-
-    GLint lightAmbientLoc = glGetUniformLocation(objectShaderProgram, "light.ambient");
-    glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(lightAmbient));
-
-    GLint lightDiffuseLoc = glGetUniformLocation(objectShaderProgram, "light.diffuse");
-    glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(lightDiffuse));
-
-    GLint lightSpecularLoc = glGetUniformLocation(objectShaderProgram, "light.specular");
-    glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(lightSpecular));
-
-}
 
 void Renderer::setLight(Light* light) {
 
@@ -329,6 +314,15 @@ void Renderer::setLight(Light* light) {
 
     GLint lightSpecularLoc = glGetUniformLocation(objectShaderProgram, "light.specular");
     glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(light->lightSpecular));
+
+    GLint lightConstantLoc = glGetUniformLocation(objectShaderProgram, "light.constant");
+    glUniform1f(lightConstantLoc, light->constant);
+
+    GLint lightLinearLoc = glGetUniformLocation(objectShaderProgram, "light.linear");
+    glUniform1f(lightLinearLoc, light->linear);
+
+    GLint lightQuadraticLoc = glGetUniformLocation(objectShaderProgram, "light.quadratic");
+    glUniform1f(lightQuadraticLoc, light->quadratic);
 
 }
 

@@ -120,19 +120,10 @@ public:
 
         float roomSize = 15;
 
-
-        glm::vec3 lightPos = glm::vec3(roomSize/6, roomSize / 2-1.5f, 0.0f);
-//        glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 0.0f);
-
-        glm::vec3 lightAmbient = {0.3f, 0.3f, 0.3f};
-//        glm::vec3 lightAmbient = {1.0f, 1.0f, 1.0f};
-        glm::vec3 lightDiffuse = {1.0f, 1.0f, 1.0f};
-        glm::vec3 lightSpecular = {0.2f, 0.2f, 0.2f};
-
-        light->lightPos = lightPos;
-        light->lightAmbient = lightAmbient;
-        light->lightDiffuse = lightDiffuse;
-        light->lightSpecular = lightSpecular;
+        light->lightPos = glm::vec3(roomSize/6, roomSize / 2-1.5f, 0.0f);
+        light->lightAmbient = {0.3f, 0.3f, 0.3f};
+        light->lightDiffuse = {1.0f, 1.0f, 1.0f};
+        light->lightSpecular = {0.2f, 0.2f, 0.2f};
 
 
 
@@ -239,8 +230,7 @@ public:
                         case GLFW_KEY_C:
                             shaderIndex = (shaderIndex + 1) % vertexShaderPaths.size();
                             Renderer::getActiveInstance()->objectShaderProgram=shaderPrograms[shaderIndex];
-                            Renderer::getActiveInstance()->setLight(light->lightPos, light->lightAmbient,
-                                                                    light->lightDiffuse, light->lightDiffuse);
+                            Renderer::getActiveInstance()->setLight(light);
 
                             break;
                         case GLFW_KEY_V:

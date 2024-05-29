@@ -8,11 +8,15 @@ struct Material {
     float shininess;
 };
 
-struct Light {
+struct PointLight {
     vec3 position;
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 in vec3 Normal;
@@ -21,7 +25,7 @@ in vec3 FragPos;
 in vec2 UV;
 
 uniform vec3 viewPos;
-uniform Light light;
+uniform PointLight light;
 uniform Material material;
 uniform sampler2D textureUnit0;
 
@@ -39,26 +43,6 @@ vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1)
 
 float calculateShadowFactor()
 {
-//        vec3 fragToLight = FragPos - light.position;
-//        float currentDepth = length(fragToLight);
-//        float shadow = 0.0;
-//        float bias = 0.05;
-//        float samples = 4.0;
-//        float offset = 0.1;
-//        for (float x = -offset; x < offset; x += offset / (samples * 0.5))
-//        {
-//            for (float y = -offset; y < offset; y += offset / (samples * 0.5))
-//            {
-//                for (float z = -offset; z < offset; z += offset / (samples * 0.5))
-//                {
-//                    float closestDepth = texture(depthMap, fragToLight + vec3(x, y, z)).r;
-//                    closestDepth *= far_plane;
-//                    if (currentDepth - bias > closestDepth)
-//                    shadow += 1.0;
-//                }
-//            }
-//        }
-//        shadow /= (samples * samples * samples);
 
     vec3 fragToLight = FragPos - light.position;
     float currentDepth = length(fragToLight);

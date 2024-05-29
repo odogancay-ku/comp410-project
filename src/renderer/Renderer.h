@@ -246,7 +246,6 @@ public:
 
     void createAndSetViewMatrix();
 
-    void setLight(glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 lightDiffuse, glm::vec3 lightSpecular);
 
     void setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float shininess, GLuint shaderProgram);
 
