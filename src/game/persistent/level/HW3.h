@@ -98,19 +98,7 @@ public:
 
     }
 
-    static inline std::vector<Shader*> shaders = {};
 
-    static inline std::vector<char *> vertexShaderPaths = {
-            "shaders/blinnPhongVertex.glsl",
-            "shaders/gouraudVertex.glsl",
-            "shaders/phongVertex.glsl"
-    };
-
-    static inline std::vector<char *> fragmentShaderPaths = {
-            "shaders/blinnPhongFragment.glsl",
-            "shaders/gouraudFragment.glsl",
-            "shaders/phongFragment.glsl"
-    };
 
     static inline int shaderIndex = 0;
 
@@ -217,22 +205,12 @@ public:
         std::cout << "Use the mouse wheel to change the fov" << std::endl;
         std::cout << "Have fun!" << std::endl;
 
-        for (int i = 0; i < vertexShaderPaths.size(); i++) {
-            shaders.push_back(
-                    new Shader(vertexShaderPaths[i], fragmentShaderPaths[i]));
-        }
 
 
         InputController::addKeyEventAdapter(new KeyEventAdapter(
 
                 [this](int key) {
                     switch (key) {
-                        case GLFW_KEY_C:
-                            shaderIndex = (shaderIndex + 1) % vertexShaderPaths.size();
-                            Renderer::objectShader=shaders[shaderIndex];
-                            Renderer::setLight(light);
-
-                            break;
                         case GLFW_KEY_V:
                             nextModel();
                             break;
