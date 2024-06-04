@@ -12,6 +12,8 @@ struct Vertex {
 };
 
 enum TextureType {
+    ALBEDO,
+    ROUGHNESS,
     DIFFUSE,
     SPECULAR,
     METALLIC,
@@ -21,11 +23,13 @@ enum TextureType {
     AMBIENT_OCCLUSION,
     REFLECTION,
     LIGHT_MAP,
-    OPACITY
+    OPACITY,
+    UNKNOWN
 };
 
 struct Texture {
     unsigned int id;
+    std::string path;
     TextureType type;
 };
 

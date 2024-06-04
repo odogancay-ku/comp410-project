@@ -153,8 +153,10 @@ void detectAndHandleCollisionSAT(Object *object1, Object *object2) {
         return; // Both objects are static
     }
 
-    std::vector<glm::vec3> hitboxVertices1 = object1->modelData->hitboxVertices;
-    std::vector<glm::vec3> hitboxVertices2 = object2->modelData->hitboxVertices;
+//    std::vector<glm::vec3> hitboxVertices1 = object1->modelData->hitboxVertices;
+    std::vector<glm::vec3> hitboxVertices1 = {{1.0f,1.0f,1.0f}};
+//    std::vector<glm::vec3> hitboxVertices2 = object2->modelData->hitboxVertices;
+    std::vector<glm::vec3> hitboxVertices2 = {{1.0f,1.0f,1.0f}};
 
     for (auto &i: hitboxVertices1) {
         i = glm::vec3(object1->getModelMatrix() * glm::vec4(i, 1.0f));

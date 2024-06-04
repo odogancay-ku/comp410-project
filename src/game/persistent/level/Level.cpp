@@ -7,6 +7,6 @@
 
 void Level::addObject(Object* object) {
 
-    objects[object->modelType].push_back(object);
+//    objects[object->modelType].push_back(object);
 
 }

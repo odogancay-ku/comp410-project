@@ -11,6 +11,7 @@
 #include "objects/physics/Object.h"
 #include "objects/graphics/Light.h"
 #include "Shader.h"
+void checkOpenGLError(const std::string &at);
 
 class Renderer {
 
@@ -90,10 +91,9 @@ public:
 
     static void nextDrawMode();
 
-    static void checkOpenGLError(const std::string &at);
 
-    static void drawInstancesOfModel(const ModelData &modelData, std::vector<Object *> *pVector, Shader* shader,
-                                     bool hitboxes = false, const std::string &passName = "main");
+//    static void drawInstancesOfModel(const ModelData &modelData, std::vector<Object *> *pVector, Shader* shader,
+//                                     bool hitboxes = false, const std::string &passName = "main");
 
 
 
@@ -105,18 +105,17 @@ public:
     setMaterial(glm::vec3 materialAmbient, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float shininess,
                 Shader* shader);
 
-    static void setMaterial(Material material, Shader* shader);
+//    static void setMaterial(Material material, Shader* shader);
 
     static int drawMode;
 
     static void switchDrawMode();
 
 
-    static void
-    drawScene(Light *light, std::map<ModelTypes, std::vector<Object *>> sceneObjects, bool drawHitboxes = false);
+//    static void
+//    drawScene(Light *light, std::map<ModelTypes, std::vector<Object *>> sceneObjects, bool drawHitboxes = false);
 
     static void setLight(Light *light);
 };
-
 
 #endif //RENDERER_H

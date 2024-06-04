@@ -46,8 +46,6 @@ public:
 
     void update(GLfloat dt, Environment *environment);
 
-    ModelTypes modelType = ModelTypes::CUBE;
-    ModelData *modelData = ResourceManager::getModel(ModelTypes::CUBE);
     glm::vec3 color;
     bool isHidden = false;
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);

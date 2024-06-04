@@ -16,14 +16,14 @@ public:
 
     virtual ~Level() {
 
-        objects = std::map<ModelTypes, std::vector<Object*>>();
+//        objects = std::map<ModelTypes, std::vector<Object*>>();
     }
 
     Light* light;
 
     Environment *environment;
 
-    std::map<ModelTypes, std::vector<Object*>> objects;
+//    std::map<ModelTypes, std::vector<Object*>> objects;
 
 
     void addObject(Object* object);

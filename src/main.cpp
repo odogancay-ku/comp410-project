@@ -9,6 +9,36 @@
 // Main function
 int main() {
 
+
+    glfwWindowHint(GLFW_SAMPLES, 4);
+    WindowController::createFullscreenWindow("Homework 1");
+    Renderer::initializeGL();
+
+    auto* model = new Model(loadModel("assets/models/assimp/green_military_backpack.glb"));
+
+    std::cout << "Model loaded" << std::endl;
+    std::cout << "Meshes: " << model->meshes.size() << std::endl;
+    for (auto& mesh: model->meshes) {
+        std::cout << "Vertices: " << mesh.vertices.size() << std::endl;
+        std::cout << "Indices: " << mesh.indices.size() << std::endl;
+        std::cout << "Textures: " << mesh.textures.size() << std::endl;
+//
+//        for (auto& vertex: mesh.vertices) {
+//            std::cout << "Vertex: " << vertex.position.x << " " << vertex.position.y << " " << vertex.position.z << std::endl;
+//            std::cout << "Normal: " << vertex.normal.x << " " << vertex.normal.y << " " << vertex.normal.z << std::endl;
+//            std::cout << "Texture Coordinates: " << vertex.textureCoordinates.x << " " << vertex.textureCoordinates.y << std::endl;
+//        }
+
+        for (auto& texture: mesh.textures) {
+            std::cout << "Texture: " << texture.id << std::endl;
+            std::cout << "Type: " << texture.type << std::endl;
+            std::cout << "Path: " << texture.path << std::endl;
+        }
+
+    }
+
+    exit(0);
+
     glfwWindowHint(GLFW_SAMPLES, 4);
     WindowController::createFullscreenWindow("Homework 1");
 
@@ -28,8 +58,6 @@ int main() {
     Camera::setActiveInstance(camera);
     Renderer::createAndSetPerspectiveProjectionMatrix(WindowController::width, WindowController::height);
 
-    ResourceManager::generateBuiltinModels();
-    ResourceManager::generateExternalModels();
 
     Game *game = Game::getInstance();
 
