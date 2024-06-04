@@ -5,11 +5,11 @@ CPP = g++
 CPP_FLAGS = -g -w  -std=c++11 -DGLM_ENABLE_EXPERIMENTAL
 
 # Include directories
-INCLUDES = -I./src -I./include -I./src/visuals -I/usr/include/GL 
+INCLUDES = -I./src -I./include -I./src/visuals -I/usr/include/GL
 
 
 # Libraries
-LIBS = -lGLEW -lGL -lglfw -lGLU
+LIBS = -lGLEW -lGL -lglfw -lGLU -lassimp
 
 vpath %.cpp src src/visuals
 

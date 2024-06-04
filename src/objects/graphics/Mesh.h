@@ -19,4 +19,9 @@ private:
     void setupMesh();
 };
 
+struct Model {
+    std::vector<Mesh> meshes;
+    std::string directory;
+};
+
 #endif //MESH_H
