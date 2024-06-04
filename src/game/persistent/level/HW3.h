@@ -56,27 +56,32 @@ public:
         generateSphereModelData(sphereModel, 6);
         auto *bunnyModel = new ModelData(*ResourceManager::getModel(ModelTypes::BUNNY));
         auto *maidModel = new ModelData(*ResourceManager::getModel(ModelTypes::MAID));
+        auto *dogancayModel = new ModelData(*ResourceManager::getModel(ModelTypes::DOGANCAY));
 
         cubeModel->type = ModelTypes::UNIQUE_MODEL;
         sphereModel->type = ModelTypes::UNIQUE_MODEL;
         bunnyModel->type = ModelTypes::UNIQUE_MODEL;
         maidModel->type = ModelTypes::UNIQUE_MODEL;
+        dogancayModel->type = ModelTypes::UNIQUE_MODEL;
 
 
         generateTextureCoordinatesBySphericalProjection(cubeModel);
         generateTextureCoordinatesBySphericalProjection(sphereModel);
         generateTextureCoordinatesBySphericalProjection(bunnyModel);
         generateTextureCoordinatesBySphericalProjection(maidModel);
+        generateTextureCoordinatesBySphericalProjection(dogancayModel);
 
         ResourceManager::setModelHitbox(cubeModel);
         ResourceManager::setModelHitbox(sphereModel);
         ResourceManager::setModelHitbox(bunnyModel);
         ResourceManager::setModelHitbox(maidModel);
+        ResourceManager::setModelHitbox(dogancayModel);
 
         models.push_back(cubeModel);
         models.push_back(sphereModel);
         models.push_back(bunnyModel);
         models.push_back(maidModel);
+        models.push_back(dogancayModel);
 
         textures.push_back(createBaseTexture());
         textures.push_back(createTextureFromPPM("assets/textures/basketball.ppm"));
@@ -109,7 +114,7 @@ public:
         float roomSize = 15;
 
         light->lightPos = glm::vec3(roomSize/6, roomSize / 2-1.5f, 0.0f);
-        light->lightAmbient = {0.3f, 0.3f, 0.3f};
+        light->lightAmbient = {0.5f, 0.5f, 0.5f};
         light->lightDiffuse = {1.0f, 1.0f, 1.0f};
         light->lightSpecular = {0.2f, 0.2f, 0.2f};
 
@@ -224,7 +229,7 @@ public:
                             // If the object is moving set it to rooms center, if it is not give it random velocity and angular velocity
                             if (dumbObject->canMove) {
                                 dumbObject->position = glm::vec3(15.0f, 0.0f, 0.0f);
-                                dumbObject->orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+                                dumbObject->orientation = glm::quat(0.7f, 0.0f, -0.7f, 0.0f);
                                 dumbObject->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
                                 dumbObject->angularVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
                                 dumbObject->canMove = false;

@@ -1,13 +1,13 @@
-#include "modelLoader.hpp"
+#include "modelLoader.h"
+
+#include <utility>
+
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
-    : vertices(vertices), indices(indices), textures(textures) {
+        : vertices(std::move(vertices)), indices(std::move(indices)), textures(std::move(textures)) {
     setupMesh();
 }
 
-void Mesh::setupMesh() {
-    // Setup OpenGL buffers and arrays here
-}
-Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
+Mesh processMesh(aiMesh *mesh, const aiScene *scene) {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
@@ -15,8 +15,11 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
     for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
         Vertex vertex;
         vertex.position = {mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z};
-        vertex.normal = mesh->HasNormals() ? glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z) : glm::vec3(0.0f);
-        vertex.textureCoordinates = mesh->HasTextureCoords(0) ? glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y) : glm::vec2(0.0f);
+        vertex.normal = mesh->HasNormals() ? glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z)
+                                           : glm::vec3(0.0f);
+        vertex.textureCoordinates = mesh->HasTextureCoords(0) ? glm::vec2(mesh->mTextureCoords[0][i].x,
+                                                                          mesh->mTextureCoords[0][i].y) : glm::vec2(
+                0.0f);
 
         vertices.push_back(vertex);
     }
@@ -33,9 +36,9 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
     return Mesh(vertices, indices, textures);
 }
 
-void processNode(aiNode* node, const aiScene* scene, Model& model) {
+void processNode(aiNode *node, const aiScene *scene, Model &model) {
     for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
-        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
         model.meshes.push_back(processMesh(mesh, scene));
     }
 
@@ -44,9 +47,9 @@ void processNode(aiNode* node, const aiScene* scene, Model& model) {
     }
 }
 
-Model loadModel(const std::string& path) {
+Model loadModel(const std::string &path) {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cerr << "Error: " << importer.GetErrorString() << std::endl;
@@ -54,7 +57,6 @@ Model loadModel(const std::string& path) {
     }
 
     Model model;
-    model.directory = path.substr(0, path.find_last_of('/'));
 
     processNode(scene->mRootNode, scene, model);
 

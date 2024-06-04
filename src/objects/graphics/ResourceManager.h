@@ -26,6 +26,7 @@ enum ModelTypes {
     SPHERE,
     BUNNY,
     MAID,
+    DOGANCAY,
     UNIQUE_MODEL,
     END_OF_TYPES_MARKER,
     CONE,
@@ -153,7 +154,7 @@ public:
 
     void static bufferModelData(ModelTypes modelType, ModelData *modelData);
 
-    static void loadModel(const std::string &filePath, ModelData *modelIndex);
+    static void loadModel(const std::string &filePath, ModelData *modelIndex, bool invertWinding = false);
 
     static void normalizeObjectSize(ModelData *modelData);
 

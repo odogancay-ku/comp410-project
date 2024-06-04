@@ -1,6 +1,7 @@
 
 #include <complex>
 #include <glm/geometric.hpp>
+#include <algorithm>
 #include "ResourceManager.h"
 
 
@@ -128,7 +129,15 @@ void ResourceManager::generateExternalModels() {
     maidModelData->type = ModelTypes::MAID;
     maidModelData->material = ResourceManager::whitePlastic;
 
+
     ResourceManager::loadModel("assets/models/maid.off", maidModelData);
+
+
+    ModelData *dogancayModelData = new ModelData();
+    dogancayModelData->type = ModelTypes::DOGANCAY;
+    dogancayModelData->material = ResourceManager::whitePlastic;
+
+    ResourceManager::loadModel("assets/models/dogancay.off", dogancayModelData, true);
 
 }
 
@@ -217,7 +226,7 @@ void generateSphere(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &no
     }
 }
 
-void ResourceManager::loadModel(const std::string &filePath, ModelData *modelData) {
+void ResourceManager::loadModel(const std::string &filePath, ModelData *modelData, bool invertWinding) {
 
     // Load model data from file
     std::ifstream file(filePath);
@@ -228,8 +237,9 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData *modelDat
     std::string line;
     std::string firstLine;
     std::getline(file, firstLine);
+    std::cout << firstLine << std::endl;
     if (firstLine != "OFF") {
-        std::cout << firstLine.data() << std::endl;
+        std::cout << firstLine << std::endl;
         std::cout << "ERROR: File is not in OFF format" << std::endl;
         exit(1);
     }
@@ -263,9 +273,17 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData *modelDat
     for (int i = 0; i < numFaces; ++i) {
         int numSides;
         file >> numSides;
+        std::vector<GLuint> faceIndices;
         for (int j = 0; j < numSides; ++j) {
             GLuint index;
             file >> index;
+            faceIndices.push_back(index);
+        }
+        // Reverse the winding order if needed
+        if (invertWinding) {
+            std::reverse(faceIndices.begin(), faceIndices.end());
+        }
+        for (const auto &index : faceIndices) {
             modelData->indices.push_back(index);
         }
     }
@@ -311,6 +329,7 @@ void ResourceManager::loadModel(const std::string &filePath, ModelData *modelDat
 
 
     for (int i = 0; i < modelData->indices.size(); i += 3) {
+
         glm::vec3 a = modelData->vertices[modelData->indices[i]];
         glm::vec3 b = modelData->vertices[modelData->indices[i + 1]];
         glm::vec3 c = modelData->vertices[modelData->indices[i + 2]];

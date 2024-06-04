@@ -4,6 +4,7 @@
 #include "camera/Camera.h"
 #include "controller/InputController.h"
 #include "game/Game.h"
+#include "objects/graphics/modelLoader.h"
 
 // Main function
 int main() {
