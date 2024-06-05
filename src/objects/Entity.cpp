@@ -18,9 +18,9 @@ Entity* Scene::createEntity() {
 void Scene::update(GLfloat dt) {
     Camera::getActiveInstance()->update(dt);
 
-    for (auto* entity : entities) {
-        entity->update(dt);
-    }
+//    for (auto* entity : entities) {
+//        entity->update(dt);
+//    }
 }
 
 void Scene::draw(Shader &shader) {

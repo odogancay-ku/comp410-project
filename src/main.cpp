@@ -72,15 +72,15 @@ int main() {
     entity->model->instanceId = 1;
 
     // Create 1000 asteroids in a circle
-    float radius = 500.0f;
-    int count = 1000;
+    float radius = 800.0f;
+    int count = 10000;
 
     // Create 10 inner circles, reduce count and radius each timne
 
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < count; i++) {
             Entity* entity = scene.createEntity();
-            entity->hitbox = Hitbox::newCubeCollider();
+            entity->isKinematic = false;
             entity->model = static_cast<const std::shared_ptr<Model>>(model);
             entity->position.x = radius * cos(i * 2 * M_PI / count);
             entity->position.z = radius * sin(i * 2 * M_PI / count);
@@ -91,8 +91,8 @@ int main() {
             entity->model->instanceId = 1;
         }
 
-        count = count / 2;
-        radius = radius / 2;
+        count = count / 4*3;
+        radius = radius / 4*3;
     }
 
     while (!glfwWindowShouldClose(WindowController::window)) {
