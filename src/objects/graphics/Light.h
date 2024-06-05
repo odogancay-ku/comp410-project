@@ -6,7 +6,9 @@
 #define LIGHT_H
 
 
-struct Light {
+
+class Light {
+public:
     glm::vec3 lightPos;
     glm::vec3 lightAmbient;
     glm::vec3 lightDiffuse;
@@ -16,6 +18,6 @@ struct Light {
     float linear = 0.09f;
     float quadratic = 0.032f;
 
-} typedef;
+};
 
 #endif //LIGHT_H

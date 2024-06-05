@@ -5,6 +5,8 @@
 #include "controller/InputController.h"
 #include "game/Game.h"
 #include "objects/graphics/modelLoader.h"
+#include "objects/Entity.h"
+#include "objects/physics/Collider.h"
 
 // Main function
 int main() {
@@ -14,67 +16,60 @@ int main() {
     WindowController::createFullscreenWindow("Homework 1");
     Renderer::initializeGL();
 
-    auto* model = new Model(loadModel("assets/models/assimp/green_military_backpack.glb"));
-
-    std::cout << "Model loaded" << std::endl;
-    std::cout << "Meshes: " << model->meshes.size() << std::endl;
-    for (auto& mesh: model->meshes) {
-        std::cout << "Vertices: " << mesh.vertices.size() << std::endl;
-        std::cout << "Indices: " << mesh.indices.size() << std::endl;
-        std::cout << "Textures: " << mesh.textures.size() << std::endl;
-//
-//        for (auto& vertex: mesh.vertices) {
-//            std::cout << "Vertex: " << vertex.position.x << " " << vertex.position.y << " " << vertex.position.z << std::endl;
-//            std::cout << "Normal: " << vertex.normal.x << " " << vertex.normal.y << " " << vertex.normal.z << std::endl;
-//            std::cout << "Texture Coordinates: " << vertex.textureCoordinates.x << " " << vertex.textureCoordinates.y << std::endl;
-//        }
-
-        for (auto& texture: mesh.textures) {
-            std::cout << "Texture: " << texture.id << std::endl;
-            std::cout << "Type: " << texture.type << std::endl;
-            std::cout << "Path: " << texture.path << std::endl;
-        }
-
-    }
-
-    exit(0);
-
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    WindowController::createFullscreenWindow("Homework 1");
-
-
-
-
-    Renderer::initializeGL();
-
-    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-
-    Renderer::objectShader = new Shader("shaders/blinnPhongVertex.glsl", "shaders/blinnPhongFragment.glsl");
+    Renderer::objectShader = new Shader("shaders/pbr_vertex.glsl", "shaders/pbr_fragment.glsl");
+//    Renderer::objectShader = new Shader("shaders/blinn_phong_vertex.glsl", "shaders/blinn_phong_fragment.glsl");
     Renderer::objectShader->use();
 
-    std::cout << "Object Shader ID: " << Renderer::objectShader->getID() << std::endl;
+//    auto* model = new Model(loadModel("assets/models/wolf/Wolf.fbx"));
+//    auto* model = new Model(loadModel("assets/models/cerberus.glb"));
+    auto* model = new Model(loadModel("assets/models/saturn/asteroid.glb"));
+//    auto* model = new Model(loadModel("assets/models/dogancay.off"));
+    std::cout << "Model loaded" << std::endl;
 
     auto *camera = new Camera();
     Camera::setActiveInstance(camera);
     Renderer::createAndSetPerspectiveProjectionMatrix(WindowController::width, WindowController::height);
 
-
     Game *game = Game::getInstance();
 
     InputController::init(WindowController::window);
-
-
 
     double lastTime = glfwGetTime();
 
     double frameCount = 0;
     double lastFPSTime = glfwGetTime();
 
-
-
-
     double dt_step = 0.008f;
 
+    std::cout << glm::to_string(Camera::getActiveInstance()->getViewMatrix()) << std::endl;
+    std::cout << glm::to_string(Renderer::projectionMatrix) << std::endl;
+
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    // Rotate x -90 and y +90
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(10.0f, 0.0f, 0.0f));
+//    modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//    modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    // Set camera to look at the model
+
+    Light light;
+    light.lightPos = glm::vec3(0.0f, 10.0f, 0.0f);
+    light.lightAmbient = glm::vec3(0.2f);
+    light.lightDiffuse = glm::vec3(1.0f);
+    light.lightSpecular = glm::vec3(0.3f);
+
+    Renderer::setLight(&light);
+
+    InputController::init(WindowController::window);
+
+
+    Scene scene;
+
+    Entity* entity = scene.createEntity();
+    entity->hitbox = Hitbox::newCubeCollider();
+    entity->model = static_cast<const std::shared_ptr<Model>>(model);
+    entity->position = glm::vec3(10.0f, 0.0f, 0.0f);
+    entity->model->instanceId = 1;
 
     while (!glfwWindowShouldClose(WindowController::window)) {
         // Clear the screen
@@ -83,19 +78,12 @@ int main() {
         double deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
+        scene.update(deltaTime);
+
+        scene.draw(*Renderer::objectShader);
 
 
-        while (deltaTime > dt_step) {
-            game->checkCollisions();
-            game->update(dt_step);
-            deltaTime -= dt_step;
-        }
-
-        game->checkCollisions();
-        game->update(deltaTime);
-
-
-        game->draw();
+        checkOpenGLError("main loop");
 
 
         glfwSwapBuffers(WindowController::window);

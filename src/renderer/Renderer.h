@@ -8,7 +8,6 @@
 #include <iostream>
 #include <glm/ext/matrix_clip_space.hpp>
 #include "controller/WindowController.h"
-#include "objects/physics/Object.h"
 #include "objects/graphics/Light.h"
 #include "Shader.h"
 void checkOpenGLError(const std::string &at);

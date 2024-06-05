@@ -54,7 +54,7 @@ void Renderer::createAndSetPerspectiveProjectionMatrix(int _windowWidth, int _wi
     projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
 
     // Pass the projection matrix to the shader program
-    objectShader->setMat4("ProjectionMatrix", projectionMatrix);
+    objectShader->setMat4("projection", projectionMatrix);
 }
 
 

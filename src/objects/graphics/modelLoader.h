@@ -7,39 +7,18 @@
 #include <iostream>
 #include "Primitives.h"
 #include "renderer/Shader.h"
-
-struct Mesh {
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    Texture albedo;
-    Texture normal;
-    Texture metallic;
-    Texture roughness;
-    Texture ambientOcclusion;
-    void draw(Shader& shader) const;
-
-    GLuint VAO, VBO, EBO;
-
-    void setupMesh();
-
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+#include "Model.h"
+#include "Mesh.h"
 
 
-};
+Mesh processMesh(aiMesh* mesh, const aiScene* scene, const std::string& objPath);
 
-struct Model {
-    std::vector<Mesh> meshes;
-    void draw(Shader& shader);
-};
-
-Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-
-void processNode(aiNode* node, const aiScene* scene, Model& model);
+void processNode(aiNode* node, const aiScene* scene, Model& model, const std::string& objPath);
 
 Model loadModel(const std::string& path);
 
-std::vector<Texture> loadMaterialTextures(const aiScene *scene, aiMaterial *mat, aiTextureType type, TextureType typeName);
-unsigned int TextureFromFile(const char *path);
+std::vector<Texture> loadMaterialTextures(const std::string &objPath,const aiScene *scene, aiMaterial *mat, aiTextureType type, TextureType typeName);
+unsigned int TextureFromFile(const char *path, const std::string & objPath);
 unsigned int TextureFromEmbeddedTexture(const aiScene *scene, const char *path);
 
 

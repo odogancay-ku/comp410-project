@@ -17,59 +17,53 @@ struct Material {
 
 struct Light {
     vec3 position;
-    vec3 color;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float constant;
+    float linear;
+    float quadratic;
 };
 
-uniform vec3 camPos;
+uniform vec3 viewPos;
 uniform Material material;
 uniform Light light;
 
 // constants
 const float PI = 3.14159265359;
 
-// function prototypes
+// Function prototypes
 vec3 getNormalFromMap();
-vec3 fresnelSchlick(float cosTheta, vec3 F0);
+vec3 calculateLighting(vec3 albedo, vec3 normal, vec3 viewDir, vec3 lightDir, vec3 radiance, float metallic, float roughness, float ao);
 float DistributionGGX(vec3 N, vec3 H, float roughness);
+float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
+vec3 fresnelSchlick(float cosTheta, vec3 F0);
+
 
 void main()
 {
+    // Fetch material properties from textures
     vec3 albedo = texture(material.albedo, TexCoords).rgb;
+    vec3 normal = getNormalFromMap();
     float metallic = texture(material.metallic, TexCoords).r;
     float roughness = texture(material.roughness, TexCoords).r;
     float ao = texture(material.ao, TexCoords).r;
 
-    vec3 N = getNormalFromMap();
-    vec3 V = normalize(camPos - FragPos);
-    vec3 L = normalize(light.position - FragPos);
-    vec3 H = normalize(V + L);
+    // Calculate lighting
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 lightDir = normalize(light.position - FragPos);
     float distance = length(light.position - FragPos);
-    float attenuation = 1.0 / (distance * distance);
-    vec3 radiance = light.color * attenuation;
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    vec3 radiance = light.diffuse * attenuation;
 
-    // cook-torrance brdf
-    float NDF = DistributionGGX(N, H, roughness);
-    float G = GeometrySmith(N, V, L, roughness);
-    vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo, metallic);
-    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+    vec3 result = calculateLighting(albedo, normal, viewDir, lightDir, radiance, metallic, roughness, ao);
 
-    vec3 numerator = NDF * G * F;
-    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
-    vec3 specular = numerator / denominator;
+    // Apply ambient lighting
+//    vec3 ambient = light.ambient * albedo * ao;
+    vec3 ambient = light.ambient * albedo;
 
-    vec3 kS = F;
-    vec3 kD = vec3(1.0) - kS;
-    kD *= 1.0 - metallic;
-
-    float NdotL = max(dot(N, L), 0.0);
-
-    vec3 ambient = vec3(0.03) * albedo * ao;
-    vec3 diffuse = kD * albedo / PI;
-    vec3 lighting = (diffuse + specular) * radiance * NdotL;
-
-    FragColor = vec4(ambient + lighting, 1.0);
+    FragColor = vec4(result + ambient, 1.0);
 }
 
 vec3 getNormalFromMap()
@@ -82,11 +76,32 @@ vec3 getNormalFromMap()
     vec2 st2 = dFdy(TexCoords);
 
     vec3 N = normalize(Normal);
-    vec3 T = normalize(Tangent - N * dot(N, Tangent));
-    vec3 B = normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
+    vec3 T = normalize(Tangent - dot(Tangent, N) * N);
+    vec3 B = cross(N, T);
 
+    mat3 TBN = mat3(T, B, N);
     return normalize(TBN * tangentNormal);
+}
+
+vec3 calculateLighting(vec3 albedo, vec3 normal, vec3 viewDir, vec3 lightDir, vec3 radiance, float metallic, float roughness, float ao)
+{
+    vec3 halfDir = normalize(viewDir + lightDir);
+    float NDF = DistributionGGX(normal, halfDir, roughness);
+    float G = GeometrySmith(normal, viewDir, lightDir, roughness);
+    vec3 F = fresnelSchlick(max(dot(halfDir, viewDir), 0.0), albedo);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;
+
+    float NdotL = max(dot(normal, lightDir), 0.0);
+    float NdotV = max(dot(normal, viewDir), 0.0);
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * NdotV * NdotL + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)

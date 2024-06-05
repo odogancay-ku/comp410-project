@@ -160,9 +160,6 @@ void Camera::setActiveInstance(Camera *pCamera) {
     activeInstance = pCamera;
 }
 
-void Camera::setFollowObject(Object *object) {
-    followObject = object;
-}
 
 glm::mat4 Camera::getViewMatrix() {
     return glm::lookAt(position, position + glm::vec3(cos(glm::radians(yaw)) * cos(glm::radians(pitch)),

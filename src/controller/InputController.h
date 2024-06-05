@@ -9,7 +9,6 @@
 #include <set>
 #include "WindowController.h"
 #include "camera/Camera.h"
-#include "objects/physics/Object.h"
 #include "game/Game.h"
 #include "KeyEventAdapter.h"
 #include "MouseButtonEventAdapter.h"

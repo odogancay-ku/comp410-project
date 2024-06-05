@@ -9,22 +9,16 @@ struct Vertex {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 textureCoordinates;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
 };
 
 enum TextureType {
     ALBEDO,
     ROUGHNESS,
-    DIFFUSE,
-    SPECULAR,
-    METALLIC,
-    EMISSIVE,
     NORMAL,
-    HEIGHT,
+    METALLIC,
     AMBIENT_OCCLUSION,
-    REFLECTION,
-    LIGHT_MAP,
-    OPACITY,
-    UNKNOWN
 };
 
 struct Texture {
@@ -32,7 +26,6 @@ struct Texture {
     std::string path;
     TextureType type;
 };
-
 
 
 #endif PRIMITIVES_H
