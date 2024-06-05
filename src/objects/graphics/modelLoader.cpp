@@ -274,6 +274,8 @@ void Model::drawInstanced(Shader &shader, const std::vector<glm::mat4> &transfor
 void Mesh::drawInstanced(Shader &shader, std::vector<glm::mat4> &transforms) {
     setupInstancedBuffer(transforms);
 
+    shader.setBool("isInstanced", true);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, albedo.id);
     shader.setInt("material.albedo", 0);
@@ -331,6 +333,7 @@ void Mesh::setupInstancedBuffer(std::vector<glm::mat4> &transforms) {
 void Mesh::draw(Shader &shader, glm::mat4 transform) const {
 
     shader.setMat4("model", transform);
+    shader.setBool("isInstanced", false);
 
     // Bind textures
     glActiveTexture(GL_TEXTURE0);

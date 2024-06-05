@@ -16,8 +16,8 @@ int main() {
     WindowController::createFullscreenWindow("Homework 1");
     Renderer::initializeGL();
 
-    Renderer::objectShader = new Shader("shaders/pbr_vertex.glsl", "shaders/pbr_fragment.glsl");
-//    Renderer::objectShader = new Shader("shaders/blinn_phong_vertex.glsl", "shaders/blinn_phong_fragment.glsl");
+//    Renderer::objectShader = new Shader("shaders/pbr_vertex.glsl", "shaders/pbr_fragment.glsl");
+    Renderer::objectShader = new Shader("shaders/blinn_phong_vertex.glsl", "shaders/blinn_phong_fragment.glsl");
     Renderer::objectShader->use();
 
 //    auto* model = new Model(loadModel("assets/models/wolf/Wolf.fbx"));
@@ -70,6 +70,30 @@ int main() {
     entity->model = static_cast<const std::shared_ptr<Model>>(model);
     entity->position = glm::vec3(10.0f, 0.0f, 0.0f);
     entity->model->instanceId = 1;
+
+    // Create 1000 asteroids in a circle
+    float radius = 500.0f;
+    int count = 1000;
+
+    // Create 10 inner circles, reduce count and radius each timne
+
+    for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < count; i++) {
+            Entity* entity = scene.createEntity();
+            entity->hitbox = Hitbox::newCubeCollider();
+            entity->model = static_cast<const std::shared_ptr<Model>>(model);
+            entity->position.x = radius * cos(i * 2 * M_PI / count);
+            entity->position.z = radius * sin(i * 2 * M_PI / count);
+            // Random scale
+            entity->scale = glm::vec3(0.1f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - 0.1f))));
+            // Random rotation
+            entity->rotation = glm::angleAxis(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2 * M_PI))), glm::vec3(0.0f, 1.0f, 0.0f));
+            entity->model->instanceId = 1;
+        }
+
+        count = count / 2;
+        radius = radius / 2;
+    }
 
     while (!glfwWindowShouldClose(WindowController::window)) {
         // Clear the screen

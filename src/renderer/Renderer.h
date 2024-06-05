@@ -25,7 +25,7 @@ private:
     static inline GLuint shadowMap = 0;
     static inline GLuint shadowMapFBO = 0;
     static inline GLfloat nearPlane = 0.1f;
-    static inline GLfloat farPlane = 500.0f;
+    static inline GLfloat farPlane = 1000.0f;
     static const GLuint SHADOW_WIDTH = 1024;
     static const GLuint SHADOW_HEIGHT = 1024;
 
