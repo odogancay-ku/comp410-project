@@ -20,10 +20,8 @@ int main() {
     Renderer::objectShader = new Shader("shaders/blinn_phong_vertex.glsl", "shaders/blinn_phong_fragment.glsl");
     Renderer::objectShader->use();
 
-//    auto* model = new Model(loadModel("assets/models/wolf/Wolf.fbx"));
-//    auto* model = new Model(loadModel("assets/models/cerberus.glb"));
-    auto* model = new Model(loadModel("assets/models/saturn/asteroid.glb"));
-//    auto* model = new Model(loadModel("assets/models/dogancay.off"));
+//    auto* model = new Model(loadModel("assets/models/saturn/asteroid.glb"));
+    auto* model = new Model(loadModel("assets/models/assimp/yucel_yemez.obj"));
     std::cout << "Model loaded" << std::endl;
 
     auto *camera = new Camera();
@@ -73,27 +71,27 @@ int main() {
 
     // Create 1000 asteroids in a circle
     float radius = 800.0f;
-    int count = 10000;
+    int count = 1000;
 
     // Create 10 inner circles, reduce count and radius each timne
-
-    for (int j = 0; j < 10; j++) {
-        for (int i = 0; i < count; i++) {
-            Entity* entity = scene.createEntity();
-            entity->isKinematic = false;
-            entity->model = static_cast<const std::shared_ptr<Model>>(model);
-            entity->position.x = radius * cos(i * 2 * M_PI / count);
-            entity->position.z = radius * sin(i * 2 * M_PI / count);
-            // Random scale
-            entity->scale = glm::vec3(0.1f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - 0.1f))));
-            // Random rotation
-            entity->rotation = glm::angleAxis(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2 * M_PI))), glm::vec3(0.0f, 1.0f, 0.0f));
-            entity->model->instanceId = 1;
-        }
-
-        count = count / 4*3;
-        radius = radius / 4*3;
-    }
+//
+//    for (int j = 0; j < 10; j++) {
+//        for (int i = 0; i < count; i++) {
+//            Entity* entity = scene.createEntity();
+//            entity->isKinematic = false;
+//            entity->model = static_cast<const std::shared_ptr<Model>>(model);
+//            entity->position.x = radius * cos(i * 2 * M_PI / count);
+//            entity->position.z = radius * sin(i * 2 * M_PI / count);
+//            // Random scale
+//            entity->scale = glm::vec3(0.1f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - 0.1f))));
+//            // Random rotation
+//            entity->rotation = glm::angleAxis(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2 * M_PI))), glm::vec3(0.0f, 1.0f, 0.0f));
+//            entity->model->instanceId = 1;
+//        }
+//
+//        count = count / 4*3;
+//        radius = radius / 4*3;
+//    }
 
     while (!glfwWindowShouldClose(WindowController::window)) {
         // Clear the screen
